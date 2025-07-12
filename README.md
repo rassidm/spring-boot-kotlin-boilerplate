@@ -5,7 +5,7 @@
 - Application
 	- Kotlin 2.0
 	- Jdk 21
-	- Spring boot 3.4.0
+	- Spring boot 3.5.3
 		- mvc
 		- webflux
 	- Gradle 8.10
