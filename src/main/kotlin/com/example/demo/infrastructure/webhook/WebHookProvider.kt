@@ -21,14 +21,7 @@ class WebHookProvider(
 		title: String,
 		lines: List<String>
 	) {
-		validateEnabled()
-
-		val message = CommonWebHookMessage(title, lines)
-
-		webhookRouter.all().forEach { sender ->
-			val converted = webhookMessageConverter.convert(sender.target(), message)
-			sender.send(converted)
-		}
+		send(WebHookTarget.ALL, CommonWebHookMessage(title, lines))
 	}
 
 	fun sendSlack(
@@ -51,7 +44,7 @@ class WebHookProvider(
 		message: WebHookMessage
 	) {
 		validateEnabled()
-		
+
 		when (target) {
 			WebHookTarget.ALL -> {
 				require(message is CommonWebHookMessage) {
