@@ -114,6 +114,12 @@ dependencies {
 	// slack
 	implementation("com.slack.api:slack-api-client:1.45.3")
 
+	// actuator
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+	// prometheus
+	implementation("io.micrometer:micrometer-registry-prometheus")
+
 	// test
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")

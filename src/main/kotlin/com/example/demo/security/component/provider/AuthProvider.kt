@@ -25,7 +25,8 @@ class AuthProvider(
 		arrayOf(
 			"/api-docs/**",
 			"/swagger-ui/**",
-			"/swagger.html"
+			"/swagger.html",
+			"/actuator/**"
 		)
 
 	fun whiteListDefaultEndpoints(): Array<String> =

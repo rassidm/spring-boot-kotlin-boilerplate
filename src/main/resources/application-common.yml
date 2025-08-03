@@ -29,6 +29,7 @@ server:
     include-message: always
     include-stacktrace: ON_PARAM
     whitelabel.enabled: false
+  port: 8085
 springdoc:
   show-actuator: true
   default-consumes-media-type: application/json;charset=UTF-8
@@ -64,3 +65,20 @@ webhook:
     url: ""
   discord:
     url: ""
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+        exclude: env, heapdump, threaddump, configprops, flyway, loggers, liquibase, mappings, scheduledtasks, sessions, shutdown, jolokia, logfile
+  endpoint:
+    prometheus:
+      access: READ_ONLY
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+    info:
+      access: READ_ONLY
+    metrics:
+      access: READ_ONLY
+
