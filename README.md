@@ -19,7 +19,6 @@
 	- Redis
 	- Jwt
 	- Validation
-	- Sentry
 	- Kotlin Logging
 	- Flyway
 	- Webhook
@@ -27,6 +26,8 @@
 		- Discord
 	- Kafka
 	- WebClient
+	- Spring Actuator
+
 
 - Test
 	- Spring Boot Starter Test
@@ -43,31 +44,41 @@
 
 
 - Etc
+	- Docker
 	- Pgadmin
 	- Ktlint
 	- Detekt
 	- Mailhog
 	- Netty resolver dns native macos
 
+
+- Monitoring
+	- Prometheus
+	- Grafana
+	- Sentry
+
 ## Project Guide
 
-- common
-- domain (post, user, auth)
-- example
-	- WelcomeSignUpConsumer: Kafka Consumer(SignUp Event) Example
-- infrastructure (kafka, redis, webhook, mail)
-- security
-	- spring security + jwt logic
-- utils
-- resources
-	- db
-		- migration: flyway sql
-		- sql: spring batch postgresql metadata sql
-	- application.yml
-		- prod, dev, local, common, test, secret-{environment}
-		- common: Write common variables for the project.
-		- test: Create the variables needed for your test environment.
-		- secret-{environment}: your secret variables for each environment.
+- monitoring
+- docker
+- src
+	- common
+	- domain (post, user, auth)
+	- example
+		- WelcomeSignUpConsumer: Kafka Consumer(SignUp Event) Example
+	- infrastructure (kafka, redis, webhook, mail)
+	- security
+		- spring security + jwt logic
+	- utils
+	- resources
+		- db
+			- migration: flyway sql
+			- sql: spring batch postgresql metadata sql
+		- application.yml
+			- prod, dev, local, common, test, secret-{environment}
+			- common: Write common variables for the project.
+			- test: Create the variables needed for your test environment.
+			- secret-{environment}: your secret variables for each environment.
 
 ## Local Installation
 
@@ -76,6 +87,8 @@ To use the application, the following two services must be installed and running
 - kafka
 - redis
 - mailhog
+- grafana
+- prometheus
 
 ## Description
 
@@ -111,8 +124,7 @@ webHookProvider.sendDiscord(
 2. mailhog
 	- mailhog is a tool for testing email sending.
 	- [If you want to use MailHog, the default SMTP port is 1025.
-		Of course, if you already have your own preferred setup, you can freely adjust the port as needed.](docker-compose.yml)
-	- dashboard: http://localhost:8025
+		Of course, if you already have your own preferred setup, you can freely adjust the port as needed.](docker/base/docker-compose.mailhog.yml)
 	- Please check the settings in application-local.yml and application-secret-local.yml.
 
 
@@ -128,8 +140,9 @@ webHookProvider.sendDiscord(
 			- build/reports/detekt
 
 
-4. docker-compose
+4. docker
 	- If you plan to use it, you need to check the environment variables.
+		- [Please refer to README.md for setup instructions.](docker/README.md)
 
 
 5. create spring batch metadata table (localhost, development and production environments.)
@@ -169,6 +182,21 @@ webHookProvider.sendDiscord(
 8. [example](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
 	- [When a user signs up, an event is generated to send an email to the recipient.](src/main/kotlin/com/example/demo/user/event/UserEventHandler.kt)
 		- You can test this flow by referring to the MailHog and Kafka sections.
+
+
+9. [grafana & prometheus](monitoring/prometheus.yml)
+	- To use the data collected by Spring Actuator, please enter the correct URL.
+		- Replace '{ip address}:8085' with your actual IP address.
+	- [Actuator properties](src/main/resources/application-common.yml)
+
+
+10. Development Support Tools
+	- swagger: localhost:8085/swagger-ui/index.html
+	- mailhog: localhost:8025
+	- pgadmin: localhost:8088
+	- h2: localhost:8085/h2-console
+	- grafana: localhost:3000
+	- prometheus: localhost:9090
 
 ## Author
 
