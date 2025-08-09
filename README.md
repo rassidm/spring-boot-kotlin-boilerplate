@@ -1,5 +1,8 @@
 # Spring Boot Boilerplate (Kotlin)
 
+A production-ready Spring Boot 3.5.3 + Kotlin 2.0 starter project, offering a unified package with essential backend
+features pre-integrated and real-world examples.
+
 ## Environment & Skills
 
 - Application
