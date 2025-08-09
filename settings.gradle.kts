@@ -1,5 +1,11 @@
 rootProject.name = "demo"
 
+buildCache {
+	local {
+		directory = File(rootDir, ".gradle/build-cache")
+	}
+}
+
 pluginManagement {
 	val kotlinVersion: String by settings
 	val springBootVersion: String by settings

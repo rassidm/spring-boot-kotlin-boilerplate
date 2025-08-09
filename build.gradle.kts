@@ -152,6 +152,21 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test>().configureEach {
 	useJUnitPlatform()
+
+	failFast = false
+
+	reports {
+		html.required.set(true)
+		junitXml.required.set(true)
+	}
+
+	testLogging {
+		events("passed", "skipped", "failed")
+		exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+		showStandardStreams = false
+	}
+
+	outputs.upToDateWhen { false }
 }
 
 ktlint {
@@ -184,4 +199,30 @@ tasks.withType<Detekt>().configureEach {
 
 tasks.withType<DetektCreateBaselineTask>().configureEach {
 	jvmTarget = javaVersion
+}
+
+tasks.register("checkDependencies") {
+	doLast {
+		configurations.named("runtimeClasspath").get().apply {
+			val resolved = resolvedConfiguration
+
+			if (resolved.hasError()) {
+				resolved.lenientConfiguration.unresolvedModuleDependencies.forEach {
+					println("  - ${it.selector}")
+				}
+			} else {
+				println("No dependency conflicts")
+				println("\nTotal dependencies: ${resolved.firstLevelModuleDependencies.size}")
+			}
+		}
+	}
+}
+
+tasks.withType<ProcessResources>().configureEach {
+	duplicatesStrategy = DuplicatesStrategy.WARN
+}
+
+tasks.withType<Jar>().configureEach {
+	isPreserveFileTimestamps = false
+	isReproducibleFileOrder = true
 }
