@@ -6,47 +6,54 @@ import com.example.demo.security.service.impl.UserDetailsServiceImpl
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Component
+import java.nio.charset.StandardCharsets
 import java.util.Date
 import java.util.concurrent.TimeUnit
+import javax.crypto.SecretKey
 
 @Component
 class JWTProvider(
 	private val userDetailsServiceImpl: UserDetailsServiceImpl,
-	@Value("\${auth.jwt.secret}") private val secretKey: String,
+	@Value("\${auth.jwt.secret}") private val secretKeyString: String,
 	@Value("\${auth.jwt.access-expire}") private val accessExpireTime: Long,
 	@Value("\${auth.jwt.refresh-expire}") val refreshExpireTime: Long = 0L
 ) {
+	private val secretKey: SecretKey by lazy {
+		Keys.hmacShaKeyFor(secretKeyString.toByteArray(StandardCharsets.UTF_8))
+	}
+
 	fun createAccessToken(securityUserItem: SecurityUserItem): String = createToken(securityUserItem, true)
 
 	fun createRefreshToken(securityUserItem: SecurityUserItem): String = createToken(securityUserItem, false)
 
-	fun createToken(
+	private fun createToken(
 		securityUserItem: SecurityUserItem,
 		isAccessToken: Boolean
 	): String {
-		val claims: Claims =
-			Jwts
-				.claims()
-				.setSubject(securityUserItem.userId.toString())
-		claims["email"] = securityUserItem.email
-		claims["role"] = securityUserItem.role
-
 		val expireTime = if (isAccessToken) accessExpireTime else refreshExpireTime
 		val now = Date()
 		val expiration = Date(now.time + TimeUnit.SECONDS.toMillis(expireTime))
 
+		val claims =
+			Jwts
+				.claims()
+				.subject(securityUserItem.userId.toString())
+				.add("email", securityUserItem.email)
+				.add("role", securityUserItem.role)
+				.build()
+
 		return Jwts
 			.builder()
-			.setClaims(claims)
-			.setIssuedAt(now)
-			.setExpiration(expiration)
-			.signWith(SignatureAlgorithm.HS256, secretKey)
+			.claims(claims)
+			.issuedAt(now)
+			.expiration(expiration)
+			.signWith(secretKey)
 			.compact()
 	}
 
@@ -59,19 +66,15 @@ class JWTProvider(
 	}
 
 	fun validateToken(token: String): Boolean {
-		val usernamePasswordAuthenticationToken = getAuthentication(token)
-		return usernamePasswordAuthenticationToken.isAuthenticated
+		val authentication = getAuthentication(token)
+		return authentication.isAuthenticated
 	}
 
-	fun generateRequestToken(request: HttpServletRequest): String? {
-		val token =
-			request
-				.getHeader(HttpHeaders.AUTHORIZATION)
-				?.takeIf { it.startsWith("Bearer") }
-				?.substring(7)
-
-		return token
-	}
+	fun generateRequestToken(request: HttpServletRequest): String? =
+		request
+			.getHeader(HttpHeaders.AUTHORIZATION)
+			?.takeIf { it.startsWith("Bearer ") }
+			?.substring(7)
 
 	fun getAuthentication(token: String): UsernamePasswordAuthenticationToken = getAuthentication(token, false)
 
@@ -79,11 +82,10 @@ class JWTProvider(
 		token: String,
 		isRefresh: Boolean
 	): UsernamePasswordAuthenticationToken {
-		val claims: Claims = generateClaims(token, isRefresh)
-		val userAdapter: UserAdapter =
-			userDetailsServiceImpl.loadUserByUsername(
-				claims.subject
-			) as UserAdapter
+		val claims = generateClaims(token, isRefresh)
+		val userAdapter =
+			userDetailsServiceImpl
+				.loadUserByUsername(claims.subject) as UserAdapter
 
 		return UsernamePasswordAuthenticationToken(
 			userAdapter,
@@ -99,9 +101,10 @@ class JWTProvider(
 		runCatching {
 			Jwts
 				.parser()
-				.setSigningKey(secretKey)
-				.parseClaimsJws(token)
-				.body
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token)
+				.payload
 		}.getOrElse {
 			if (it is ExpiredJwtException && isRefresh) it.claims else throw it
 		}

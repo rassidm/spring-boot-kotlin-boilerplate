@@ -81,10 +81,9 @@ dependencies {
 	runtimeOnly("org.postgresql:postgresql")
 
 	// jwt
-	implementation("io.jsonwebtoken:jjwt:0.9.1")
-	implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
-	implementation("com.sun.xml.bind:jaxb-core:4.0.1")
-	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
+	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
 	// redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
