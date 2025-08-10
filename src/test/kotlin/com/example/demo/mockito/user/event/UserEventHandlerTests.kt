@@ -3,7 +3,7 @@ package com.example.demo.mockito.user.event
 import com.example.demo.infrastructure.kafka.provider.KafkaTopicMetaProvider
 import com.example.demo.infrastructure.mail.MailPayload
 import com.example.demo.infrastructure.webhook.WebHookProvider
-import com.example.demo.user.dto.event.WelcomeSignUpEvent
+import com.example.demo.user.event.UserEvent
 import com.example.demo.user.event.UserEventHandler
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -46,7 +46,7 @@ class UserEventHandlerTests {
 
 	@Test
 	fun `should send kafka message on welcome event`() {
-		val event = WelcomeSignUpEvent("awakelife93@gmail.com", "Tester")
+		val event = UserEvent.WelcomeSignUpEvent("awakelife93@gmail.com", "Tester")
 
 		handler.handleWelcomeSignUpEvent(event)
 
@@ -61,7 +61,7 @@ class UserEventHandlerTests {
 
 	@Test
 	fun `should send all message and rethrow if kafka send fails`() {
-		val event = WelcomeSignUpEvent("fail@example.com", "Failer")
+		val event = UserEvent.WelcomeSignUpEvent("fail@example.com", "Failer")
 		val exception = RuntimeException("Kafka send failed")
 
 		whenever(kafkaTemplate.send(anyString(), any<MailPayload>())).thenThrow(exception)

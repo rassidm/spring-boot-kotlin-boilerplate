@@ -3,7 +3,6 @@ package com.example.demo.user.event
 import com.example.demo.infrastructure.kafka.provider.KafkaTopicMetaProvider
 import com.example.demo.infrastructure.mail.MailPayload
 import com.example.demo.infrastructure.webhook.WebHookProvider
-import com.example.demo.user.dto.event.WelcomeSignUpEvent
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.scheduling.annotation.Async
@@ -20,7 +19,7 @@ class UserEventHandler(
 ) {
 	@Async
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	fun handleWelcomeSignUpEvent(welcomeSignUpEvent: WelcomeSignUpEvent) {
+	fun handleWelcomeSignUpEvent(welcomeSignUpEvent: UserEvent.WelcomeSignUpEvent) {
 		runCatching {
 			val payload =
 				MailPayload.of(

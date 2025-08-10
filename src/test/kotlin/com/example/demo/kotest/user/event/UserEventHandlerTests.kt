@@ -3,7 +3,7 @@ package com.example.demo.kotest.user.event
 import com.example.demo.infrastructure.kafka.provider.KafkaTopicMetaProvider
 import com.example.demo.infrastructure.mail.MailPayload
 import com.example.demo.infrastructure.webhook.WebHookProvider
-import com.example.demo.user.dto.event.WelcomeSignUpEvent
+import com.example.demo.user.event.UserEvent
 import com.example.demo.user.event.UserEventHandler
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.annotation.Tags
@@ -28,7 +28,7 @@ class UserEventHandlerTests :
 
 		"should send kafka message on welcome event" {
 			val event =
-				WelcomeSignUpEvent(
+				UserEvent.WelcomeSignUpEvent(
 					email = "awakelife93@gmail.com",
 					name = "Tester"
 				)
@@ -51,7 +51,7 @@ class UserEventHandlerTests :
 
 		"should send all message and rethrow if kafka send fails" {
 			val event =
-				WelcomeSignUpEvent(
+				UserEvent.WelcomeSignUpEvent(
 					email = "fail@example.com",
 					name = "Failer"
 				)
