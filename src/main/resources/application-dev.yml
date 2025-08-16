@@ -31,19 +31,3 @@ sentry:
   dsn:
   logging:
     minimum-event-level: DEBUG
-logging:
-  level:
-    "[org.hibernate.SQL]": debug
-    "[org.hibernate.type.descriptor.sql]": trace
-    "[org.hibernate.transaction.JDBCTransaction]": debug
-    "[org.hibernate.jdbc.ConnectionManager]": debug
-    "[org.springframework.orm.JpaTransactionManager]": debug
-    "[org.springframework.jdbc]": debug
-  file:
-    name: logs/app.log
-  logback:
-    rollingpolicy:
-      file-name-pattern: logs/app-%d{yyyy-MM-dd_HH-mm}.%i.gz
-      max-file-size: 10MB
-      total-size-cap: 10MB
-      max-history: 30

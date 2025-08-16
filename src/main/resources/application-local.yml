@@ -36,12 +36,3 @@ spring:
           auth: false
           starttls:
             enable: false
-logging:
-  level:
-    "[org.hibernate.SQL]": debug
-    "[org.hibernate.type.descriptor.sql]": trace
-    "[org.hibernate.transaction.JDBCTransaction]": debug
-    "[org.hibernate.jdbc.ConnectionManager]": debug
-    "[org.springframework.orm.JpaTransactionManager]": debug
-    "[org.springframework.jdbc]": debug
-    "[com.zaxxer.hikari]": debug

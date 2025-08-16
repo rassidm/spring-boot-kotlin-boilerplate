@@ -56,9 +56,6 @@ sentry:
     minimum-event-level: ERROR
     minimum-breadcrumb-level: DEBUG
     enabled: true
-logging:
-  pattern:
-    console: "[%cyan(%d{yyyy-MM-dd HH:mm:ss.SSS})][%highlight(%thread)][%clr(%-5level)][%clr(${PID:-})][%highlight(%logger.%method:line%line)] - %msg%n"
 webhook:
   enabled: true
   slack:
