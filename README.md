@@ -23,6 +23,7 @@ features pre-integrated and real-world examples.
 	- Jwt
 	- Validation
 	- Kotlin Logging
+	- Logback
 	- Flyway
 	- Webhook
 		- Slack
@@ -53,6 +54,7 @@ features pre-integrated and real-world examples.
 	- Detekt
 	- Mailhog
 	- Netty resolver dns native macos
+	- Kafka UI
 
 
 - Monitoring
@@ -77,6 +79,9 @@ features pre-integrated and real-world examples.
 		- db
 			- migration: flyway sql
 			- sql: spring batch postgresql metadata sql
+		- logback-spring.xml
+			- Logback configuration with environment-specific settings
+			- Profiles: prod, dev, local
 		- application.yml
 			- prod, dev, local, common, test, secret-{environment}
 			- common: Write common variables for the project.
@@ -95,7 +100,16 @@ To use the application, the following two services must be installed and running
 
 ## Description
 
-1. webhook
+1. Database DDL Management
+	- This project uses Flyway for DDL management instead of JPA auto-generation.
+	- Migration scripts are located in [src/main/resources/db/migration](src/main/resources/db/migration)
+	- If you prefer not to use Flyway, entity synchronization is configured - you can use JPA DDL auto-generation instead.
+		- JPA DDL configuration: [src/main/resources/application-common.yml](src/main/resources/application-common.yml) (
+			spring.jpa.generate-ddl)
+		- Set `spring.jpa.hibernate.ddl-auto` property for each environment (local, dev, prod) as needed
+
+
+2. Webhook
 	- [enable & route endpoint](src/main/resources/application-common.yml)
 		- default enable true
 	- [types](src/main/kotlin/com/example/demo/infrastructure/webhook)
@@ -124,14 +138,14 @@ webHookProvider.sendDiscord(
 )
 ```
 
-2. mailhog
+3. Mailhog
 	- mailhog is a tool for testing email sending.
 	- [If you want to use MailHog, the default SMTP port is 1025.
 		Of course, if you already have your own preferred setup, you can freely adjust the port as needed.](docker/base/docker-compose.mailhog.yml)
 	- Please check the settings in application-local.yml and application-secret-local.yml.
 
 
-3. lint
+4. Lint
 	- ktlint
 		- [using the official lint rules by default.](gradle.properties)
 			- [Please refer to the lint rules for this project here.](.editorconfig)
@@ -143,12 +157,12 @@ webHookProvider.sendDiscord(
 			- build/reports/detekt
 
 
-4. docker
-	- If you plan to use it, you need to check the environment variables.
-		- [Please refer to README.md for setup instructions.](docker/README.md)
+5. Docker & Infrastructure Services
+	- The project includes Docker Compose configurations for all required services
+	- For detailed setup, port information, and service management, see [Docker Setup Guide](docker/README.md)
 
 
-5. create spring batch metadata table (localhost, development and production environments.)
+6. Create Spring Batch metadata table (localhost, development and production environments.)
 	- Run your ddl script or Please refer
 		to [github - spring batch](https://github.com/spring-projects/spring-batch/blob/5.0.x/spring-batch-core/src/main/resources/org/springframework/batch/core/schema-postgresql.sql)
 		- Since this project uses postgresql, the spring.batch.jdbc.initialize-schema: always option does not work.
@@ -157,7 +171,7 @@ webHookProvider.sendDiscord(
 			- [application-test.yml](src/main/resources/application-test.yml)
 
 
-6. two types of tests
+7. Two types of tests
 	- [mockito](src/test/kotlin/com/example/demo/mockito)
 		- [BaseIntegrationController](src/test/kotlin/com/example/demo/mockito/common/BaseIntegrationController.kt)
 	- [kotest & mockk](src/test/kotlin/com/example/demo/kotest)
@@ -173,7 +187,7 @@ webHookProvider.sendDiscord(
 				}
 				```
 
-7. kafka
+8. Kafka
 	- [KafkaTopicMetaProvider](src/main/kotlin/com/example/demo/infrastructure/kafka/provider/KafkaTopicMetaProvider.kt)
 		- Manage metadata related to topics
 	- DLQ
@@ -182,24 +196,38 @@ webHookProvider.sendDiscord(
 			partition does not exist)
 
 
-8. [example](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
+9. [Example](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
 	- [When a user signs up, an event is generated to send an email to the recipient.](src/main/kotlin/com/example/demo/user/event/UserEventHandler.kt)
-		- You can test this flow by referring to the MailHog and Kafka sections.
+		- [You can test this flow by referring to the MailHog and Kafka sections.](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
+	- [Accounts are hard deleted after one year.](src/main/kotlin/com/example/demo/user/batch/writer/UserDeleteItemWriter.kt)
+		- [You can test this flow by referring to the Kafka sections.](src/main/kotlin/com/example/demo/example/UserDeleteConsumer.kt)
 
 
-9. [grafana & prometheus](monitoring/prometheus.yml)
+10. [Grafana & Prometheus](monitoring/prometheus.yml)
 	- To use the data collected by Spring Actuator, please enter the correct URL.
 		- Replace '{ip address}:8085' with your actual IP address.
 	- [Actuator properties](src/main/resources/application-common.yml)
 
 
-10. Development Support Tools
-	- swagger: localhost:8085/swagger-ui/index.html
-	- mailhog: localhost:8025
-	- pgadmin: localhost:8088
-	- h2: localhost:8085/h2-console
-	- grafana: localhost:3000
-	- prometheus: localhost:9090
+11. Service Access URLs (When services are running)
+
+					### Application
+	- **API Documentation (Swagger)**: http://localhost:8085/swagger-ui/index.html
+	- **H2 Console** (local environment): http://localhost:8085/h2-console
+	- **Application Server**: http://localhost:8085
+
+		### Infrastructure Services
+	- **MailHog** (Email Testing): http://localhost:8025
+	- **PgAdmin** (PostgreSQL Management): http://localhost:8088
+	- **Kafka UI** (Kafka Management): http://localhost:9000
+	- **Redis**: localhost:6379 (CLI/Client access)
+	- **PostgreSQL**: localhost:5432 (Database connection)
+	- **Kafka**: localhost:9092 (Broker connection)
+	- **Zookeeper**: localhost:2181 (Coordination service)
+
+		### Monitoring
+	- **Grafana** (Metrics Dashboard): http://localhost:3000
+	- **Prometheus** (Metrics Collection): http://localhost:9090
 
 ## Author
 
