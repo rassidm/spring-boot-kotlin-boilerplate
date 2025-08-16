@@ -13,7 +13,8 @@ docker/
 │ ├── docker-compose.redis.yml
 │ ├── docker-compose.pgadmin.yml
 │ ├── docker-compose.mailhog.yml
-│ └── docker-compose.zookeeper-kafka.yml
+│ ├── docker-compose.zookeeper-kafka.yml
+│ └── docker-compose.kafka-ui.yml
 ├── monitoring/
 │ ├── docker-compose.prometheus.yml
 │ └── docker-compose.grafana.yml
@@ -21,10 +22,75 @@ setup.sh
 
 ```
 
-## How to Start All Services
+## Services
+
+### Base Services
+
+- **PostgreSQL**: Database service (Port: 5432)
+- **Redis**: Cache service (Port: 6379)
+- **PgAdmin**: PostgreSQL web management tool
+- **MailHog**: Email testing service (SMTP Port: 1025)
+- **Kafka & Zookeeper**: Message broker and coordination service
+- **Kafka UI**: Kafka web management tool
+
+### Monitoring Services
+
+- **Prometheus**: Metrics collection and storage
+- **Grafana**: Metrics visualization and dashboards
+
+For all service URLs and detailed port information, see the main [README.md](../README.md).
+
+## How to Start Services
+
+### Start All Services
 
 Simply run the following script to start all services in the background:
 
 ```bash
-  ./setup.sh
+cd docker
+chmod +x setup.sh
+./setup.sh
+```
+
+The script combines all docker-compose files and starts them as a single project, ensuring proper dependency resolution.
+
+### Start Individual Services
+
+For development, you might want to start only specific services. Since services have dependencies, start them in groups:
+
+```bash
+cd docker
+
+# PostgreSQL and PgAdmin together
+docker compose -f base/docker-compose.postgres.yml -f base/docker-compose.pgadmin.yml up -d
+
+# Kafka ecosystem (Zookeeper, Kafka, and Kafka UI)
+docker compose -f base/docker-compose.zookeeper-kafka.yml -f base/docker-compose.kafka-ui.yml up -d
+
+# Monitoring stack (Prometheus and Grafana)
+docker compose -f monitoring/docker-compose.prometheus.yml -f monitoring/docker-compose.grafana.yml up -d
+
+# Independent services
+docker compose -f base/docker-compose.redis.yml up -d
+docker compose -f base/docker-compose.mailhog.yml up -d
+```
+
+### Stop Services
+
+```bash
+# Stop all services (using the same combined approach)
+cd docker
+docker compose -f base/docker-compose.postgres.yml \
+                -f base/docker-compose.redis.yml \
+                -f base/docker-compose.pgadmin.yml \
+                -f base/docker-compose.mailhog.yml \
+                -f base/docker-compose.zookeeper-kafka.yml \
+                -f base/docker-compose.kafka-ui.yml \
+                -f monitoring/docker-compose.prometheus.yml \
+                -f monitoring/docker-compose.grafana.yml \
+                down
+
+# Or stop specific service groups
+docker compose -f base/docker-compose.postgres.yml -f base/docker-compose.pgadmin.yml down
+docker compose -f base/docker-compose.zookeeper-kafka.yml -f base/docker-compose.kafka-ui.yml down
 ```
