@@ -1,11 +1,11 @@
 package com.example.demo.example
 
-import com.example.demo.common.exception.CustomRuntimeException
 import com.example.demo.infrastructure.kafka.provider.KafkaTopicMetaProvider
 import com.example.demo.infrastructure.mail.MailHelper
 import com.example.demo.infrastructure.mail.MailPayload
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.mail.MailException
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -22,16 +22,21 @@ class WelcomeSignUpConsumer(
 		containerFactory = KafkaTopicMetaProvider.MAIL_CONTAINER_FACTORY
 	)
 	@Retryable(
+		value = [MailException::class],
 		maxAttempts = 3,
 		backoff = Backoff(delay = 2000)
 	)
 	fun consume(payload: MailPayload) {
-		try {
+		runCatching {
+			logger.info { "Received email payload: $payload" }
 			mailHelper.sendEmail(payload)
-		} catch (exception: CustomRuntimeException) {
+		}.onFailure { exception ->
 			logger.error { "Failed to send email: ${exception.message}" }
 
-			throw exception
+			when (exception) {
+				is MailException -> throw exception
+				else -> logger.warn { "Unexpected error during email sending: ${exception.javaClass.simpleName}" }
+			}
 		}
 	}
 }
