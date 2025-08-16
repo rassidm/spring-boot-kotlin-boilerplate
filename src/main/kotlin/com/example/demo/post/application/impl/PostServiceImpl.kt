@@ -5,11 +5,13 @@ import com.example.demo.post.entity.Post
 import com.example.demo.post.exception.PostNotFoundException
 import com.example.demo.post.repository.PostRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PostServiceImpl(
 	private val postRepository: PostRepository
 ) : PostService {
+	@Transactional(readOnly = true)
 	override fun validateReturnPost(postId: Long): Post {
 		val post: Post =
 			postRepository

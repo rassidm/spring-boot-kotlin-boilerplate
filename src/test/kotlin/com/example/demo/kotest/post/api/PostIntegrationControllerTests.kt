@@ -67,7 +67,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value(post.title))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.writer.userId").value(post.user.id))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId))
 				}
 			}
 
@@ -120,7 +120,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].title").value(post.title))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].subTitle").value(post.subTitle))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].content").value(post.content))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].writer.userId").value(post.user.id))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId))
 				}
 			}
 
@@ -159,7 +159,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 
 				every {
 					getPostService.getExcludeUsersPostList(
-						any<GetExcludeUsersPostsRequest>(),
+						any<List<Long>>(),
 						any<Pageable>()
 					)
 				} returns
@@ -190,7 +190,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].subTitle").value(post.subTitle))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].content").value(post.content))
 						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.data.content[0].writer.userId").value(post.user.id)
+							MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId)
 						)
 				}
 			}
@@ -199,7 +199,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 
 				every {
 					getPostService.getExcludeUsersPostList(
-						any<GetExcludeUsersPostsRequest>(),
+						any<List<Long>>(),
 						any<Pageable>()
 					)
 				} returns
@@ -262,7 +262,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
 						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.data.writer.userId").value(post.user.id)
+							MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
 						)
 				}
 			}
@@ -326,7 +326,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
 						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.data.writer.userId").value(post.user.id)
+							MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
 						)
 				}
 			}
@@ -386,7 +386,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 
 			When("Success DELETE /api/v1/posts/{postId}") {
 
-				justRun { changePostService.deletePost(any<Long>()) }
+				justRun { changePostService.deletePostById(any<Long>()) }
 
 				Then("Call DELETE /api/v1/posts/{postId}") {
 					mockMvc

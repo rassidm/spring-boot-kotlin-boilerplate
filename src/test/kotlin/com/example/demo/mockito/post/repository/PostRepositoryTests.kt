@@ -2,12 +2,9 @@ package com.example.demo.mockito.post.repository
 
 import com.example.demo.common.config.JpaAuditConfig
 import com.example.demo.common.config.QueryDslConfig
-import com.example.demo.mockito.common.security.WithMockCustomUser
 import com.example.demo.post.dto.serve.request.UpdatePostRequest
 import com.example.demo.post.entity.Post
 import com.example.demo.post.repository.PostRepository
-import com.example.demo.user.constant.UserRole
-import com.example.demo.user.entity.User
 import org.instancio.Instancio
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -31,10 +28,6 @@ class PostRepositoryTests(
 	private val defaultPostTitle = "unit test"
 	private val defaultPostSubTitle = "Post Repository Test"
 	private val defaultPostContent = "default value for post repository testing"
-	private val defaultUserEmail = "awakelife93@gmail.com"
-	private val defaultUserPassword = "test_password_123!@"
-	private val defaultUserName = "Hyunwoo Park"
-	private val defaultUserRole = UserRole.USER
 
 	private lateinit var postEntity: Post
 
@@ -46,18 +39,12 @@ class PostRepositoryTests(
 				defaultPostTitle,
 				defaultPostSubTitle,
 				defaultPostContent,
-				User(
-					defaultUserEmail,
-					defaultUserName,
-					defaultUserPassword,
-					defaultUserRole
-				)
+				1L
 			)
 	}
 
 	@Test
 	@DisplayName("Create post")
-	@WithMockCustomUser
 	fun should_AssertCreatedPostEntity_when_GivenPostEntity() {
 		val createPost = postRepository.save(postEntity)
 
@@ -65,12 +52,11 @@ class PostRepositoryTests(
 		assertEquals(createPost.title, postEntity.title)
 		assertEquals(createPost.subTitle, postEntity.subTitle)
 		assertEquals(createPost.content, postEntity.content)
-		assertEquals(createPost.user.id, postEntity.user.id)
+		assertEquals(createPost.userId, postEntity.userId)
 	}
 
 	@Test
 	@DisplayName("Update post")
-	@WithMockCustomUser
 	fun should_AssertUpdatedPostEntity_when_GivenPostIdAndUpdatePostRequest() {
 		val updatePostRequest =
 			Instancio.create(
@@ -104,8 +90,7 @@ class PostRepositoryTests(
 	}
 
 	@Test
-	@DisplayName("Delete post")
-	@WithMockCustomUser
+	@DisplayName("Delete post by postId")
 	fun should_AssertDeletedPostEntity_when_GivenPostId() {
 		val beforeDeletePost = postRepository.save(postEntity)
 
@@ -119,8 +104,21 @@ class PostRepositoryTests(
 	}
 
 	@Test
+	@DisplayName("Delete post by userId")
+	fun should_AssertDeletedPostEntity_when_GivenUserId() {
+		val beforeDeletePost = postRepository.save(postEntity)
+
+		postRepository.deleteByUserId(beforeDeletePost.userId)
+
+		val afterDeletePost: Post? =
+			postRepository
+				.findOneById(beforeDeletePost.id)
+
+		assertNull(afterDeletePost)
+	}
+
+	@Test
 	@DisplayName("Find post by id")
-	@WithMockCustomUser
 	fun should_AssertFindPostEntity_when_GivenPostId() {
 		val beforeFindPost = postRepository.save(postEntity)
 
@@ -137,21 +135,20 @@ class PostRepositoryTests(
 		assertEquals(beforeFindPost.subTitle, afterFindPost.subTitle)
 		assertEquals(beforeFindPost.content, afterFindPost.content)
 		assertEquals(
-			beforeFindPost.user.id,
-			afterFindPost.user.id
+			beforeFindPost.userId,
+			afterFindPost.userId
 		)
 	}
 
 	@Test
-	@DisplayName("Find post by user")
-	@WithMockCustomUser
-	fun should_AssertFindPostEntity_when_GivenUser() {
+	@DisplayName("Find post by userId")
+	fun should_AssertFindPostEntity_when_GivenUserId() {
 		val beforeFindPost = postRepository.save(postEntity)
 
 		val afterFindPost: Post =
 			requireNotNull(
 				postRepository
-					.findOneByUser(beforeFindPost.user)
+					.findOneByUserId(beforeFindPost.userId)
 			) {
 				"Post must not be null"
 			}
@@ -161,8 +158,8 @@ class PostRepositoryTests(
 		assertEquals(beforeFindPost.subTitle, afterFindPost.subTitle)
 		assertEquals(beforeFindPost.content, afterFindPost.content)
 		assertEquals(
-			beforeFindPost.user.id,
-			afterFindPost.user.id
+			beforeFindPost.userId,
+			afterFindPost.userId
 		)
 	}
 }

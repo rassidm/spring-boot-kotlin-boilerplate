@@ -52,7 +52,7 @@ class PostControllerTests :
 					title shouldBe post.title
 					subTitle shouldBe post.subTitle
 					content shouldBe post.content
-					writer.userId shouldBe post.user.id
+					userId shouldBe post.userId
 				}
 			}
 		}
@@ -83,7 +83,7 @@ class PostControllerTests :
 						title shouldBe post.title
 						subTitle shouldBe post.subTitle
 						content shouldBe post.content
-						writer.userId shouldBe post.user.id
+						userId shouldBe post.userId
 					}
 				}
 			}
@@ -97,7 +97,7 @@ class PostControllerTests :
 
 			every {
 				getPostService.getExcludeUsersPostList(
-					any<GetExcludeUsersPostsRequest>(),
+					any<List<Long>>(),
 					any<Pageable>()
 				)
 			} returns
@@ -108,12 +108,12 @@ class PostControllerTests :
 				)
 
 			every {
-				postController.getExcludeUsersPostList(any<GetExcludeUsersPostsRequest>(), any<Pageable>())
+				postController.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>())
 			} returns ResponseEntity.ok(PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1))
 
 			val response =
 				postController.getExcludeUsersPostList(
-					getExcludeUsersPostsRequest,
+					getExcludeUsersPostsRequest.userIds,
 					defaultPageable
 				)
 
@@ -125,7 +125,7 @@ class PostControllerTests :
 						title shouldBe post.title
 						subTitle shouldBe post.subTitle
 						content shouldBe post.content
-						writer.userId shouldBe post.user.id
+						userId shouldBe post.userId
 					}
 				}
 			}
@@ -159,7 +159,7 @@ class PostControllerTests :
 					title shouldBe post.title
 					subTitle shouldBe post.subTitle
 					content shouldBe post.content
-					writer.userId shouldBe post.user.id
+					userId shouldBe post.userId
 				}
 			}
 		}
@@ -183,14 +183,14 @@ class PostControllerTests :
 					title shouldBe post.title
 					subTitle shouldBe post.subTitle
 					content shouldBe post.content
-					writer.userId shouldBe post.user.id
+					userId shouldBe post.userId
 				}
 			}
 		}
 
 		test("Delete Post") {
 
-			justRun { changePostService.deletePost(any<Long>()) }
+			justRun { changePostService.deletePostById(any<Long>()) }
 
 			every { postController.deletePost(any<Long>()) } returns ResponseEntity.noContent().build()
 

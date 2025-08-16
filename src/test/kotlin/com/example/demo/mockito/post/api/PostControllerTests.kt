@@ -75,7 +75,7 @@ class PostControllerTests {
 		assertEquals(post.title, body.title)
 		assertEquals(post.subTitle, body.subTitle)
 		assertEquals(post.content, body.content)
-		assertEquals(post.user.id, body.writer.userId)
+		assertEquals(post.userId, body.userId)
 	}
 
 	@Test
@@ -104,7 +104,7 @@ class PostControllerTests {
 		assertEquals(post.title, body.content[0].title)
 		assertEquals(post.subTitle, body.content[0].subTitle)
 		assertEquals(post.content, body.content[0].content)
-		assertEquals(post.user.id, body.content[0].writer.userId)
+		assertEquals(post.userId, body.content[0].userId)
 	}
 
 	@Test
@@ -116,12 +116,12 @@ class PostControllerTests {
 			)
 
 		Mockito
-			.`when`(getPostServiceImpl.getExcludeUsersPostList(any<GetExcludeUsersPostsRequest>(), any<Pageable>()))
+			.`when`(getPostServiceImpl.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()))
 			.thenReturn(PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1))
 
 		val response =
 			postController.getExcludeUsersPostList(
-				getExcludeUsersPostsRequest,
+				getExcludeUsersPostsRequest.userIds,
 				defaultPageable
 			)
 
@@ -139,7 +139,7 @@ class PostControllerTests {
 		assertEquals(post.title, body.content[0].title)
 		assertEquals(post.subTitle, body.content[0].subTitle)
 		assertEquals(post.content, body.content[0].content)
-		assertEquals(post.user.id, body.content[0].writer.userId)
+		assertEquals(post.userId, body.content[0].userId)
 	}
 
 	@Test
@@ -177,7 +177,7 @@ class PostControllerTests {
 		assertEquals(post.title, body.title)
 		assertEquals(post.subTitle, body.subTitle)
 		assertEquals(post.content, body.content)
-		assertEquals(post.user.id, body.writer.userId)
+		assertEquals(post.userId, body.userId)
 	}
 
 	@Test
@@ -211,7 +211,7 @@ class PostControllerTests {
 		assertEquals(post.title, body.title)
 		assertEquals(post.subTitle, body.subTitle)
 		assertEquals(post.content, body.content)
-		assertEquals(post.user.id, body.writer.userId)
+		assertEquals(post.userId, body.userId)
 	}
 
 	@Test
@@ -223,6 +223,6 @@ class PostControllerTests {
 		assertNull(response.body)
 		assertEquals(HttpStatus.NO_CONTENT, response.statusCode)
 
-		Mockito.verify(changePostServiceImpl, Mockito.times(1)).deletePost(any<Long>())
+		Mockito.verify(changePostServiceImpl, Mockito.times(1)).deletePostById(any<Long>())
 	}
 }

@@ -1,5 +1,6 @@
 package com.example.demo.kotest.user.application
 
+import com.example.demo.post.application.ChangePostService
 import com.example.demo.security.component.provider.TokenProvider
 import com.example.demo.user.application.ChangeUserService
 import com.example.demo.user.application.UserService
@@ -37,6 +38,7 @@ class ChangeUserServiceTests :
 		val tokenProvider = mockk<TokenProvider>()
 		val userService = mockk<UserService>()
 		val changeUserService = mockk<ChangeUserService>()
+		val changePostService = mockk<ChangePostService>()
 
 		val user: User = Instancio.create(User::class.java)
 		val defaultUserEncodePassword =
@@ -55,18 +57,21 @@ class ChangeUserServiceTests :
 				justRun {
 					userRepository.deleteById(any<Long>())
 					tokenProvider.deleteRefreshToken(any<Long>())
-					changeUserService.deleteUser(any<Long>())
+					changePostService.deletePostByUserId(any<Long>())
+					changeUserService.deleteUserById(any<Long>())
 				}
 
 				userRepository.deleteById(user.id)
 				tokenProvider.deleteRefreshToken(user.id)
-				changeUserService.deleteUser(user.id)
+				changePostService.deletePostByUserId(user.id)
+				changeUserService.deleteUserById(user.id)
 
 				Then("Verify Call Method") {
 					verify(exactly = 1) {
 						userRepository.deleteById(user.id)
 						tokenProvider.deleteRefreshToken(user.id)
-						changeUserService.deleteUser(user.id)
+						changePostService.deletePostByUserId(user.id)
+						changeUserService.deleteUserById(user.id)
 					}
 				}
 			}

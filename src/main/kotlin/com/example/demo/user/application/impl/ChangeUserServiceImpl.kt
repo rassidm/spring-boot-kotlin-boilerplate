@@ -1,5 +1,6 @@
 package com.example.demo.user.application.impl
 
+import com.example.demo.post.application.ChangePostService
 import com.example.demo.security.component.provider.TokenProvider
 import com.example.demo.user.application.ChangeUserService
 import com.example.demo.user.application.UserService
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 class ChangeUserServiceImpl(
 	private val tokenProvider: TokenProvider,
 	private val userService: UserService,
+	private val changePostService: ChangePostService,
 	private val userRepository: UserRepository,
 	private val bCryptPasswordEncoder: BCryptPasswordEncoder,
 	private val applicationEventPublisher: ApplicationEventPublisher
@@ -76,8 +78,13 @@ class ChangeUserServiceImpl(
 		return UpdateMeResponse.from(user, tokenProvider.createFullTokens(user))
 	}
 
-	override fun deleteUser(userId: Long) {
+	override fun deleteUserById(userId: Long) {
 		tokenProvider.deleteRefreshToken(userId)
+		changePostService.deletePostByUserId(userId)
 		userRepository.deleteById(userId)
+	}
+
+	override fun hardDeleteUserById(userId: Long) {
+		userRepository.hardDeleteById(userId)
 	}
 }

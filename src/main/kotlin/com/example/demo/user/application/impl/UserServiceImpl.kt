@@ -8,12 +8,14 @@ import com.example.demo.user.exception.UserUnAuthorizedException
 import com.example.demo.user.repository.UserRepository
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class UserServiceImpl(
 	private val userRepository: UserRepository,
 	private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) : UserService {
+	@Transactional(readOnly = true)
 	override fun validateReturnUser(userId: Long): User {
 		val user: User =
 			userRepository
@@ -22,6 +24,7 @@ class UserServiceImpl(
 		return user
 	}
 
+	@Transactional(readOnly = true)
 	override fun validateAuthReturnUser(signInRequest: SignInRequest): User {
 		val user: User =
 			userRepository

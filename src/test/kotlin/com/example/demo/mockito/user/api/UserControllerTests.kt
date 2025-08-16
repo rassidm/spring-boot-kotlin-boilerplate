@@ -217,6 +217,6 @@ class UserControllerTests {
 		assertNull(response.body)
 		assertEquals(HttpStatus.NO_CONTENT, response.statusCode)
 
-		Mockito.verify(changeUserServiceImpl, Mockito.times(1)).deleteUser(any<Long>())
+		Mockito.verify(changeUserServiceImpl, Mockito.times(1)).deleteUserById(any<Long>())
 	}
 }

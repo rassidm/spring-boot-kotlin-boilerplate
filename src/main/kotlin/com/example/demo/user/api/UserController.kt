@@ -202,7 +202,7 @@ class UserController(
 	fun deleteUser(
 		@PathVariable("userId", required = true) userId: Long
 	): ResponseEntity<Void> {
-		changeUserService.deleteUser(userId)
+		changeUserService.deleteUserById(userId)
 
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
 	}

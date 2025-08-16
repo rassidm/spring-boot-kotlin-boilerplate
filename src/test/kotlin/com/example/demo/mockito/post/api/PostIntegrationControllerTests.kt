@@ -94,7 +94,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
 				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.writer.userId").value(post.user.id)
+					MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
 				)
 		}
 
@@ -172,7 +172,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].content").value(post.content))
 				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.content[0].writer.userId").value(post.user.id)
+					MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId)
 				)
 		}
 
@@ -232,7 +232,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		)
 		fun should_ExpectOKResponseToPageOfGetPostResponse_when_GivenDefaultPageableAndGetExcludeUsersPostsRequestAndUserIsAuthenticated() {
 			Mockito
-				.`when`(getPostServiceImpl.getExcludeUsersPostList(any<GetExcludeUsersPostsRequest>(), any<Pageable>()))
+				.`when`(getPostServiceImpl.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()))
 				.thenReturn(PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1))
 
 			mockMvc
@@ -254,7 +254,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].content").value(post.content))
 				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.content[0].writer.userId").value(post.user.id)
+					MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId)
 				)
 		}
 
@@ -266,7 +266,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		)
 		fun should_ExpectOKResponseToPageOfGetPostResponseIsEmpty_when_GivenDefaultPageableAndGetExcludeUsersPostsRequestAndUserIsAuthenticated() {
 			Mockito
-				.`when`(getPostServiceImpl.getExcludeUsersPostList(any<GetExcludeUsersPostsRequest>(), any<Pageable>()))
+				.`when`(getPostServiceImpl.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()))
 				.thenReturn(PageImpl(listOf(), defaultPageable, 0))
 
 			mockMvc
@@ -337,7 +337,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
 				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.writer.userId").value(post.user.id)
+					MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
 				)
 		}
 
@@ -419,7 +419,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
 				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.writer.userId").value(post.user.id)
+					MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
 				)
 		}
 

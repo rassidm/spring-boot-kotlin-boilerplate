@@ -429,7 +429,7 @@ class UserIntegrationControllerTests : BaseIntegrationController() {
 
 			When("Success DELETE /api/v1/users/{userId}") {
 
-				justRun { changeUserService.deleteUser(any<Long>()) }
+				justRun { changeUserService.deleteUserById(any<Long>()) }
 
 				Then("Call DELETE /api/v1/users/{userId}") {
 					mockMvc

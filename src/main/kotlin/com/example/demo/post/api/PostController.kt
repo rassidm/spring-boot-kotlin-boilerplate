@@ -4,7 +4,6 @@ import com.example.demo.common.response.ErrorResponse
 import com.example.demo.post.application.ChangePostService
 import com.example.demo.post.application.GetPostService
 import com.example.demo.post.dto.serve.request.CreatePostRequest
-import com.example.demo.post.dto.serve.request.GetExcludeUsersPostsRequest
 import com.example.demo.post.dto.serve.request.UpdatePostRequest
 import com.example.demo.post.dto.serve.response.CreatePostResponse
 import com.example.demo.post.dto.serve.response.GetPostResponse
@@ -32,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Post", description = "Post API")
@@ -117,14 +117,14 @@ class PostController(
 	)
 	@GetMapping("/exclude-users")
 	fun getExcludeUsersPostList(
-		getExcludeUsersPostsRequest: GetExcludeUsersPostsRequest,
+		@RequestParam(name = "userIds", required = true) userIds: List<Long>,
 		@PageableDefault
 		@Parameter(hidden = true)
 		pageable: Pageable
 	): ResponseEntity<Page<GetPostResponse>> =
 		ResponseEntity.ok(
 			getPostService.getExcludeUsersPostList(
-				getExcludeUsersPostsRequest,
+				userIds,
 				pageable
 			)
 		)
@@ -203,7 +203,7 @@ class PostController(
 	fun deletePost(
 		@PathVariable("postId", required = true) postId: Long
 	): ResponseEntity<Void> {
-		changePostService.deletePost(postId)
+		changePostService.deletePostById(postId)
 
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
 	}

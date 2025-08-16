@@ -19,5 +19,7 @@ interface ChangeUserService {
 
 	fun createUser(createUserRequest: CreateUserRequest): CreateUserResponse
 
-	fun deleteUser(userId: Long)
+	fun deleteUserById(userId: Long)
+
+	fun hardDeleteUserById(userId: Long)
 }

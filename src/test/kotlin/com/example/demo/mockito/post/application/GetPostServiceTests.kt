@@ -61,8 +61,8 @@ class GetPostServiceTests {
 			assertEquals(post.subTitle, getPostResponse.subTitle)
 			assertEquals(post.content, getPostResponse.content)
 			assertEquals(
-				post.user.id,
-				getPostResponse.writer.userId
+				post.userId,
+				getPostResponse.userId
 			)
 		}
 
@@ -104,8 +104,8 @@ class GetPostServiceTests {
 			)
 			assertEquals(post.content, getPostResponseList.content[0].content)
 			assertEquals(
-				post.user.id,
-				getPostResponseList.content[0].writer.userId
+				post.userId,
+				getPostResponseList.content[0].userId
 			)
 		}
 
@@ -143,14 +143,14 @@ class GetPostServiceTests {
 			Mockito
 				.`when`(
 					postRepository.getExcludeUsersPosts(
-						any<GetExcludeUsersPostsRequest>(),
+						any<List<Long>>(),
 						any<Pageable>()
 					)
 				).thenReturn(PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1))
 
 			val getPostResponseList =
 				getPostServiceImpl.getExcludeUsersPostList(
-					getExcludeUsersPostsRequest,
+					getExcludeUsersPostsRequest.userIds,
 					defaultPageable
 				)
 
@@ -163,8 +163,8 @@ class GetPostServiceTests {
 			)
 			assertEquals(post.content, getPostResponseList.content[0].content)
 			assertEquals(
-				post.user.id,
-				getPostResponseList.content[0].writer.userId
+				post.userId,
+				getPostResponseList.content[0].userId
 			)
 		}
 
@@ -174,14 +174,14 @@ class GetPostServiceTests {
 			Mockito
 				.`when`(
 					postRepository.getExcludeUsersPosts(
-						any<GetExcludeUsersPostsRequest>(),
+						any<List<Long>>(),
 						any<Pageable>()
 					)
 				).thenReturn(PageImpl(listOf(), defaultPageable, 0))
 
 			val getPostResponseList =
 				getPostServiceImpl.getExcludeUsersPostList(
-					getExcludeUsersPostsRequest,
+					getExcludeUsersPostsRequest.userIds,
 					defaultPageable
 				)
 

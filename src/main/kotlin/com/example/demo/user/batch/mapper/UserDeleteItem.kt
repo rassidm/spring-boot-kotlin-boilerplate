@@ -2,7 +2,7 @@ package com.example.demo.user.batch.mapper
 
 import java.time.LocalDateTime
 
-class DeleteUserItem(
+class UserDeleteItem(
 	val id: Long,
 	val email: String,
 	val name: String,
@@ -16,8 +16,8 @@ class DeleteUserItem(
 			name: String,
 			role: String,
 			deletedDt: LocalDateTime
-		): DeleteUserItem =
-			DeleteUserItem(
+		): UserDeleteItem =
+			UserDeleteItem(
 				id = id,
 				email = email,
 				name = name,

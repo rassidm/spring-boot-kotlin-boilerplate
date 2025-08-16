@@ -2,12 +2,9 @@ package com.example.demo.kotest.post.repository
 
 import com.example.demo.common.config.JpaAuditConfig
 import com.example.demo.common.config.QueryDslConfig
-import com.example.demo.kotest.common.security.SecurityListenerFactory
 import com.example.demo.post.dto.serve.request.UpdatePostRequest
 import com.example.demo.post.entity.Post
 import com.example.demo.post.repository.PostRepository
-import com.example.demo.user.constant.UserRole
-import com.example.demo.user.entity.User
 import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -30,12 +27,6 @@ class PostRepositoryTests(
 		val defaultPostTitle = "unit test"
 		val defaultPostSubTitle = "Post Repository Test"
 		val defaultPostContent = "default value for post repository testing"
-		val defaultUserEmail = "awakelife93@gmail.com"
-		val defaultUserPassword = "test_password_123!@"
-		val defaultUserName = "Hyunwoo Park"
-		val defaultUserRole = UserRole.USER
-
-		listeners(SecurityListenerFactory())
 
 		beforeContainer {
 			postEntity =
@@ -43,12 +34,7 @@ class PostRepositoryTests(
 					defaultPostTitle,
 					defaultPostSubTitle,
 					defaultPostContent,
-					User(
-						defaultUserEmail,
-						defaultUserName,
-						defaultUserPassword,
-						defaultUserRole
-					)
+					1L
 				)
 		}
 
@@ -62,7 +48,7 @@ class PostRepositoryTests(
 					createPost.title shouldBe postEntity.title
 					createPost.subTitle shouldBe postEntity.subTitle
 					createPost.content shouldBe postEntity.content
-					createPost.user.id shouldBe postEntity.user.id
+					createPost.userId shouldBe postEntity.userId
 				}
 			}
 		}
@@ -116,6 +102,20 @@ class PostRepositoryTests(
 					afterDeletePost.shouldBeNull()
 				}
 			}
+
+			context("Call deleteByUserId") {
+				val beforeDeletePost = postRepository.save(postEntity)
+
+				postRepository.deleteByUserId(beforeDeletePost.userId)
+
+				val afterDeletePost: Post? =
+					postRepository
+						.findOneById(beforeDeletePost.id)
+
+				it("Assert Null") {
+					afterDeletePost.shouldBeNull()
+				}
+			}
 		}
 
 		describe("Find Post By Id") {
@@ -136,20 +136,20 @@ class PostRepositoryTests(
 					afterFindPost.title shouldBe beforeFindPost.title
 					afterFindPost.subTitle shouldBe beforeFindPost.subTitle
 					afterFindPost.content shouldBe beforeFindPost.content
-					afterFindPost.user.id shouldBe beforeFindPost.user.id
+					afterFindPost.userId shouldBe beforeFindPost.userId
 				}
 			}
 		}
 
-		describe("Find Post By user") {
+		describe("Find Post By userId") {
 
-			context("Call findOneByUser") {
+			context("Call findOneByUserId") {
 				val beforeFindPost = postRepository.save(postEntity)
 
 				val afterFindPost: Post =
 					requireNotNull(
 						postRepository
-							.findOneByUser(beforeFindPost.user)
+							.findOneByUserId(beforeFindPost.userId)
 					) {
 						"Post must not be null"
 					}
@@ -159,7 +159,7 @@ class PostRepositoryTests(
 					afterFindPost.title shouldBe beforeFindPost.title
 					afterFindPost.subTitle shouldBe beforeFindPost.subTitle
 					afterFindPost.content shouldBe beforeFindPost.content
-					afterFindPost.user.id shouldBe beforeFindPost.user.id
+					afterFindPost.userId shouldBe beforeFindPost.userId
 				}
 			}
 		}

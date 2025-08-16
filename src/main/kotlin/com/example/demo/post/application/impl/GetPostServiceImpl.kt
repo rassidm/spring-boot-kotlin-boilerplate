@@ -1,7 +1,6 @@
 package com.example.demo.post.application.impl
 
 import com.example.demo.post.application.GetPostService
-import com.example.demo.post.dto.serve.request.GetExcludeUsersPostsRequest
 import com.example.demo.post.dto.serve.response.GetPostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.post.exception.PostNotFoundException
@@ -30,11 +29,11 @@ class GetPostServiceImpl(
 			.map(GetPostResponse::from)
 
 	override fun getExcludeUsersPostList(
-		getExcludeUsersPostsRequest: GetExcludeUsersPostsRequest,
+		userIds: List<Long>,
 		pageable: Pageable
 	): Page<GetPostResponse> =
 		postRepository.getExcludeUsersPosts(
-			getExcludeUsersPostsRequest,
+			userIds,
 			pageable
 		)
 }

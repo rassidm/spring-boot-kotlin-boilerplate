@@ -36,23 +36,70 @@ class ChangePostServiceTests :
 		val post: Post = Instancio.create(Post::class.java)
 		val user: User = Instancio.create(User::class.java)
 
-		Given("Delete Post") {
+		Given("Delete Post By Id") {
 
-			When("Success Delete Post") {
+			When("Success Soft Delete Post") {
+
+				every { postService.validateReturnPost(any<Long>()) } returns post
+				every { postRepository.save(any<Post>()) } returns post
 
 				justRun {
-					postRepository.deleteById(any<Long>())
-					changePostService.deletePost(any<Long>())
+					changePostService.deletePostById(any<Long>())
 				}
 
-				postRepository.deleteById(post.id)
-				changePostService.deletePost(post.id)
+				changePostService.deletePostById(post.id)
 
-				Then("Verify Call Method") {
+				Then("Verify Soft Delete Call") {
 					verify(exactly = 1) {
-						postRepository.deleteById(post.id)
-						changePostService.deletePost(post.id)
+						changePostService.deletePostById(post.id)
 					}
+				}
+			}
+
+			When("Post Not Found on Delete") {
+
+				every { postService.validateReturnPost(any<Long>()) } throws PostNotFoundException(post.id)
+
+				every {
+					changePostService.deletePostById(any<Long>())
+				} throws PostNotFoundException(post.id)
+
+				shouldThrowExactly<PostNotFoundException> {
+					changePostService.deletePostById(post.id)
+				}
+			}
+		}
+
+		Given("Delete Post By User Id") {
+
+			When("Success Soft Delete Post") {
+
+				every { userService.validateReturnUser(any<Long>()) } returns user
+				every { postRepository.save(any<Post>()) } returns post
+
+				justRun {
+					changePostService.deletePostByUserId(any<Long>())
+				}
+
+				changePostService.deletePostByUserId(user.id)
+
+				Then("Verify Soft Delete Call") {
+					verify(exactly = 1) {
+						changePostService.deletePostByUserId(user.id)
+					}
+				}
+			}
+
+			When("User Not Found on Delete") {
+
+				every { userService.validateReturnUser(any<Long>()) } throws UserNotFoundException(user.id)
+
+				every {
+					changePostService.deletePostByUserId(any<Long>())
+				} throws UserNotFoundException(user.id)
+
+				shouldThrowExactly<UserNotFoundException> {
+					changePostService.deletePostByUserId(user.id)
 				}
 			}
 		}
@@ -132,7 +179,7 @@ class ChangePostServiceTests :
 					title shouldBe post.title
 					subTitle shouldBe post.subTitle
 					content shouldBe post.content
-					writer.userId shouldBe post.user.id
+					userId shouldBe post.userId
 				}
 			}
 

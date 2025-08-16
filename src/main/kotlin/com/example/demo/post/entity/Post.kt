@@ -1,19 +1,22 @@
 package com.example.demo.post.entity
 
-import com.example.demo.common.entity.BaseChangerEntity
-import com.example.demo.user.entity.User
-import jakarta.persistence.AttributeOverride
-import jakarta.persistence.CascadeType
+import com.example.demo.common.entity.BaseCommonEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.Index
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.SQLRestriction
 
 @Entity
-@Table(name = "\"post\"")
-@AttributeOverride(name = "id", column = Column(name = "post_id"))
+@Table(
+	name = "\"post\"",
+	indexes = [
+		Index(name = "idx_post_user_deleted", columnList = "deleted_dt, user_id")
+	]
+)
+@SQLDelete(sql = "UPDATE \"post\" SET deleted_dt = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLRestriction("deleted_dt IS NULL")
 data class Post(
 	@Column(nullable = false, length = 20)
 	var title: String,
@@ -21,13 +24,9 @@ data class Post(
 	var subTitle: String,
 	@Column(nullable = false, length = 500)
 	var content: String,
-	@JoinColumn(name = "user_id")
-	@ManyToOne(
-		fetch = FetchType.LAZY,
-		cascade = [CascadeType.PERSIST]
-	)
-	val user: User
-) : BaseChangerEntity() {
+	@Column(name = "user_id", nullable = false)
+	val userId: Long
+) : BaseCommonEntity() {
 	fun update(
 		title: String,
 		subTitle: String,

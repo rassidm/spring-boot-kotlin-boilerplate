@@ -1,6 +1,5 @@
 package com.example.demo.post.dto.serve.response
 
-import com.example.demo.post.dto.Writer
 import com.example.demo.post.entity.Post
 import io.swagger.v3.oas.annotations.media.Schema
 
@@ -13,8 +12,8 @@ data class UpdatePostResponse(
 	val subTitle: String,
 	@field:Schema(description = "Post Content", nullable = false)
 	val content: String,
-	@field:Schema(description = "Post Writer", nullable = false, implementation = Writer::class)
-	val writer: Writer
+	@field:Schema(description = "User Id", nullable = false)
+	val userId: Long
 ) {
 	companion object {
 		fun from(post: Post): UpdatePostResponse =
@@ -24,7 +23,7 @@ data class UpdatePostResponse(
 					title = title,
 					subTitle = subTitle,
 					content = content,
-					writer = Writer.from(user)
+					userId = userId
 				)
 			}
 	}

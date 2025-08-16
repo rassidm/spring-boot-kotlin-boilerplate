@@ -16,5 +16,9 @@ interface ChangePostService {
 		createPostRequest: CreatePostRequest
 	): CreatePostResponse
 
-	fun deletePost(postId: Long)
+	fun deletePostById(postId: Long)
+
+	fun deletePostByUserId(userId: Long)
+
+	fun hardDeletePostByUserId(userId: Long)
 }

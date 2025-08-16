@@ -50,7 +50,7 @@ class PostServiceTests {
 			assertEquals(post.title, validatePost.title)
 			assertEquals(post.subTitle, validatePost.subTitle)
 			assertEquals(post.content, validatePost.content)
-			assertEquals(post.user.id, validatePost.user.id)
+			assertEquals(post.userId, validatePost.userId)
 		}
 
 		@Test

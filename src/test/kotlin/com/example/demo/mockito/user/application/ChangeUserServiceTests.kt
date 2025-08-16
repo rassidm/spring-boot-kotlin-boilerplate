@@ -1,5 +1,6 @@
 package com.example.demo.mockito.user.application
 
+import com.example.demo.post.application.impl.ChangePostServiceImpl
 import com.example.demo.security.component.provider.TokenProvider
 import com.example.demo.user.application.impl.ChangeUserServiceImpl
 import com.example.demo.user.application.impl.UserServiceImpl
@@ -45,6 +46,9 @@ class ChangeUserServiceTests {
 	private lateinit var tokenProvider: TokenProvider
 
 	@Mock
+	private lateinit var postServiceImpl: ChangePostServiceImpl
+
+	@Mock
 	private lateinit var userServiceImpl: UserServiceImpl
 
 	@Suppress("unused")
@@ -69,9 +73,10 @@ class ChangeUserServiceTests {
 		@Test
 		@DisplayName("Success delete user")
 		fun should_VerifyCallDeleteRefreshTokenAndDeleteByIdMethods_when_GivenUserId() {
-			changeUserServiceImpl.deleteUser(user.id)
+			changeUserServiceImpl.deleteUserById(user.id)
 
 			Mockito.verify(tokenProvider, Mockito.times(1)).deleteRefreshToken(any<Long>())
+			Mockito.verify(postServiceImpl, Mockito.times(1)).deletePostByUserId(any<Long>())
 			Mockito.verify(userRepository, Mockito.times(1)).deleteById(any<Long>())
 		}
 	}

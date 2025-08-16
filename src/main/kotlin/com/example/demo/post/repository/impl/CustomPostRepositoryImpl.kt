@@ -1,6 +1,5 @@
 package com.example.demo.post.repository.impl
 
-import com.example.demo.post.dto.serve.request.GetExcludeUsersPostsRequest
 import com.example.demo.post.dto.serve.response.GetPostResponse
 import com.example.demo.post.entity.QPost.post
 import com.example.demo.post.repository.CustomPostRepository
@@ -16,25 +15,37 @@ open class CustomPostRepositoryImpl(
 ) : CustomPostRepository {
 	@Transactional(readOnly = true)
 	override fun getExcludeUsersPosts(
-		getExcludeUsersPostsRequest: GetExcludeUsersPostsRequest,
+		userIds: List<Long>,
 		pageable: Pageable
 	): Page<GetPostResponse> {
-		val queryFactory =
+		val whereCondition =
+			post.userId
+				.notIn(userIds)
+
+		val content =
 			jpaQueryFactory
 				.select(
-					Projections.fields(
+					Projections.constructor(
 						GetPostResponse::class.java,
 						post.id,
 						post.title,
+						post.subTitle,
 						post.content,
-						post.user.id
+						post.userId
 					)
 				).from(post)
-				.where(post.user.id.notIn(getExcludeUsersPostsRequest.userIds))
+				.where(whereCondition)
 				.offset(pageable.offset)
 				.limit(pageable.pageSize.toLong())
 				.fetch()
 
-		return PageImpl(queryFactory, pageable, queryFactory.size.toLong())
+		val totalCount =
+			jpaQueryFactory
+				.select(post.count())
+				.from(post)
+				.where(whereCondition)
+				.fetchOne() ?: 0L
+
+		return PageImpl(content, pageable, totalCount)
 	}
 }

@@ -49,7 +49,7 @@ class GetPostServiceTests :
 						title shouldBe post.title
 						subTitle shouldBe post.subTitle
 						content shouldBe post.content
-						writer.userId shouldBe post.user.id
+						userId shouldBe post.userId
 					}
 				}
 			}
@@ -89,7 +89,7 @@ class GetPostServiceTests :
 						title shouldBe post.title
 						subTitle shouldBe post.subTitle
 						content shouldBe post.content
-						writer.userId shouldBe post.user.id
+						userId shouldBe post.userId
 					}
 				}
 			}
@@ -105,21 +105,21 @@ class GetPostServiceTests :
 
 				every {
 					postRepository.getExcludeUsersPosts(
-						any<GetExcludeUsersPostsRequest>(),
+						any<List<Long>>(),
 						any<Pageable>()
 					)
 				} returns PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1)
 
 				every {
 					getPostService.getExcludeUsersPostList(
-						any<GetExcludeUsersPostsRequest>(),
+						any<List<Long>>(),
 						any<Pageable>()
 					)
 				} returns PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1)
 
 				val getPostResponseList =
 					getPostService.getExcludeUsersPostList(
-						getExcludeUsersPostsRequest,
+						getExcludeUsersPostsRequest.userIds,
 						defaultPageable
 					)
 
@@ -130,7 +130,7 @@ class GetPostServiceTests :
 						title shouldBe post.title
 						subTitle shouldBe post.subTitle
 						content shouldBe post.content
-						writer.userId shouldBe post.user.id
+						userId shouldBe post.userId
 					}
 				}
 			}

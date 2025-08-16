@@ -39,7 +39,7 @@ class PostServiceTests :
 						title shouldBe post.title
 						subTitle shouldBe post.subTitle
 						content shouldBe post.content
-						user.id shouldBe post.user.id
+						userId shouldBe post.userId
 					}
 				}
 			}

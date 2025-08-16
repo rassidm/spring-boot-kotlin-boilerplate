@@ -52,11 +52,51 @@ class ChangePostServiceTests {
 	@DisplayName("Delete Post Test")
 	inner class DeleteTest {
 		@Test
-		@DisplayName("Success delete post")
-		fun should_VerifyCallDeleteByIdMethods_when_GivenPostId() {
-			changePostServiceImpl.deletePost(post.id)
+		@DisplayName("Success soft delete post by post id")
+		fun should_VerifyCallSoftDeleteMethods_when_GivenPostId() {
+			Mockito.`when`(postServiceImpl.validateReturnPost(any<Long>())).thenReturn(post)
 
-			Mockito.verify(postRepository, Mockito.times(1)).deleteById(any<Long>())
+			changePostServiceImpl.deletePostById(post.id)
+
+			Mockito.verify(postRepository, Mockito.times(1)).deleteById(post.id)
+		}
+
+		@Test
+		@DisplayName("Not found post")
+		fun should_AssertPostNotFoundException_when_GivenPostId() {
+			Mockito
+				.`when`(postServiceImpl.validateReturnPost(any<Long>()))
+				.thenThrow(PostNotFoundException(post.id))
+
+			Assertions.assertThrows(
+				PostNotFoundException::class.java
+			) { changePostServiceImpl.deletePostById(post.id) }
+
+			Mockito.verify(postRepository, Mockito.never()).deleteById(any<Long>())
+		}
+
+		@Test
+		@DisplayName("Success soft delete post by user id")
+		fun should_VerifyCallSoftDeleteMethods_when_GivenUserId() {
+			Mockito.`when`(userServiceImpl.validateReturnUser(any<Long>())).thenReturn(user)
+
+			changePostServiceImpl.deletePostByUserId(user.id)
+
+			Mockito.verify(postRepository, Mockito.times(1)).deleteByUserId(user.id)
+		}
+
+		@Test
+		@DisplayName("Not found user")
+		fun should_AssertPostNotFoundException_when_GivenUserId() {
+			Mockito
+				.`when`(userServiceImpl.validateReturnUser(any<Long>()))
+				.thenThrow(UserNotFoundException(user.id))
+
+			Assertions.assertThrows(
+				UserNotFoundException::class.java
+			) { changePostServiceImpl.deletePostByUserId(user.id) }
+
+			Mockito.verify(postRepository, Mockito.never()).deleteByUserId(any<Long>())
 		}
 	}
 
@@ -85,8 +125,8 @@ class ChangePostServiceTests {
 			assertEquals(post.subTitle, updatePostResponse.subTitle)
 			assertEquals(post.content, updatePostResponse.content)
 			assertEquals(
-				post.user.id,
-				updatePostResponse.writer.userId
+				post.userId,
+				updatePostResponse.userId
 			)
 		}
 
@@ -130,8 +170,8 @@ class ChangePostServiceTests {
 			assertEquals(post.subTitle, createPostResponse.subTitle)
 			assertEquals(post.content, createPostResponse.content)
 			assertEquals(
-				post.user.id,
-				createPostResponse.writer.userId
+				post.userId,
+				createPostResponse.userId
 			)
 		}
 

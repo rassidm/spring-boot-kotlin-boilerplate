@@ -21,7 +21,7 @@ class UserScheduler(
 	@Scheduled(cron = "0 0 01 * * ?")
 	fun run() {
 		runCatching {
-			val job: Job = jobRegistry.getJob("deleteUserJob")
+			val job: Job = jobRegistry.getJob("userDeleteJob")
 			val jobParameters: JobParameters =
 				JobParametersBuilder()
 					.addLocalDateTime("now", LocalDateTime.now())

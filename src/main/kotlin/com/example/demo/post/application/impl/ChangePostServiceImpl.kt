@@ -9,7 +9,6 @@ import com.example.demo.post.dto.serve.response.UpdatePostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.post.repository.PostRepository
 import com.example.demo.user.application.UserService
-import com.example.demo.user.entity.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,14 +23,15 @@ class ChangePostServiceImpl(
 		userId: Long,
 		createPostRequest: CreatePostRequest
 	): CreatePostResponse {
-		val user: User = userService.validateReturnUser(userId)
+		val user = userService.validateReturnUser(userId)
+
 		val post =
 			postRepository.save(
 				Post(
 					title = createPostRequest.title,
 					subTitle = createPostRequest.subTitle,
 					content = createPostRequest.content,
-					user = user
+					userId = user.id
 				)
 			)
 
@@ -54,7 +54,19 @@ class ChangePostServiceImpl(
 		return post.let(UpdatePostResponse::from)
 	}
 
-	override fun deletePost(postId: Long) {
-		postRepository.deleteById(postId)
+	override fun deletePostById(postId: Long) {
+		val post = postService.validateReturnPost(postId)
+
+		postRepository.deleteById(post.id)
+	}
+
+	override fun deletePostByUserId(userId: Long) {
+		val user = userService.validateReturnUser(userId)
+
+		postRepository.deleteByUserId(user.id)
+	}
+
+	override fun hardDeletePostByUserId(userId: Long) {
+		postRepository.hardDeleteByUserId(userId)
 	}
 }

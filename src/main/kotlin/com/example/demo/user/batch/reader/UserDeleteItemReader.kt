@@ -1,7 +1,7 @@
 package com.example.demo.user.batch.reader
 
-import com.example.demo.user.batch.mapper.DeleteUserItem
-import com.example.demo.user.batch.mapper.DeleteUserItemRowMapper
+import com.example.demo.user.batch.mapper.UserDeleteItem
+import com.example.demo.user.batch.mapper.UserDeleteItemRowMapper
 import org.springframework.batch.item.database.JdbcPagingItemReader
 import org.springframework.batch.item.database.Order
 import org.springframework.batch.item.database.PagingQueryProvider
@@ -12,21 +12,21 @@ import java.time.LocalDateTime
 import javax.sql.DataSource
 
 @Component
-class DeleteUserItemReader(
+class UserDeleteItemReader(
 	private val dataSource: DataSource
 ) {
 	fun reader(
 		chunkSize: Int,
 		now: LocalDateTime
-	): JdbcPagingItemReader<DeleteUserItem> =
-		JdbcPagingItemReaderBuilder<DeleteUserItem>()
+	): JdbcPagingItemReader<UserDeleteItem> =
+		JdbcPagingItemReaderBuilder<UserDeleteItem>()
 			.name("DeletedUsersYearAgoReader")
 			.dataSource(dataSource)
 			.pageSize(chunkSize)
 			.fetchSize(chunkSize)
 			.queryProvider(pagingQueryProvider())
 			.parameterValues(mapOf("oneYearBeforeNow" to now.minusYears(1) as Any))
-			.rowMapper(DeleteUserItemRowMapper())
+			.rowMapper(UserDeleteItemRowMapper())
 			.build()
 
 	private fun pagingQueryProvider(): PagingQueryProvider {
@@ -35,7 +35,7 @@ class DeleteUserItemReader(
 		queryProvider.setSelectClause("SELECT *")
 		queryProvider.setFromClause("FROM \"user\"")
 		queryProvider.setWhereClause("WHERE deleted_dt <= :oneYearBeforeNow")
-		queryProvider.setSortKeys(mapOf("user_id" to Order.ASCENDING))
+		queryProvider.setSortKeys(mapOf("id" to Order.ASCENDING))
 		return queryProvider.`object`
 	}
 }

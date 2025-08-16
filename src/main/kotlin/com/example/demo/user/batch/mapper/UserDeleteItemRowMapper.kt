@@ -5,15 +5,15 @@ import org.springframework.jdbc.core.RowMapper
 import java.sql.ResultSet
 import java.sql.SQLException
 
-class DeleteUserItemRowMapper : RowMapper<DeleteUserItem> {
+class UserDeleteItemRowMapper : RowMapper<UserDeleteItem> {
 	@Throws(SQLException::class)
 	override fun mapRow(
 		resultSet: ResultSet,
 		rowNumber: Int
-	): DeleteUserItem {
+	): UserDeleteItem {
 		val user =
-			DeleteUserItem.of(
-				resultSet.getLong("user_id"),
+			UserDeleteItem.of(
+				resultSet.getLong("id"),
 				resultSet.getString("email"),
 				resultSet.getString("name"),
 				resultSet.getString("role"),

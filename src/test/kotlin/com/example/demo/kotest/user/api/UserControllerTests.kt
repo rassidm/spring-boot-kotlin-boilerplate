@@ -214,7 +214,7 @@ class UserControllerTests :
 
 		test("Delete User") {
 
-			justRun { changeUserService.deleteUser(any<Long>()) }
+			justRun { changeUserService.deleteUserById(any<Long>()) }
 
 			every { userController.deleteUser(any<Long>()) } returns ResponseEntity.noContent().build()
 

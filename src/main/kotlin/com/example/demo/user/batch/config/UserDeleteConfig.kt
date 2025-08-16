@@ -1,9 +1,9 @@
 package com.example.demo.user.batch.config
 
-import com.example.demo.user.batch.mapper.DeleteUserItem
-import com.example.demo.user.batch.processor.DeleteUserItemProcessor
-import com.example.demo.user.batch.reader.DeleteUserItemReader
-import com.example.demo.user.batch.writer.DeleteUserItemWriter
+import com.example.demo.user.batch.mapper.UserDeleteItem
+import com.example.demo.user.batch.processor.UserDeleteItemProcessor
+import com.example.demo.user.batch.reader.UserDeleteItemReader
+import com.example.demo.user.batch.writer.UserDeleteItemWriter
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -23,50 +23,50 @@ import java.time.LocalDateTime
 private val logger = KotlinLogging.logger {}
 
 @Configuration
-class DeleteUserConfig(
-	private val deleteUserItemReader: DeleteUserItemReader,
-	private val deleteUserItemProcessor: DeleteUserItemProcessor,
-	private val deleteUserItemWriter: DeleteUserItemWriter
+class UserDeleteConfig(
+	private val userDeleteItemReader: UserDeleteItemReader,
+	private val userDeleteItemProcessor: UserDeleteItemProcessor,
+	private val userDeleteItemWriter: UserDeleteItemWriter
 ) : DefaultBatchConfiguration() {
 	private val chunkSize = 10
 
 	@Bean
-	fun deleteUser(
+	fun userDelete(
 		jobRepository: JobRepository,
 		transactionManager: PlatformTransactionManager
 	): Job =
-		JobBuilder("deleteUserJob", jobRepository)
-			.start(deleteUserStep(jobRepository, transactionManager))
+		JobBuilder("userDeleteJob", jobRepository)
+			.start(userDeleteStep(jobRepository, transactionManager))
 			.build()
 
 	@Bean
 	@JobScope
-	fun deleteUserStep(
+	fun userDeleteStep(
 		jobRepository: JobRepository,
 		transactionManager: PlatformTransactionManager
 	): Step =
-		StepBuilder("deleteUserStep", jobRepository)
-			.chunk<DeleteUserItem, DeleteUserItem>(chunkSize, transactionManager)
-			.reader(deleteUserReader(null))
-			.processor(deleteUserProcessor())
-			.writer(deleteUserWriter())
+		StepBuilder("userDeleteStep", jobRepository)
+			.chunk<UserDeleteItem, UserDeleteItem>(chunkSize, transactionManager)
+			.reader(userDeleteReader(null))
+			.processor(userDeleteProcessor())
+			.writer(userDeleteWriter())
 			.build()
 
 	@Bean
 	@StepScope
-	fun deleteUserReader(
+	fun userDeleteReader(
 		@Value("#{jobParameters[now]}") now: LocalDateTime?
-	): JdbcPagingItemReader<DeleteUserItem> {
+	): JdbcPagingItemReader<UserDeleteItem> {
 		val nowDateTime = checkNotNull(now) { "now parameter is required" }
 
-		return deleteUserItemReader.reader(chunkSize, nowDateTime)
+		return userDeleteItemReader.reader(chunkSize, nowDateTime)
 	}
 
 	@Bean
 	@StepScope
-	fun deleteUserProcessor(): DeleteUserItemProcessor = deleteUserItemProcessor
+	fun userDeleteProcessor(): UserDeleteItemProcessor = userDeleteItemProcessor
 
 	@Bean
 	@StepScope
-	fun deleteUserWriter(): DeleteUserItemWriter = deleteUserItemWriter
+	fun userDeleteWriter(): UserDeleteItemWriter = userDeleteItemWriter
 }
