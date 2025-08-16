@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 @ActiveProfiles("test")
@@ -17,11 +18,12 @@ class DateExtensionTests :
 	BehaviorSpec({
 
 		Given("Convert Given String DateTime to LocalDateTime") {
-			val stringDateTime = LocalDateTime.now().withNano(0).toString()
+			val pattern = "yyyy-MM-dd'T'HH:mm:ss"
+			val stringDateTime = LocalDateTime.now().withNano(0).format(DateTimeFormatter.ofPattern(pattern))
 
 			When("Given Current String datetime & Pattern") {
 
-				val localDateTime = stringDateTime.toLocalDateTime("yyyy-MM-dd'T'HH:mm:ss")
+				val localDateTime = stringDateTime.toLocalDateTime(pattern)
 
 				Then("String Datetime to LocalDatetime") {
 					localDateTime::class.java shouldBeSameInstanceAs (LocalDateTime::class.java)
@@ -38,7 +40,7 @@ class DateExtensionTests :
 			When("Given Wrong String datetime & Current Pattern") {
 
 				shouldThrowExactly<DateTimeParseException> {
-					"".toLocalDateTime("yyyy-MM-dd'T'HH:mm:ss")
+					"".toLocalDateTime(pattern)
 				}
 			}
 		}
