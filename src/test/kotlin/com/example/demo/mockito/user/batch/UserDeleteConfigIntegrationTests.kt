@@ -16,7 +16,7 @@ import org.mockito.Mockito.anyLong
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.kotlin.whenever
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.test.JobLauncherTestUtils
@@ -167,7 +167,7 @@ class UserDeleteConfigIntegrationTests {
 		verify(changeUserService, times(1)).hardDeleteUserById(100L)
 
 		val errorService = mock(ChangePostService::class.java)
-		`when`(errorService.hardDeletePostByUserId(anyLong()))
+		whenever(errorService.hardDeletePostByUserId(anyLong()))
 			.thenThrow(DataIntegrityViolationException("DB Error"))
 
 		val errorConsumer = UserDeleteConsumer(errorService, changeUserService)

@@ -23,9 +23,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.test.context.ActiveProfiles
 
@@ -64,12 +66,10 @@ class AuthServiceTests {
 		@Test
 		@DisplayName("Success sign in")
 		fun should_AssertSignInResponse_when_GivenSignInRequest() {
-			Mockito
-				.`when`(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
+			whenever(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
 				.thenReturn(user)
 
-			Mockito
-				.`when`(tokenProvider.createFullTokens(any<User>()))
+			whenever(tokenProvider.createFullTokens(any<User>()))
 				.thenReturn(defaultAccessToken)
 
 			val signInResponse = authService.signIn(signInRequest)
@@ -83,8 +83,7 @@ class AuthServiceTests {
 		@Test
 		@DisplayName("User not found")
 		fun should_AssertUserNotFoundException_when_GivenSignInRequest() {
-			Mockito
-				.`when`(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
+			whenever(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
 				.thenThrow(UserNotFoundException(user.id))
 
 			Assertions.assertThrows(
@@ -95,8 +94,7 @@ class AuthServiceTests {
 		@Test
 		@DisplayName("User unauthorized")
 		fun should_AssertUserUnAuthorizedException_when_GivenSignInRequest() {
-			Mockito
-				.`when`(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
+			whenever(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
 				.thenThrow(UserUnAuthorizedException(user.email))
 
 			Assertions.assertThrows(
@@ -113,7 +111,7 @@ class AuthServiceTests {
 		fun should_VerifyCallDeleteRefreshToken_when_GivenUserId() {
 			authService.signOut(user.id)
 
-			Mockito.verify(tokenProvider, Mockito.times(1)).deleteRefreshToken(any<Long>())
+			verify(tokenProvider, times(1)).deleteRefreshToken(any<Long>())
 		}
 	}
 
@@ -135,12 +133,10 @@ class AuthServiceTests {
 		@Test
 		@DisplayName("Success refresh access token")
 		fun should_AssertRefreshAccessTokenResponse_when_GivenSecurityUserItem() {
-			Mockito
-				.`when`(jwtProvider.getAuthentication(any<String>(), any<Boolean>()))
+			whenever(jwtProvider.getAuthentication(any<String>(), any<Boolean>()))
 				.thenReturn(usernamePasswordAuthenticationToken)
 
-			Mockito
-				.`when`(tokenProvider.refreshAccessToken(any<SecurityUserItem>()))
+			whenever(tokenProvider.refreshAccessToken(any<SecurityUserItem>()))
 				.thenReturn(defaultAccessToken)
 
 			val refreshAccessTokenResponse =
@@ -158,12 +154,10 @@ class AuthServiceTests {
 		@Test
 		@DisplayName("Refresh token is not found")
 		fun should_AssertRefreshTokenNotFoundException_when_GivenSecurityUserItem() {
-			Mockito
-				.`when`(jwtProvider.getAuthentication(any<String>(), any<Boolean>()))
+			whenever(jwtProvider.getAuthentication(any<String>(), any<Boolean>()))
 				.thenReturn(usernamePasswordAuthenticationToken)
 
-			Mockito
-				.`when`(tokenProvider.refreshAccessToken(any<SecurityUserItem>()))
+			whenever(tokenProvider.refreshAccessToken(any<SecurityUserItem>()))
 				.thenThrow(RefreshTokenNotFoundException(user.id))
 
 			Assertions.assertThrows(

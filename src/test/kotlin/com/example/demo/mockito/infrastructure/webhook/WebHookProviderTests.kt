@@ -18,12 +18,12 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.test.context.ActiveProfiles
 
 @ActiveProfiles("test")
@@ -58,8 +58,8 @@ class WebHookProviderTests {
 	internal inner class WhenWebhookEnabledTrue {
 		@Test
 		fun sendSlack_shouldConvertAndSendMessageForSlackTarget() {
-			`when`(router.route(slackTarget)).thenReturn(sender)
-			`when`(converter.convert(eq(slackTarget), any<WebHookMessage>())).thenReturn(slackMessage)
+			whenever(router.route(slackTarget)).thenReturn(sender)
+			whenever(converter.convert(eq(slackTarget), any<WebHookMessage>())).thenReturn(slackMessage)
 
 			provider.sendSlack("Title", listOf("Line1", "Line2"))
 
@@ -70,8 +70,8 @@ class WebHookProviderTests {
 
 		@Test
 		fun sendDiscord_shouldConvertAndSendMessageForDiscordTarget() {
-			`when`(router.route(discordTarget)).thenReturn(sender)
-			`when`(converter.convert(eq(discordTarget), any<WebHookMessage>())).thenReturn(discordMessage)
+			whenever(router.route(discordTarget)).thenReturn(sender)
+			whenever(converter.convert(eq(discordTarget), any<WebHookMessage>())).thenReturn(discordMessage)
 
 			provider.sendDiscord("Title", listOf("Line1", "Line2"))
 
@@ -85,13 +85,13 @@ class WebHookProviderTests {
 			val sender1: WebHookSender = mock(WebHookSender::class.java)
 			val sender2: WebHookSender = mock(WebHookSender::class.java)
 
-			`when`(router.all()).thenReturn(listOf(sender1, sender2))
+			whenever(router.all()).thenReturn(listOf(sender1, sender2))
 
-			`when`(sender1.target()).thenReturn(WebHookTarget.SLACK)
-			`when`(sender2.target()).thenReturn(WebHookTarget.DISCORD)
+			whenever(sender1.target()).thenReturn(WebHookTarget.SLACK)
+			whenever(sender2.target()).thenReturn(WebHookTarget.DISCORD)
 
-			`when`(converter.convert(eq(WebHookTarget.SLACK), any())).thenReturn(slackMessage)
-			`when`(converter.convert(eq(WebHookTarget.DISCORD), any())).thenReturn(discordMessage)
+			whenever(converter.convert(eq(WebHookTarget.SLACK), any())).thenReturn(slackMessage)
+			whenever(converter.convert(eq(WebHookTarget.DISCORD), any())).thenReturn(discordMessage)
 
 			provider.sendAll("Title", listOf("Line1", "Line2"))
 

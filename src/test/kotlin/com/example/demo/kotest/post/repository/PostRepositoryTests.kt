@@ -13,6 +13,7 @@ import org.instancio.Instancio
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ActiveProfiles
 
 @ActiveProfiles("test")
@@ -160,6 +161,115 @@ class PostRepositoryTests(
 					afterFindPost.subTitle shouldBe beforeFindPost.subTitle
 					afterFindPost.content shouldBe beforeFindPost.content
 					afterFindPost.userId shouldBe beforeFindPost.userId
+				}
+			}
+		}
+
+		describe("Get Exclude Users Posts") {
+			beforeEach {
+				postRepository.deleteAll()
+			}
+
+			context("Call getExcludeUsersPosts with specific excluded user IDs") {
+				it("Assert excluded users posts are not returned") {
+					val userId1 = 1L
+					val userId2 = 2L
+					val userId3 = 3L
+					val userId4 = 4L
+
+					postRepository.save(
+						Post("Title 1", "SubTitle 1", "Content 1", userId1)
+					)
+					postRepository.save(
+						Post("Title 2", "SubTitle 2", "Content 2", userId2)
+					)
+					postRepository.save(
+						Post("Title 3", "SubTitle 3", "Content 3", userId3)
+					)
+					postRepository.save(
+						Post("Title 4", "SubTitle 4", "Content 4", userId4)
+					)
+
+					val excludeUserIds = listOf(userId1, userId2)
+					val pageable = PageRequest.of(0, 10)
+					val result = postRepository.getExcludeUsersPosts(excludeUserIds, pageable)
+
+					result.totalElements shouldBe 2
+					result.content.size shouldBe 2
+
+					val userIds = result.content.map { it.userId }.toSet()
+					userIds shouldBe setOf(userId3, userId4)
+				}
+
+				it("Assert paging works correctly") {
+					val userId1 = 1L
+					val userId2 = 2L
+					val userId3 = 3L
+					val userId4 = 4L
+
+					postRepository.save(
+						Post("Title 1", "SubTitle 1", "Content 1", userId1)
+					)
+					postRepository.save(
+						Post("Title 2", "SubTitle 2", "Content 2", userId2)
+					)
+					postRepository.save(
+						Post("Title 3", "SubTitle 3", "Content 3", userId3)
+					)
+					postRepository.save(
+						Post("Title 4", "SubTitle 4", "Content 4", userId4)
+					)
+
+					val excludeUserIds = listOf(userId1, userId2)
+					val pageableWithSize1 = PageRequest.of(0, 1)
+					val pagedResult = postRepository.getExcludeUsersPosts(excludeUserIds, pageableWithSize1)
+
+					pagedResult.totalElements shouldBe 2
+					pagedResult.content.size shouldBe 1
+					pagedResult.totalPages shouldBe 2
+				}
+			}
+
+			context("Call getExcludeUsersPosts with all users excluded") {
+				it("Assert empty result") {
+					val userId1 = 10L
+					val userId2 = 20L
+
+					postRepository.save(
+						Post("Title 1", "SubTitle 1", "Content 1", userId1)
+					)
+					postRepository.save(
+						Post("Title 2", "SubTitle 2", "Content 2", userId2)
+					)
+
+					val excludeAllUserIds = listOf(userId1, userId2)
+					val pageable = PageRequest.of(0, 10)
+					val result = postRepository.getExcludeUsersPosts(excludeAllUserIds, pageable)
+
+					result.totalElements shouldBe 0
+					result.content.size shouldBe 0
+					result.isEmpty shouldBe true
+				}
+			}
+
+			context("Call getExcludeUsersPosts with empty exclude list") {
+				it("Assert all posts are returned") {
+					val userId1 = 100L
+					val userId2 = 200L
+
+					postRepository.save(
+						Post("Title 1", "SubTitle 1", "Content 1", userId1)
+					)
+					postRepository.save(
+						Post("Title 2", "SubTitle 2", "Content 2", userId2)
+					)
+
+					val emptyExcludeList = emptyList<Long>()
+					val pageable = PageRequest.of(0, 10)
+					val result = postRepository.getExcludeUsersPosts(emptyExcludeList, pageable)
+
+					result.totalElements shouldBe 2
+					result.content.size shouldBe 2
 				}
 			}
 		}

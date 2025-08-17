@@ -12,19 +12,25 @@ import com.example.demo.user.exception.AlreadyUserExistException
 import com.example.demo.user.exception.UserNotFoundException
 import com.example.demo.user.repository.UserRepository
 import org.instancio.Instancio
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.context.ActiveProfiles
@@ -32,9 +38,7 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles("test")
 @Tag("mockito-unit-test")
 @DisplayName("Mockito Unit - Post / Put / Delete / Patch User Service Test")
-@ExtendWith(
-	MockitoExtension::class
-)
+@ExtendWith(MockitoExtension::class)
 class ChangeUserServiceTests {
 	@Mock
 	private lateinit var userRepository: UserRepository
@@ -72,12 +76,17 @@ class ChangeUserServiceTests {
 	inner class DeleteTest {
 		@Test
 		@DisplayName("Success delete user")
-		fun should_VerifyCallDeleteRefreshTokenAndDeleteByIdMethods_when_GivenUserId() {
-			changeUserServiceImpl.deleteUserById(user.id)
+		fun `should delete user and related data when given valid user id`() {
+			val userId = user.id
 
-			Mockito.verify(tokenProvider, Mockito.times(1)).deleteRefreshToken(any<Long>())
-			Mockito.verify(postServiceImpl, Mockito.times(1)).deletePostByUserId(any<Long>())
-			Mockito.verify(userRepository, Mockito.times(1)).deleteById(any<Long>())
+			changeUserServiceImpl.deleteUserById(userId)
+
+			inOrder(tokenProvider, postServiceImpl, userRepository) {
+				verify(tokenProvider).deleteRefreshToken(userId)
+				verify(postServiceImpl).deletePostByUserId(userId)
+				verify(userRepository).deleteById(userId)
+			}
+			verifyNoMoreInteractions(tokenProvider, postServiceImpl, userRepository)
 		}
 	}
 
@@ -86,38 +95,40 @@ class ChangeUserServiceTests {
 	inner class UpdateTest {
 		private val updateUserRequest: UpdateUserRequest =
 			Instancio
-				.create(
-					UpdateUserRequest::class.java
-				).copy(
-					role = UserRole.USER.name
-				)
+				.create(UpdateUserRequest::class.java)
+				.copy(role = UserRole.USER.name)
 
 		@Test
 		@DisplayName("Success update user")
-		fun should_AssertUpdateUserResponse_when_GivenUserIdAndUpdateUserRequest() {
-			Mockito.`when`(userServiceImpl.validateReturnUser(any<Long>())).thenReturn(user)
+		fun `should return updated user response when update successful`() {
+			val userId = user.id
+			whenever(userServiceImpl.validateReturnUser(userId)) doReturn user
 
 			val updateUserResponse =
 				changeUserServiceImpl.updateUser(
-					user.id,
+					userId,
 					updateUserRequest
 				)
 
 			assertNotNull(updateUserResponse)
 			assertEquals(user.name, updateUserResponse.name)
 			assertEquals(user.role, updateUserResponse.role)
+
+			verify(userServiceImpl).validateReturnUser(userId)
+			verifyNoMoreInteractions(userServiceImpl)
 		}
 
 		@Test
 		@DisplayName("Not found user")
-		fun should_AssertUserNotFoundException_when_GivenUserIdAndUpdateUserRequest() {
-			Mockito
-				.`when`(userServiceImpl.validateReturnUser(any<Long>()))
-				.thenThrow(UserNotFoundException(user.id))
+		fun `should throw UserNotFoundException when user not found`() {
+			val userId = user.id
+			whenever(userServiceImpl.validateReturnUser(userId)) doThrow UserNotFoundException(userId)
 
-			Assertions.assertThrows(
-				UserNotFoundException::class.java
-			) { changeUserServiceImpl.updateUser(user.id, updateUserRequest) }
+			assertThrows<UserNotFoundException> {
+				changeUserServiceImpl.updateUser(userId, updateUserRequest)
+			}
+
+			verify(userServiceImpl).validateReturnUser(userId)
 		}
 	}
 
@@ -125,41 +136,42 @@ class ChangeUserServiceTests {
 	@DisplayName("Create User Test")
 	inner class RegisterTest {
 		private val createUserRequest: CreateUserRequest =
-			Instancio.create(
-				CreateUserRequest::class.java
-			)
+			Instancio.create(CreateUserRequest::class.java)
 
 		@Test
 		@DisplayName("Success create user")
-		fun should_AssertCreateUserResponse_when_GivenCreateUserRequest() {
-			Mockito
-				.`when`(bCryptPasswordEncoder.encode(any<String>()))
-				.thenReturn(defaultUserEncodePassword)
+		fun `should return created user response when creation successful`() {
+			whenever(userRepository.existsByEmail(createUserRequest.email)) doReturn false
+			whenever(bCryptPasswordEncoder.encode(createUserRequest.password)) doReturn defaultUserEncodePassword
+			whenever(userRepository.save(any<User>())) doReturn user
+			whenever(tokenProvider.createFullTokens(user)) doReturn defaultAccessToken
 
-			Mockito.`when`(userRepository.save(any<User>())).thenReturn(user)
-
-			Mockito
-				.`when`(tokenProvider.createFullTokens(any<User>()))
-				.thenReturn(defaultAccessToken)
-
-			val createUserResponse =
-				changeUserServiceImpl.createUser(
-					createUserRequest
-				)
+			val createUserResponse = changeUserServiceImpl.createUser(createUserRequest)
 
 			assertNotNull(createUserResponse)
 			assertEquals(user.email, createUserResponse.email)
 			assertEquals(user.name, createUserResponse.name)
+
+			inOrder(userRepository, bCryptPasswordEncoder, tokenProvider) {
+				verify(userRepository).existsByEmail(createUserRequest.email)
+				verify(bCryptPasswordEncoder).encode(createUserRequest.password)
+				verify(userRepository).save(any())
+				verify(tokenProvider).createFullTokens(user)
+			}
 		}
 
 		@Test
 		@DisplayName("Already user exist")
-		fun should_AssertAlreadyUserExistException_when_GivenCreateUserRequest() {
-			Mockito.`when`(userRepository.existsByEmail(any<String>())).thenReturn(true)
+		fun `should throw AlreadyUserExistException when email already exists`() {
+			whenever(userRepository.existsByEmail(createUserRequest.email)) doReturn true
 
-			Assertions.assertThrows(
-				AlreadyUserExistException::class.java
-			) { changeUserServiceImpl.createUser(createUserRequest) }
+			assertThrows<AlreadyUserExistException> {
+				changeUserServiceImpl.createUser(createUserRequest)
+			}
+
+			verify(userRepository).existsByEmail(createUserRequest.email)
+			verifyNoInteractions(bCryptPasswordEncoder, tokenProvider)
+			verifyNoMoreInteractions(userRepository)
 		}
 	}
 }

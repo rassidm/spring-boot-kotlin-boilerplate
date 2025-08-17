@@ -16,9 +16,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
@@ -45,7 +45,7 @@ class GetUserServiceTests {
 		@Test
 		@DisplayName("Success get user by id")
 		fun should_AssertGetUserResponse_when_GivenUserId() {
-			Mockito.`when`(userRepository.findOneById(any<Long>())).thenReturn(user)
+			whenever(userRepository.findOneById(any<Long>())).thenReturn(user)
 
 			val getUserResponse =
 				getUserServiceImpl.getUserById(
@@ -62,8 +62,7 @@ class GetUserServiceTests {
 		@Test
 		@DisplayName("Not found user")
 		fun should_AssertUserNotFoundException_when_GivenUserId() {
-			Mockito
-				.`when`(userRepository.findOneById(any<Long>()))
+			whenever(userRepository.findOneById(any<Long>()))
 				.thenThrow(UserNotFoundException(user.id))
 
 			assertThrows(
@@ -78,8 +77,7 @@ class GetUserServiceTests {
 		@Test
 		@DisplayName("Success get user by email")
 		fun should_AssertGetUserResponse_when_GivenUserEmail() {
-			Mockito
-				.`when`(userRepository.findOneByEmail(any<String>()))
+			whenever(userRepository.findOneByEmail(any<String>()))
 				.thenReturn(user)
 
 			val getUserResponse =
@@ -97,8 +95,7 @@ class GetUserServiceTests {
 		@Test
 		@DisplayName("Not found user")
 		fun should_AssertUserNotFoundException_when_GivenUserId() {
-			Mockito
-				.`when`(userRepository.findOneByEmail(any<String>()))
+			whenever(userRepository.findOneByEmail(any<String>()))
 				.thenThrow(UserNotFoundException(user.email))
 
 			assertThrows(
@@ -113,7 +110,7 @@ class GetUserServiceTests {
 		@Test
 		@DisplayName("Success get user list")
 		fun should_AssertPageOfGetUserResponse_when_GivenDefaultPageable() {
-			Mockito.`when`(userRepository.findAll(any<Pageable>())).thenReturn(PageImpl(listOf(user), defaultPageable, 1))
+			whenever(userRepository.findAll(any<Pageable>())).thenReturn(PageImpl(listOf(user), defaultPageable, 1))
 
 			val getUserResponseList =
 				getUserServiceImpl.getUserList(
@@ -129,8 +126,7 @@ class GetUserServiceTests {
 		@Test
 		@DisplayName("Get user list is empty")
 		fun should_AssertPageOfGetUserResponseIsEmpty_when_GivenDefaultPageable() {
-			Mockito
-				.`when`(userRepository.findAll(any<Pageable>()))
+			whenever(userRepository.findAll(any<Pageable>()))
 				.thenReturn(PageImpl(listOf(), defaultPageable, 0))
 
 			val getUserResponseList =

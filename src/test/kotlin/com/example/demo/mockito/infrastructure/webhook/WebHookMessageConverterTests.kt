@@ -20,9 +20,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.test.context.ActiveProfiles
 
 @ActiveProfiles("test")
@@ -53,7 +53,7 @@ class WebHookMessageConverterTests {
 
 	@Test
 	fun `should convert SlackWebHookMessage when target is SLACK`() {
-		`when`(slackConverter.convertToSlackMessage(slackMessage)).thenReturn(convertedSlackMessage)
+		whenever(slackConverter.convertToSlackMessage(slackMessage)).thenReturn(convertedSlackMessage)
 
 		val result = converter.convert(WebHookTarget.SLACK, slackMessage)
 
@@ -63,7 +63,7 @@ class WebHookMessageConverterTests {
 
 	@Test
 	fun `should convert DiscordWebHookMessage when target is DISCORD`() {
-		`when`(discordConverter.convertToDiscordMessage(discordMessage)).thenReturn(convertedDiscordMessage)
+		whenever(discordConverter.convertToDiscordMessage(discordMessage)).thenReturn(convertedDiscordMessage)
 
 		val result = converter.convert(WebHookTarget.DISCORD, discordMessage)
 
@@ -73,7 +73,7 @@ class WebHookMessageConverterTests {
 
 	@Test
 	fun `should convert CommonWebHookMessage to Slack message when target is SLACK`() {
-		`when`(slackConverter.convertCommonToSlackMessage(commonMessage)).thenReturn(convertedSlackMessage)
+		whenever(slackConverter.convertCommonToSlackMessage(commonMessage)).thenReturn(convertedSlackMessage)
 
 		val result = converter.convert(WebHookTarget.SLACK, commonMessage)
 
@@ -83,7 +83,7 @@ class WebHookMessageConverterTests {
 
 	@Test
 	fun `should convert CommonWebHookMessage to Discord message when target is DISCORD`() {
-		`when`(discordConverter.convertCommonToDiscordMessage(commonMessage)).thenReturn(convertedDiscordMessage)
+		whenever(discordConverter.convertCommonToDiscordMessage(commonMessage)).thenReturn(convertedDiscordMessage)
 
 		val result = converter.convert(WebHookTarget.DISCORD, commonMessage)
 

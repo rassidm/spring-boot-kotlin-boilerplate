@@ -22,9 +22,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -53,8 +55,7 @@ class PostControllerTests {
 	@Test
 	@DisplayName("Get post by id")
 	fun should_AssertGetPostResponse_when_GivenPostId() {
-		Mockito
-			.`when`(getPostServiceImpl.getPostById(any<Long>()))
+		whenever(getPostServiceImpl.getPostById(any<Long>()))
 			.thenReturn(GetPostResponse.from(post))
 
 		val response =
@@ -81,8 +82,7 @@ class PostControllerTests {
 	@Test
 	@DisplayName("Get post list")
 	fun should_AssertPageOfGetPostResponse_when_GivenDefaultPageable() {
-		Mockito
-			.`when`(getPostServiceImpl.getPostList(any<Pageable>()))
+		whenever(getPostServiceImpl.getPostList(any<Pageable>()))
 			.thenReturn(PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1))
 
 		val response =
@@ -115,8 +115,7 @@ class PostControllerTests {
 				GetExcludeUsersPostsRequest::class.java
 			)
 
-		Mockito
-			.`when`(getPostServiceImpl.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()))
+		whenever(getPostServiceImpl.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()))
 			.thenReturn(PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1))
 
 		val response =
@@ -154,8 +153,7 @@ class PostControllerTests {
 				SecurityUserItem::class.java
 			)
 
-		Mockito
-			.`when`(changePostServiceImpl.createPost(any<Long>(), any<CreatePostRequest>()))
+		whenever(changePostServiceImpl.createPost(any<Long>(), any<CreatePostRequest>()))
 			.thenReturn(CreatePostResponse.from(post))
 
 		val response =
@@ -188,8 +186,7 @@ class PostControllerTests {
 				UpdatePostRequest::class.java
 			)
 
-		Mockito
-			.`when`(changePostServiceImpl.updatePost(any<Long>(), any<UpdatePostRequest>()))
+		whenever(changePostServiceImpl.updatePost(any<Long>(), any<UpdatePostRequest>()))
 			.thenReturn(UpdatePostResponse.from(post))
 
 		val response =
@@ -223,6 +220,6 @@ class PostControllerTests {
 		assertNull(response.body)
 		assertEquals(HttpStatus.NO_CONTENT, response.statusCode)
 
-		Mockito.verify(changePostServiceImpl, Mockito.times(1)).deletePostById(any<Long>())
+		verify(changePostServiceImpl, times(1)).deletePostById(any<Long>())
 	}
 }

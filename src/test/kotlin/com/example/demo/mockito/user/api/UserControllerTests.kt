@@ -22,9 +22,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -33,9 +36,7 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles("test")
 @Tag("mockito-unit-test")
 @DisplayName("Mockito Unit - User Controller Test")
-@ExtendWith(
-	MockitoExtension::class
-)
+@ExtendWith(MockitoExtension::class)
 class UserControllerTests {
 	@InjectMocks
 	private lateinit var userController: UserController
@@ -55,168 +56,138 @@ class UserControllerTests {
 
 	@Test
 	@DisplayName("Get user by id")
-	fun should_AssertGetUserResponse_when_GivenUserId() {
-		Mockito
-			.`when`(getUserServiceImpl.getUserById(any<Long>()))
-			.thenReturn(GetUserResponse.from(user))
+	fun `should return user response when getting user by id`() {
+		val userId = user.id
+		val expectedResponse = GetUserResponse.from(user)
+		whenever(getUserServiceImpl.getUserById(userId)) doReturn expectedResponse
 
-		val response =
-			userController.getUserById(
-				user.id
-			)
+		val response = userController.getUserById(userId)
 
 		assertNotNull(response)
 		assertNotNull(response.body)
 		assertEquals(HttpStatus.OK, response.statusCode)
 
-		val body =
-			requireNotNull(response.body) {
-				"Response body must not be null"
-			}
+		response.body?.let { body ->
+			assertEquals(user.id, body.userId)
+			assertEquals(user.email, body.email)
+			assertEquals(user.name, body.name)
+			assertEquals(user.role, body.role)
+		}
 
-		assertEquals(user.id, body.userId)
-		assertEquals(user.email, body.email)
-		assertEquals(user.name, body.name)
-		assertEquals(user.role, body.role)
+		verify(getUserServiceImpl).getUserById(userId)
+		verifyNoMoreInteractions(getUserServiceImpl)
 	}
 
 	@Test
 	@DisplayName("Get user list")
-	fun should_AssertPageOfGetUserResponse_when_GivenDefaultPageable() {
-		Mockito
-			.`when`(getUserServiceImpl.getUserList(any<Pageable>()))
-			.thenReturn(PageImpl(listOf(GetUserResponse.from(user)), defaultPageable, 1))
+	fun `should return page of users when getting user list`() {
+		val userResponse = GetUserResponse.from(user)
+		val expectedPage = PageImpl(listOf(userResponse), defaultPageable, 1)
+		whenever(getUserServiceImpl.getUserList(defaultPageable)) doReturn expectedPage
 
-		val response =
-			userController.getUserList(
-				defaultPageable
-			)
+		val response = userController.getUserList(defaultPageable)
 
 		assertNotNull(response)
 		assertNotNull(response.body)
 		assertEquals(HttpStatus.OK, response.statusCode)
 
-		val body =
-			requireNotNull(response.body) {
-				"Response body must not be null"
-			}
+		response.body?.let { body ->
+			assertThat(body).isNotEmpty()
+			assertEquals(user.id, body.content[0].userId)
+			assertEquals(user.email, body.content[0].email)
+			assertEquals(user.name, body.content[0].name)
+			assertEquals(user.role, body.content[0].role)
+		}
 
-		assertThat(body).isNotEmpty()
-		assertEquals(user.id, body.content[0].userId)
-		assertEquals(user.email, body.content[0].email)
-		assertEquals(user.name, body.content[0].name)
-		assertEquals(user.role, body.content[0].role)
+		verify(getUserServiceImpl).getUserList(defaultPageable)
+		verifyNoMoreInteractions(getUserServiceImpl)
 	}
 
 	@Test
 	@DisplayName("Create user")
-	fun should_AssertCreateUserResponse_when_GivenCreateUserRequest() {
-		val createUserRequest =
-			Instancio.create(
-				CreateUserRequest::class.java
-			)
+	fun `should return created user response when creating user`() {
+		val createUserRequest = Instancio.create(CreateUserRequest::class.java)
+		val expectedResponse = from(user, defaultAccessToken)
+		whenever(changeUserServiceImpl.createUser(createUserRequest)) doReturn expectedResponse
 
-		Mockito
-			.`when`(changeUserServiceImpl.createUser(any<CreateUserRequest>()))
-			.thenReturn(from(user, defaultAccessToken))
-
-		val response =
-			userController.createUser(
-				createUserRequest
-			)
+		val response = userController.createUser(createUserRequest)
 
 		assertNotNull(response)
 		assertNotNull(response.body)
 		assertEquals(HttpStatus.CREATED, response.statusCode)
 
-		val body =
-			requireNotNull(response.body) {
-				"Response body must not be null"
-			}
+		response.body?.let { body ->
+			assertEquals(user.email, body.email)
+			assertEquals(user.name, body.name)
+			assertEquals(defaultAccessToken, body.accessToken)
+		}
 
-		assertEquals(user.email, body.email)
-		assertEquals(user.name, body.name)
-		assertEquals(defaultAccessToken, body.accessToken)
+		verify(changeUserServiceImpl).createUser(createUserRequest)
+		verifyNoMoreInteractions(changeUserServiceImpl)
 	}
 
 	@Test
 	@DisplayName("Update user")
-	fun should_AssertUpdateUserResponse_when_GivenUserIdAndUpdateUserRequest() {
-		val updateUserRequest =
-			Instancio.create(
-				UpdateUserRequest::class.java
-			)
+	fun `should return updated user response when updating user`() {
+		val userId = user.id
+		val updateUserRequest = Instancio.create(UpdateUserRequest::class.java)
+		val expectedResponse = UpdateUserResponse.from(user)
+		whenever(changeUserServiceImpl.updateUser(userId, updateUserRequest)) doReturn expectedResponse
 
-		Mockito
-			.`when`(changeUserServiceImpl.updateUser(any<Long>(), any<UpdateUserRequest>()))
-			.thenReturn(UpdateUserResponse.from(user))
-
-		val response =
-			userController.updateUser(
-				updateUserRequest,
-				user.id
-			)
+		val response = userController.updateUser(updateUserRequest, userId)
 
 		assertNotNull(response)
 		assertNotNull(response.body)
 		assertEquals(HttpStatus.OK, response.statusCode)
 
-		val body =
-			requireNotNull(response.body) {
-				"Response body must not be null"
-			}
+		response.body?.let { body ->
+			assertEquals(user.email, body.email)
+			assertEquals(user.name, body.name)
+			assertEquals(user.role, body.role)
+		}
 
-		assertEquals(user.email, body.email)
-		assertEquals(user.name, body.name)
-		assertEquals(user.role, body.role)
+		verify(changeUserServiceImpl).updateUser(userId, updateUserRequest)
+		verifyNoMoreInteractions(changeUserServiceImpl)
 	}
 
 	@Test
 	@DisplayName("Update me")
-	fun should_AssertUpdateMeResponse_when_GivenSecurityUserItemAndUpdateUserRequest() {
-		val updateUserRequest =
-			Instancio.create(
-				UpdateUserRequest::class.java
-			)
-		val securityUserItem =
-			Instancio.create(
-				SecurityUserItem::class.java
-			)
+	fun `should return updated me response when updating current user`() {
+		val updateUserRequest = Instancio.create(UpdateUserRequest::class.java)
+		val securityUserItem = Instancio.create(SecurityUserItem::class.java)
+		val expectedResponse = UpdateMeResponse.from(user, defaultAccessToken)
+		whenever(changeUserServiceImpl.updateMe(securityUserItem.userId, updateUserRequest)) doReturn expectedResponse
 
-		Mockito
-			.`when`(changeUserServiceImpl.updateMe(any<Long>(), any<UpdateUserRequest>()))
-			.thenReturn(UpdateMeResponse.from(user, defaultAccessToken))
-
-		val response =
-			userController.updateMe(
-				updateUserRequest,
-				securityUserItem
-			)
+		val response = userController.updateMe(updateUserRequest, securityUserItem)
 
 		assertNotNull(response)
 		assertNotNull(response.body)
 		assertEquals(HttpStatus.OK, response.statusCode)
 
-		val body =
-			requireNotNull(response.body) {
-				"Response body must not be null"
-			}
+		response.body?.let { body ->
+			assertEquals(user.email, body.email)
+			assertEquals(user.name, body.name)
+			assertEquals(user.role, body.role)
+			assertEquals(defaultAccessToken, body.accessToken)
+		}
 
-		assertEquals(user.email, body.email)
-		assertEquals(user.name, body.name)
-		assertEquals(user.role, body.role)
-		assertEquals(defaultAccessToken, body.accessToken)
+		verify(changeUserServiceImpl).updateMe(securityUserItem.userId, updateUserRequest)
+		verifyNoMoreInteractions(changeUserServiceImpl)
 	}
 
 	@Test
 	@DisplayName("Delete user")
-	fun should_VerifyCallDeleteUserMethod_when_GivenUserId() {
-		val response = userController.deleteUser(user.id)
+	fun `should return no content when deleting user`() {
+		val userId = user.id
+		doNothing().whenever(changeUserServiceImpl).deleteUserById(userId)
+
+		val response = userController.deleteUser(userId)
 
 		assertNotNull(response)
 		assertNull(response.body)
 		assertEquals(HttpStatus.NO_CONTENT, response.statusCode)
 
-		Mockito.verify(changeUserServiceImpl, Mockito.times(1)).deleteUserById(any<Long>())
+		verify(changeUserServiceImpl).deleteUserById(userId)
+		verifyNoMoreInteractions(changeUserServiceImpl)
 	}
 }

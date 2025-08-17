@@ -12,17 +12,16 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyList
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.mail.MailSender
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.test.context.ActiveProfiles
@@ -40,8 +39,8 @@ class MailHelperTests {
 
 	@BeforeEach
 	fun setup() {
-		mailSender = mock(MailSender::class.java)
-		webHookProvider = mock(WebHookProvider::class.java)
+		mailSender = mock()
+		webHookProvider = mock()
 		mailHelper = MailHelper(mailSender, webHookProvider)
 	}
 
@@ -56,10 +55,10 @@ class MailHelperTests {
 
 		mailHelper.sendEmail(payload)
 
-		val messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage::class.java)
+		val messageCaptor = argumentCaptor<SimpleMailMessage>()
 		verify(mailSender, times(1)).send(messageCaptor.capture())
 
-		val captured = messageCaptor.value
+		val captured = messageCaptor.firstValue
 		assertArrayEquals(arrayOf("awakelife93@gmail.com"), captured.to)
 		assertEquals("Test Subject", captured.subject)
 		assertEquals("Test Body", captured.text)
@@ -84,7 +83,7 @@ class MailHelperTests {
 			exception.message
 		)
 
-		verify(mailSender, times(0)).send(any(SimpleMailMessage::class.java))
+		verify(mailSender, times(0)).send(any<SimpleMailMessage>())
 	}
 
 	@Test
@@ -97,10 +96,10 @@ class MailHelperTests {
 			)
 
 		doThrow(CustomRuntimeException("SMTP error"))
-			.`when`(mailSender)
-			.send(any(SimpleMailMessage::class.java))
+			.whenever(mailSender)
+			.send(any<SimpleMailMessage>())
 
-		doNothing().`when`(webHookProvider).sendSlack(anyString(), anyList())
+		doNothing().whenever(webHookProvider).sendSlack(any(), any())
 
 		assertThrows<CustomRuntimeException> {
 			mailHelper.sendEmail(payload)

@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.test.context.ActiveProfiles
@@ -37,7 +39,7 @@ class SecurityUtilsTests {
 		val stringWriter = StringWriter()
 		val printWriter = PrintWriter(stringWriter)
 
-		Mockito.`when`(mockHttpServletResponse.writer).thenReturn(printWriter)
+		whenever(mockHttpServletResponse.writer).thenReturn(printWriter)
 
 		sendErrorResponse(
 			mockHttpServletRequest,
@@ -46,9 +48,9 @@ class SecurityUtilsTests {
 			"test exception"
 		)
 
-		Mockito.verify(mockHttpServletResponse, Mockito.times(1)).status = any<Int>()
-		Mockito.verify(mockHttpServletResponse, Mockito.times(1)).contentType =
+		verify(mockHttpServletResponse, times(1)).status = any<Int>()
+		verify(mockHttpServletResponse, times(1)).contentType =
 			any<String>()
-		Mockito.verify(mockHttpServletResponse, Mockito.times(1)).writer
+		verify(mockHttpServletResponse, times(1)).writer
 	}
 }

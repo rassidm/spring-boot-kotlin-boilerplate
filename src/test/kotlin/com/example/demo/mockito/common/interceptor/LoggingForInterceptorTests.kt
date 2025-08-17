@@ -15,12 +15,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.mockito.quality.Strictness
 import org.slf4j.MDC
 import org.springframework.test.context.ActiveProfiles
@@ -58,18 +58,18 @@ class LoggingForInterceptorTests {
 		xRealIp: String? = null,
 		cfConnectingIp: String? = null
 	) {
-		Mockito.`when`(request.getHeader("X-Forwarded-For")).thenReturn(xForwardedFor)
-		Mockito.`when`(request.getHeader("X-Real-IP")).thenReturn(xRealIp)
-		Mockito.`when`(request.getHeader("CF-Connecting-IP")).thenReturn(cfConnectingIp)
-		Mockito.`when`(request.getHeader("X-Original-Forwarded-For")).thenReturn(null)
-		Mockito.`when`(request.getHeader("Proxy-Client-IP")).thenReturn(null)
-		Mockito.`when`(request.getHeader("WL-Proxy-Client-IP")).thenReturn(null)
-		Mockito.`when`(request.getHeader("HTTP_X_FORWARDED_FOR")).thenReturn(null)
-		Mockito.`when`(request.getHeader("HTTP_X_FORWARDED")).thenReturn(null)
-		Mockito.`when`(request.getHeader("HTTP_X_CLUSTER_CLIENT_IP")).thenReturn(null)
-		Mockito.`when`(request.getHeader("HTTP_CLIENT_IP")).thenReturn(null)
-		Mockito.`when`(request.getHeader("HTTP_FORWARDED_FOR")).thenReturn(null)
-		Mockito.`when`(request.getHeader("HTTP_FORWARDED")).thenReturn(null)
+		whenever(request.getHeader("X-Forwarded-For")).thenReturn(xForwardedFor)
+		whenever(request.getHeader("X-Real-IP")).thenReturn(xRealIp)
+		whenever(request.getHeader("CF-Connecting-IP")).thenReturn(cfConnectingIp)
+		whenever(request.getHeader("X-Original-Forwarded-For")).thenReturn(null)
+		whenever(request.getHeader("Proxy-Client-IP")).thenReturn(null)
+		whenever(request.getHeader("WL-Proxy-Client-IP")).thenReturn(null)
+		whenever(request.getHeader("HTTP_X_FORWARDED_FOR")).thenReturn(null)
+		whenever(request.getHeader("HTTP_X_FORWARDED")).thenReturn(null)
+		whenever(request.getHeader("HTTP_X_CLUSTER_CLIENT_IP")).thenReturn(null)
+		whenever(request.getHeader("HTTP_CLIENT_IP")).thenReturn(null)
+		whenever(request.getHeader("HTTP_FORWARDED_FOR")).thenReturn(null)
+		whenever(request.getHeader("HTTP_FORWARDED")).thenReturn(null)
 	}
 
 	@Nested
@@ -84,17 +84,17 @@ class LoggingForInterceptorTests {
 			val clientIp = "192.168.1.1"
 			val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
 
-			Mockito.`when`(request.getHeader("X-Request-Id")).thenReturn(requestId)
+			whenever(request.getHeader("X-Request-Id")).thenReturn(requestId)
 			stubAllProxyHeaders()
-			Mockito.`when`(request.getHeader("User-Agent")).thenReturn(userAgent)
+			whenever(request.getHeader("User-Agent")).thenReturn(userAgent)
 
-			Mockito.`when`(request.method).thenReturn(method)
-			Mockito.`when`(request.requestURI).thenReturn(requestUri)
-			Mockito.`when`(request.queryString).thenReturn(null)
-			Mockito.`when`(request.remoteAddr).thenReturn(clientIp)
+			whenever(request.method).thenReturn(method)
+			whenever(request.requestURI).thenReturn(requestUri)
+			whenever(request.queryString).thenReturn(null)
+			whenever(request.remoteAddr).thenReturn(clientIp)
 
-			Mockito.`when`(handlerMethod.beanType).thenReturn(this::class.java)
-			Mockito.`when`(handlerMethod.method).thenReturn(this::class.java.methods[0])
+			whenever(handlerMethod.beanType).thenReturn(this::class.java)
+			whenever(handlerMethod.method).thenReturn(this::class.java.methods[0])
 
 			val result = loggingForInterceptor.preHandle(request, response, handlerMethod)
 
@@ -119,16 +119,16 @@ class LoggingForInterceptorTests {
 			val clientIp = "10.0.0.1"
 			val userAgent = "TestAgent/1.0"
 
-			Mockito.`when`(request.getHeader("X-Request-Id")).thenReturn(null)
+			whenever(request.getHeader("X-Request-Id")).thenReturn(null)
 			stubAllProxyHeaders(xForwardedFor = "$clientIp, 192.168.1.1")
-			Mockito.`when`(request.getHeader("User-Agent")).thenReturn(userAgent)
+			whenever(request.getHeader("User-Agent")).thenReturn(userAgent)
 
-			Mockito.`when`(request.method).thenReturn(method)
-			Mockito.`when`(request.requestURI).thenReturn(requestUri)
-			Mockito.`when`(request.queryString).thenReturn(queryString)
+			whenever(request.method).thenReturn(method)
+			whenever(request.requestURI).thenReturn(requestUri)
+			whenever(request.queryString).thenReturn(queryString)
 
-			Mockito.`when`(handlerMethod.beanType).thenReturn(this::class.java)
-			Mockito.`when`(handlerMethod.method).thenReturn(this::class.java.methods[0])
+			whenever(handlerMethod.beanType).thenReturn(this::class.java)
+			whenever(handlerMethod.method).thenReturn(this::class.java.methods[0])
 
 			val result = loggingForInterceptor.preHandle(request, response, handlerMethod)
 
@@ -149,14 +149,14 @@ class LoggingForInterceptorTests {
 			val simpleHandler = Any()
 			val requestId = "test-id"
 
-			Mockito.`when`(request.getHeader("X-Request-Id")).thenReturn(requestId)
+			whenever(request.getHeader("X-Request-Id")).thenReturn(requestId)
 			stubAllProxyHeaders()
-			Mockito.`when`(request.getHeader("User-Agent")).thenReturn("Test")
+			whenever(request.getHeader("User-Agent")).thenReturn("Test")
 
-			Mockito.`when`(request.method).thenReturn("GET")
-			Mockito.`when`(request.requestURI).thenReturn("/test")
-			Mockito.`when`(request.queryString).thenReturn(null)
-			Mockito.`when`(request.remoteAddr).thenReturn("127.0.0.1")
+			whenever(request.method).thenReturn("GET")
+			whenever(request.requestURI).thenReturn("/test")
+			whenever(request.queryString).thenReturn(null)
+			whenever(request.remoteAddr).thenReturn("127.0.0.1")
 
 			val result = loggingForInterceptor.preHandle(request, response, simpleHandler)
 
@@ -169,16 +169,16 @@ class LoggingForInterceptorTests {
 		fun should_UseXRealIP_when_XForwardedForIsNotAvailable() {
 			val realIp = "203.0.113.1"
 
-			Mockito.`when`(request.getHeader("X-Request-Id")).thenReturn("test-id")
+			whenever(request.getHeader("X-Request-Id")).thenReturn("test-id")
 			stubAllProxyHeaders(xRealIp = realIp)
-			Mockito.`when`(request.getHeader("User-Agent")).thenReturn("Test")
+			whenever(request.getHeader("User-Agent")).thenReturn("Test")
 
-			Mockito.`when`(request.method).thenReturn("GET")
-			Mockito.`when`(request.requestURI).thenReturn("/api/test")
-			Mockito.`when`(request.queryString).thenReturn(null)
+			whenever(request.method).thenReturn("GET")
+			whenever(request.requestURI).thenReturn("/api/test")
+			whenever(request.queryString).thenReturn(null)
 
-			Mockito.`when`(handlerMethod.beanType).thenReturn(this::class.java)
-			Mockito.`when`(handlerMethod.method).thenReturn(this::class.java.methods[0])
+			whenever(handlerMethod.beanType).thenReturn(this::class.java)
+			whenever(handlerMethod.method).thenReturn(this::class.java.methods[0])
 
 			val result = loggingForInterceptor.preHandle(request, response, handlerMethod)
 
@@ -191,17 +191,17 @@ class LoggingForInterceptorTests {
 		fun should_HandleAnyClassBeanType_when_HandlerMethodHasAnyClass() {
 			val requestId = "test-id"
 
-			Mockito.`when`(request.getHeader("X-Request-Id")).thenReturn(requestId)
+			whenever(request.getHeader("X-Request-Id")).thenReturn(requestId)
 			stubAllProxyHeaders()
-			Mockito.`when`(request.getHeader("User-Agent")).thenReturn("Test")
+			whenever(request.getHeader("User-Agent")).thenReturn("Test")
 
-			Mockito.`when`(request.method).thenReturn("GET")
-			Mockito.`when`(request.requestURI).thenReturn("/test")
-			Mockito.`when`(request.queryString).thenReturn(null)
-			Mockito.`when`(request.remoteAddr).thenReturn("127.0.0.1")
+			whenever(request.method).thenReturn("GET")
+			whenever(request.requestURI).thenReturn("/test")
+			whenever(request.queryString).thenReturn(null)
+			whenever(request.remoteAddr).thenReturn("127.0.0.1")
 
-			Mockito.`when`(handlerMethod.beanType).thenReturn(Any::class.java)
-			Mockito.`when`(handlerMethod.method).thenReturn(this::class.java.methods[0])
+			whenever(handlerMethod.beanType).thenReturn(Any::class.java)
+			whenever(handlerMethod.method).thenReturn(this::class.java.methods[0])
 
 			val result = loggingForInterceptor.preHandle(request, response, handlerMethod)
 
@@ -218,8 +218,8 @@ class LoggingForInterceptorTests {
 		@DisplayName("Should log normal request with fast response")
 		fun should_LogNormalRequest_when_ResponseIsFast() {
 			val startTime = System.currentTimeMillis() - 100
-			Mockito.`when`(request.getAttribute("startTime")).thenReturn(startTime)
-			Mockito.`when`(response.status).thenReturn(200)
+			whenever(request.getAttribute("startTime")).thenReturn(startTime)
+			whenever(response.status).thenReturn(200)
 
 			loggingForInterceptor.postHandle(request, response, handlerMethod, modelAndView)
 
@@ -232,8 +232,8 @@ class LoggingForInterceptorTests {
 		@DisplayName("Should log slow API warning when response is slow")
 		fun should_LogSlowAPIWarning_when_ResponseTimeExceedsThreshold() {
 			val startTime = System.currentTimeMillis() - 1500
-			Mockito.`when`(request.getAttribute("startTime")).thenReturn(startTime)
-			Mockito.`when`(response.status).thenReturn(200)
+			whenever(request.getAttribute("startTime")).thenReturn(startTime)
+			whenever(response.status).thenReturn(200)
 
 			loggingForInterceptor.postHandle(request, response, handlerMethod, modelAndView)
 
@@ -249,8 +249,8 @@ class LoggingForInterceptorTests {
 		@DisplayName("Should log error status for 4xx responses")
 		fun should_LogErrorStatus_when_ResponseIs4xx() {
 			val startTime = System.currentTimeMillis() - 50
-			Mockito.`when`(request.getAttribute("startTime")).thenReturn(startTime)
-			Mockito.`when`(response.status).thenReturn(404)
+			whenever(request.getAttribute("startTime")).thenReturn(startTime)
+			whenever(response.status).thenReturn(404)
 
 			loggingForInterceptor.postHandle(request, response, handlerMethod, modelAndView)
 
@@ -262,8 +262,8 @@ class LoggingForInterceptorTests {
 		@DisplayName("Should log error status for 5xx responses")
 		fun should_LogErrorStatus_when_ResponseIs5xx() {
 			val startTime = System.currentTimeMillis() - 75
-			Mockito.`when`(request.getAttribute("startTime")).thenReturn(startTime)
-			Mockito.`when`(response.status).thenReturn(500)
+			whenever(request.getAttribute("startTime")).thenReturn(startTime)
+			whenever(response.status).thenReturn(500)
 
 			loggingForInterceptor.postHandle(request, response, handlerMethod, modelAndView)
 
@@ -274,8 +274,8 @@ class LoggingForInterceptorTests {
 		@Test
 		@DisplayName("Should handle null start time gracefully")
 		fun should_HandleNullStartTime_when_StartTimeAttributeIsNull() {
-			Mockito.`when`(request.getAttribute("startTime")).thenReturn(null)
-			Mockito.`when`(response.status).thenReturn(200)
+			whenever(request.getAttribute("startTime")).thenReturn(null)
+			whenever(response.status).thenReturn(200)
 
 			loggingForInterceptor.postHandle(request, response, handlerMethod, modelAndView)
 

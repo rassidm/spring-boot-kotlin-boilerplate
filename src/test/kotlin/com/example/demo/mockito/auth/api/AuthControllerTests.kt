@@ -18,9 +18,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 
@@ -50,8 +50,7 @@ class AuthControllerTests {
 	fun should_AssertSignInResponse_when_GivenSignInRequest() {
 		val signInRequest = Instancio.create(SignInRequest::class.java)
 
-		Mockito
-			.`when`(authService.signIn(any<SignInRequest>()))
+		whenever(authService.signIn(any<SignInRequest>()))
 			.thenReturn(SignInResponse.from(user, defaultAccessToken))
 
 		val response =
@@ -98,8 +97,7 @@ class AuthControllerTests {
 				RefreshAccessTokenRequest::class.java
 			)
 
-		Mockito
-			.`when`(authService.refreshAccessToken(any<RefreshAccessTokenRequest>()))
+		whenever(authService.refreshAccessToken(any<RefreshAccessTokenRequest>()))
 			.thenReturn(RefreshAccessTokenResponse.of(defaultAccessToken))
 
 		val response =

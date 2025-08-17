@@ -21,9 +21,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.test.context.ActiveProfiles
 
 @ActiveProfiles("test")
@@ -54,49 +57,47 @@ class ChangePostServiceTests {
 		@Test
 		@DisplayName("Success soft delete post by post id")
 		fun should_VerifyCallSoftDeleteMethods_when_GivenPostId() {
-			Mockito.`when`(postServiceImpl.validateReturnPost(any<Long>())).thenReturn(post)
+			whenever(postServiceImpl.validateReturnPost(any<Long>())).thenReturn(post)
 
 			changePostServiceImpl.deletePostById(post.id)
 
-			Mockito.verify(postRepository, Mockito.times(1)).deleteById(post.id)
+			verify(postRepository, times(1)).deleteById(post.id)
 		}
 
 		@Test
 		@DisplayName("Not found post")
 		fun should_AssertPostNotFoundException_when_GivenPostId() {
-			Mockito
-				.`when`(postServiceImpl.validateReturnPost(any<Long>()))
+			whenever(postServiceImpl.validateReturnPost(any<Long>()))
 				.thenThrow(PostNotFoundException(post.id))
 
 			Assertions.assertThrows(
 				PostNotFoundException::class.java
 			) { changePostServiceImpl.deletePostById(post.id) }
 
-			Mockito.verify(postRepository, Mockito.never()).deleteById(any<Long>())
+			verify(postRepository, never()).deleteById(any<Long>())
 		}
 
 		@Test
 		@DisplayName("Success soft delete post by user id")
 		fun should_VerifyCallSoftDeleteMethods_when_GivenUserId() {
-			Mockito.`when`(userServiceImpl.validateReturnUser(any<Long>())).thenReturn(user)
+			whenever(userServiceImpl.validateReturnUser(any<Long>())).thenReturn(user)
 
 			changePostServiceImpl.deletePostByUserId(user.id)
 
-			Mockito.verify(postRepository, Mockito.times(1)).deleteByUserId(user.id)
+			verify(postRepository, times(1)).deleteByUserId(user.id)
 		}
 
 		@Test
 		@DisplayName("Not found user")
 		fun should_AssertPostNotFoundException_when_GivenUserId() {
-			Mockito
-				.`when`(userServiceImpl.validateReturnUser(any<Long>()))
+			whenever(userServiceImpl.validateReturnUser(any<Long>()))
 				.thenThrow(UserNotFoundException(user.id))
 
 			Assertions.assertThrows(
 				UserNotFoundException::class.java
 			) { changePostServiceImpl.deletePostByUserId(user.id) }
 
-			Mockito.verify(postRepository, Mockito.never()).deleteByUserId(any<Long>())
+			verify(postRepository, never()).deleteByUserId(any<Long>())
 		}
 	}
 
@@ -111,7 +112,7 @@ class ChangePostServiceTests {
 		@Test
 		@DisplayName("Success update post")
 		fun should_AssertUpdatePostResponse_when_GivenPostIdAndUpdatePostRequest() {
-			Mockito.`when`(postServiceImpl.validateReturnPost(any<Long>())).thenReturn(post)
+			whenever(postServiceImpl.validateReturnPost(any<Long>())).thenReturn(post)
 
 			val updatePostResponse =
 				changePostServiceImpl.updatePost(
@@ -133,8 +134,7 @@ class ChangePostServiceTests {
 		@Test
 		@DisplayName("Not found post")
 		fun should_AssertPostNotFoundException_when_GivenPostIdAndUpdatePostRequest() {
-			Mockito
-				.`when`(postServiceImpl.validateReturnPost(any<Long>()))
+			whenever(postServiceImpl.validateReturnPost(any<Long>()))
 				.thenThrow(PostNotFoundException(post.id))
 
 			Assertions.assertThrows(
@@ -154,9 +154,9 @@ class ChangePostServiceTests {
 		@Test
 		@DisplayName("Success create post")
 		fun should_AssertCreatePostResponse_when_GivenUserIdAndCreatePostRequest() {
-			Mockito.`when`(userServiceImpl.validateReturnUser(any<Long>())).thenReturn(user)
+			whenever(userServiceImpl.validateReturnUser(any<Long>())).thenReturn(user)
 
-			Mockito.`when`(postRepository.save(any<Post>())).thenReturn(post)
+			whenever(postRepository.save(any<Post>())).thenReturn(post)
 
 			val createPostResponse =
 				changePostServiceImpl.createPost(
@@ -178,8 +178,7 @@ class ChangePostServiceTests {
 		@Test
 		@DisplayName("Not found user")
 		fun should_AssertUserNotFoundException_when_GivenUserIdAndCreatePostRequest() {
-			Mockito
-				.`when`(userServiceImpl.validateReturnUser(any<Long>()))
+			whenever(userServiceImpl.validateReturnUser(any<Long>()))
 				.thenThrow(UserNotFoundException(user.id))
 
 			Assertions.assertThrows(

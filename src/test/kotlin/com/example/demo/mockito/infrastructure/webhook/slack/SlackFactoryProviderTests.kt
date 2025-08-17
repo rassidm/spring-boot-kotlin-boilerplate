@@ -14,11 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.MockedStatic
 import org.mockito.Mockito.mockStatic
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.test.context.ActiveProfiles
 
 @ActiveProfiles("test")
@@ -54,8 +54,8 @@ class SlackFactoryProviderTests {
 
 	@Test
 	fun `should send message successfully when Slack responds with 200`() {
-		`when`(responseMock.code).thenReturn(200)
-		`when`(slackMock.send(eq(url), any<Payload>())).thenReturn(responseMock)
+		whenever(responseMock.code).thenReturn(200)
+		whenever(slackMock.send(eq(url), any<Payload>())).thenReturn(responseMock)
 
 		val slackMessage =
 			listOf(
@@ -69,9 +69,9 @@ class SlackFactoryProviderTests {
 
 	@Test
 	fun `should throw exception when Slack responds with error code`() {
-		`when`(responseMock.code).thenReturn(500)
-		`when`(responseMock.message).thenReturn("Internal Server Error")
-		`when`(slackMock.send(eq(url), any<Payload>())).thenReturn(responseMock)
+		whenever(responseMock.code).thenReturn(500)
+		whenever(responseMock.message).thenReturn("Internal Server Error")
+		whenever(slackMock.send(eq(url), any<Payload>())).thenReturn(responseMock)
 
 		val slackMessage =
 			listOf(
