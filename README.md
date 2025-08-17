@@ -211,12 +211,12 @@ webHookProvider.sendDiscord(
 
 11. Service Access URLs (When services are running)
 
-					### Application
+	### Application
 	- **API Documentation (Swagger)**: http://localhost:8085/swagger-ui/index.html
 	- **H2 Console** (local environment): http://localhost:8085/h2-console
 	- **Application Server**: http://localhost:8085
 
-		### Infrastructure Services
+	### Infrastructure Services
 	- **MailHog** (Email Testing): http://localhost:8025
 	- **PgAdmin** (PostgreSQL Management): http://localhost:8088
 	- **Kafka UI** (Kafka Management): http://localhost:9000
@@ -225,7 +225,7 @@ webHookProvider.sendDiscord(
 	- **Kafka**: localhost:9092 (Broker connection)
 	- **Zookeeper**: localhost:2181 (Coordination service)
 
-		### Monitoring
+	### Monitoring
 	- **Grafana** (Metrics Dashboard): http://localhost:3000
 	- **Prometheus** (Metrics Collection): http://localhost:9090
 
