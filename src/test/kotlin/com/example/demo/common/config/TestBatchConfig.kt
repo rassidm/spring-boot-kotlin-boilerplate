@@ -26,5 +26,5 @@ import org.springframework.kafka.core.KafkaTemplate
 @ComponentScan(basePackageClasses = [UserDeleteItemReader::class, UserDeleteItemProcessor::class, UserDeleteItemWriter::class])
 class TestBatchConfig {
 	@Bean
-	fun userDeleteKafkaTemplate(): KafkaTemplate<String, UserDeleteItem> = mock(KafkaTemplate::class.java) as KafkaTemplate<String, UserDeleteItem>
+	fun userDeleteKafkaTemplate(): KafkaTemplate<String, UserDeleteItem> = mock()
 }
