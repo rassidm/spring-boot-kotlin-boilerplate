@@ -47,6 +47,16 @@ dependencies {
 		runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64")
 	}
 
+	// CVE-2025-48924 fix: Force commons-lang3 version globally
+	configurations.all {
+		resolutionStrategy.eachDependency {
+			if (requested.group == "org.apache.commons" && requested.name == "commons-lang3") {
+				useVersion("3.18.0")
+				because("CVE-2025-48924 - Fix Uncontrolled Recursion vulnerability")
+			}
+		}
+	}
+
 	// kotlin
 	implementation("org.jetbrains.kotlin:kotlin-stdlib")
 	implementation(kotlin("stdlib-jdk8"))
@@ -68,9 +78,8 @@ dependencies {
 	implementation("org.flywaydb:flyway-core:11.3.4")
 
 	// querydsl
-	implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
-	implementation("com.querydsl:querydsl-apt:5.1.0:jakarta")
-	kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
+	implementation("io.github.openfeign.querydsl:querydsl-jpa:7.0")
+	kapt("io.github.openfeign.querydsl:querydsl-apt:7.0:jpa")
 	kapt("jakarta.annotation:jakarta.annotation-api")
 	kapt("jakarta.persistence:jakarta.persistence-api")
 
@@ -95,7 +104,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 
 	// swagger
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
 
 	// sentry
 	implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.9.0")
