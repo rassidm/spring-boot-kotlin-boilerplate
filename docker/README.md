@@ -38,6 +38,14 @@ setup.sh
 - **Prometheus**: Metrics collection and storage
 - **Grafana**: Metrics visualization and dashboards
 
+### Network Configuration
+
+The setup script automatically manages a dedicated Docker network:
+- **Network Name**: `base_kafka-network`
+- **Purpose**: Enables reliable service discovery and communication between Kafka, Zookeeper, and Kafka UI
+- **Why needed**: Kafka services require stable network connectivity for cluster coordination and client connections
+- **Auto-creation**: The network is automatically created if it doesn't exist, preventing startup failures
+
 For all service URLs and detailed port information, see the main [README.md](../README.md).
 
 ## How to Start Services
@@ -52,7 +60,10 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-The script combines all docker-compose files and starts them as a single project, ensuring proper dependency resolution.
+The script will:
+1. **Check and create Kafka network**: Automatically creates the `base_kafka-network` Docker network if it doesn't exist
+2. **Combine all docker-compose files**: Merges all service configurations into a single project
+3. **Start services**: Launches all services in the background with proper dependency resolution
 
 ### Start Individual Services
 
