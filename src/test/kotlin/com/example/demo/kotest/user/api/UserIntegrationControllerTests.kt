@@ -43,7 +43,7 @@ class UserIntegrationControllerTests : BaseIntegrationController() {
 	private lateinit var changeUserService: ChangeUserService
 
 	private val user: User = Instancio.create(User::class.java)
-	private val defaultUserEmail = "awakelife93@gmail.com"
+	private val defaultUserEmail = "user@example.com"
 	private val defaultUserPassword = "test_password_123!@"
 	private val defaultAccessToken =
 		"""

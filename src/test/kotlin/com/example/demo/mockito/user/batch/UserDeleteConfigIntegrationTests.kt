@@ -44,8 +44,8 @@ class UserDeleteConfigIntegrationTests {
 	@Autowired
 	private lateinit var jobRepositoryTestUtils: JobRepositoryTestUtils
 
-	private val defaultUserEmail = "awakelife93@gmail.com"
-	private val defaultUserName = "Hyunwoo Park"
+	private val defaultUserEmail = "user@example.com"
+	private val defaultUserName = "username"
 	private val defaultUserRole = UserRole.USER
 
 	private fun cleanupDatabase() {

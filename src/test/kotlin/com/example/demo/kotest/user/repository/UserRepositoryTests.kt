@@ -25,9 +25,9 @@ class UserRepositoryTests(
 	private val userRepository: UserRepository
 ) : DescribeSpec({
 		lateinit var userEntity: User
-		val defaultUserEmail = "awakelife93@gmail.com"
+		val defaultUserEmail = "user@example.com"
 		val defaultUserPassword = "test_password_123!@"
-		val defaultUserName = "Hyunwoo Park"
+		val defaultUserName = "username"
 		val defaultUserRole = UserRole.USER
 
 		beforeContainer {

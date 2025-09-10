@@ -26,9 +26,9 @@ import org.springframework.test.context.ActiveProfiles
 class UserRepositoryTests(
 	@Autowired private val userRepository: UserRepository
 ) {
-	private val defaultUserEmail = "awakelife93@gmail.com"
+	private val defaultUserEmail = "user@example.com"
 	private val defaultUserPassword = "test_password_123!@"
-	private val defaultUserName = "Hyunwoo Park"
+	private val defaultUserName = "username"
 	private val defaultUserRole = UserRole.USER
 
 	private lateinit var userEntity: User

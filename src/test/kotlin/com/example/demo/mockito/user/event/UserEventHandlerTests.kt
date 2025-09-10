@@ -46,7 +46,7 @@ class UserEventHandlerTests {
 
 	@Test
 	fun `should send kafka message on welcome event`() {
-		val email = "awakelife93@gmail.com"
+		val email = "user@example.com"
 		val name = "Tester"
 		val event = UserEvent.WelcomeSignUpEvent(email, name)
 

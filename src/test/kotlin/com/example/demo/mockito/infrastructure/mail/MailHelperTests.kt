@@ -48,7 +48,7 @@ class MailHelperTests {
 	fun `should send email with correct values`() {
 		val payload =
 			MailPayload.of(
-				to = "awakelife93@gmail.com",
+				to = "user@example.com",
 				subject = "Test Subject",
 				body = "Test Body"
 			)
@@ -59,7 +59,7 @@ class MailHelperTests {
 		verify(mailSender, times(1)).send(messageCaptor.capture())
 
 		val captured = messageCaptor.firstValue
-		assertArrayEquals(arrayOf("awakelife93@gmail.com"), captured.to)
+		assertArrayEquals(arrayOf("user@example.com"), captured.to)
 		assertEquals("Test Subject", captured.subject)
 		assertEquals("Test Body", captured.text)
 	}
@@ -90,7 +90,7 @@ class MailHelperTests {
 	fun `should call sendSlack on mail sending failure`() {
 		val payload =
 			MailPayload.of(
-				to = "awakelife93@gmail.com",
+				to = "user@example.com",
 				subject = "Test Subject",
 				body = "Test Body"
 			)

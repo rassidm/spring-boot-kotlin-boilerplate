@@ -14,8 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder
 
 class SecurityListenerFactory(
 	private val userId: Long = 1L,
-	private val userEmail: String = "awakelife93@gmail.com",
-	private val userName: String = "Hyunwoo Park",
+	private val userEmail: String = "user@example.com",
+	private val userName: String = "username",
 	private val userRole: UserRole = UserRole.USER
 ) : TestListener {
 	object NonSecurityOption : Tag()

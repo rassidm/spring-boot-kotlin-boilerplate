@@ -29,7 +29,7 @@ class UserEventHandlerTests :
 		"should send kafka message on welcome event" {
 			val event =
 				UserEvent.WelcomeSignUpEvent(
-					email = "awakelife93@gmail.com",
+					email = "user@example.com",
 					name = "Tester"
 				)
 
@@ -39,7 +39,7 @@ class UserEventHandlerTests :
 				kafkaTemplate.send(
 					KafkaTopicMetaProvider.MAIL_TOPIC,
 					withArg {
-						it.to shouldBe "awakelife93@gmail.com"
+						it.to shouldBe "user@example.com"
 						it.subject shouldBe "Tester."
 						it.body shouldBe "Welcome to our service!"
 					}

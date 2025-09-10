@@ -54,7 +54,7 @@ class UserIntegrationControllerTests : BaseIntegrationController() {
 	@MockitoBean
 	private lateinit var changeUserServiceImpl: ChangeUserServiceImpl
 
-	private val defaultUserEmail = "awakelife93@gmail.com"
+	private val defaultUserEmail = "user@example.com"
 	private val defaultUserPassword = "test_password_123!@"
 	private val defaultAccessToken =
 		"""

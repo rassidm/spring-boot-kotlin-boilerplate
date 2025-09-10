@@ -25,7 +25,7 @@ class MailHelperTests :
 		Given("a valid mail payload") {
 			val payload =
 				MailPayload.of(
-					to = "awakelife93@gmail.com",
+					to = "user@example.com",
 					subject = "Test Subject",
 					body = "Test Body"
 				)
@@ -42,7 +42,7 @@ class MailHelperTests :
 					verify(exactly = 1) {
 						mailSender.send(
 							withArg {
-								it.to shouldBe arrayOf("awakelife93@gmail.com")
+								it.to shouldBe arrayOf("user@example.com")
 								it.subject shouldBe "Test Subject"
 								it.text shouldBe "Test Body"
 							}
@@ -81,7 +81,7 @@ class MailHelperTests :
 		Given("a mail sending failure") {
 			val payload =
 				MailPayload(
-					to = "awakelife93@gmail.com",
+					to = "user@example.com",
 					subject = "Test Subject",
 					body = "Test Body"
 				)

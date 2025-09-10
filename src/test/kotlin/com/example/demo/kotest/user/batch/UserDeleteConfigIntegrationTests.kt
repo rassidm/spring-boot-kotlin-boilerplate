@@ -37,8 +37,8 @@ class UserDeleteConfigIntegrationTests(
 	private val jobRepositoryTestUtils: JobRepositoryTestUtils
 ) : FunSpec({
 
-		val defaultUserEmail = "awakelife93@gmail.com"
-		val defaultUserName = "Hyunwoo Park"
+		val defaultUserEmail = "user@example.com"
+		val defaultUserName = "username"
 		val defaultUserRole = UserRole.USER
 
 		fun cleanupDatabase() {
