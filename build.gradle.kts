@@ -173,8 +173,6 @@ tasks.withType<Test>().configureEach {
 		exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 		showStandardStreams = false
 	}
-
-	outputs.upToDateWhen { false }
 }
 
 ktlint {
