@@ -1,6 +1,6 @@
 # Spring Boot Boilerplate (Kotlin)
 
-A production-ready Spring Boot 3.5.3 + Kotlin 2.0 starter project, offering a unified package with essential backend
+A production-ready Spring Boot 3.5.5 + Kotlin 2.0 starter project, offering a unified package with essential backend
 features pre-integrated and real-world examples.
 
 ## Environment & Skills
@@ -8,7 +8,7 @@ features pre-integrated and real-world examples.
 - Application
 	- Kotlin 2.0
 	- Jdk 21
-	- Spring boot 3.5.3
+	- Spring boot 3.5.5
 		- mvc
 		- webflux
 	- Gradle 8.10
@@ -87,6 +87,12 @@ features pre-integrated and real-world examples.
 			- common: Write common variables for the project.
 			- test: Create the variables needed for your test environment.
 			- secret-{environment}: your secret variables for each environment.
+
+## Clean Architecture + Hexagonal Architecture Version
+
+If you're interested, check this out as well:
+
+- **Repository**: [kotlin-clean-architecture-multimodule](https://github.com/awakelife93/kotlin-clean-architecture-multimodule)
 
 ## Local Installation
 
