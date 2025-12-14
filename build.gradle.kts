@@ -41,6 +41,7 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("org.springframework.boot:spring-boot-starter")
 
 	// for mac
 	if (OperatingSystem.current().isMacOsX && System.getProperty("os.arch") == "aarch64") {
@@ -127,6 +128,10 @@ dependencies {
 
 	// prometheus
 	implementation("io.micrometer:micrometer-registry-prometheus")
+
+	// opentelemetry
+	implementation(platform("io.opentelemetry:opentelemetry-bom:1.49.0"))
+	implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.15.0")
 
 	// test
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
