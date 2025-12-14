@@ -1,6 +1,6 @@
 # Docker Compose Setup
 
-This project is composed of several independent Docker services such as PostgreSQL, Redis, Kafka, Prometheus, and
+This project is composed of several independent Docker services such as PostgreSQL, Redis, Kafka, Prometheus, Tempo, and
 Grafana.
 To make it easier to manage and run all containers at once, we use a script-based approach with multiple Compose files.
 
@@ -17,6 +17,7 @@ docker/
 │ └── docker-compose.kafka-ui.yml
 ├── monitoring/
 │ ├── docker-compose.prometheus.yml
+│ ├── docker-compose.tempo.yml
 │ └── docker-compose.grafana.yml
 setup.sh
 
@@ -36,6 +37,7 @@ setup.sh
 ### Monitoring Services
 
 - **Prometheus**: Metrics collection and storage
+- **Tempo**: Distributed tracing system
 - **Grafana**: Metrics visualization and dashboards
 
 ### Network Configuration
@@ -78,8 +80,8 @@ docker compose -f base/docker-compose.postgres.yml -f base/docker-compose.pgadmi
 # Kafka ecosystem (Zookeeper, Kafka, and Kafka UI)
 docker compose -f base/docker-compose.zookeeper-kafka.yml -f base/docker-compose.kafka-ui.yml up -d
 
-# Monitoring stack (Prometheus and Grafana)
-docker compose -f monitoring/docker-compose.prometheus.yml -f monitoring/docker-compose.grafana.yml up -d
+# Monitoring stack (Prometheus, Tempo and Grafana)
+docker compose -f monitoring/docker-compose.prometheus.yml -f monitoring/docker-compose.tempo.yml -f monitoring/docker-compose.grafana.yml up -d
 
 # Independent services
 docker compose -f base/docker-compose.redis.yml up -d
@@ -98,6 +100,7 @@ docker compose -f base/docker-compose.postgres.yml \
                 -f base/docker-compose.zookeeper-kafka.yml \
                 -f base/docker-compose.kafka-ui.yml \
                 -f monitoring/docker-compose.prometheus.yml \
+                -f monitoring/docker-compose.tempo.yml \
                 -f monitoring/docker-compose.grafana.yml \
                 down
 

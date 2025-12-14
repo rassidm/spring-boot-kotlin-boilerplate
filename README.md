@@ -60,7 +60,9 @@ features pre-integrated and real-world examples.
 - Monitoring
 	- Prometheus
 	- Grafana
-	- Sentry
+	- Tempo
+  - OpenTelemetry
+  - Sentry
 
 ## Project Guide
 
@@ -103,6 +105,8 @@ To use the application, the following two services must be installed and running
 - mailhog
 - grafana
 - prometheus
+- opentelemetry
+- tempo
 
 ## Description
 
@@ -215,7 +219,13 @@ webHookProvider.sendDiscord(
 	- [Actuator properties](src/main/resources/application-common.yml)
 
 
-11. Service Access URLs (When services are running)
+11. [Tempo & Opentelemetry](monitoring/tempo.yml)
+	- OTLP gRPC: localhost:4317
+	- OTLP HTTP: localhost:4318
+	- [Actuator properties](src/main/resources/application-common.yml)
+
+
+12. Service Access URLs (When services are running)
 
 	### Application
 	- **API Documentation (Swagger)**: http://localhost:8085/swagger-ui/index.html
@@ -232,8 +242,13 @@ webHookProvider.sendDiscord(
 	- **Zookeeper**: localhost:2181 (Coordination service)
 
 	### Monitoring
-	- **Grafana** (Metrics Dashboard): http://localhost:3000
-	- **Prometheus** (Metrics Collection): http://localhost:9090
+    - **Grafana** (Metrics Dashboard): http://localhost:3000
+    - **Prometheus** (Metrics Collection): Via Grafana http://localhost:3000
+      - API: http://localhost:9090
+    - **Tempo** (Tracing): Via Grafana http://localhost:3000
+      - OTLP gRPC: localhost:4317
+      - OTLP HTTP: localhost:4318
+      - API: http://tempo:3200 (from within Docker network)
 
 ## Author
 
