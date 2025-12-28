@@ -68,11 +68,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, prometheus
+        include: health, info, metrics
         exclude: env, heapdump, threaddump, configprops, flyway, loggers, liquibase, mappings, scheduledtasks, sessions, shutdown, jolokia, logfile
   endpoint:
-    prometheus:
-      access: READ_ONLY
     health:
       show-details: when-authorized
       show-components: when-authorized
@@ -90,11 +88,11 @@ management:
   otel:
     exporter:
       otlp:
-        endpoint: http://localhost:4317
+        endpoint: http://otel-collector:4317
         protocol: grpc
     traces:
       exporter: otlp
     logs:
-      exporter: none
+      exporter: otlp
     metrics:
-      exporter: none
+      exporter: otlp
