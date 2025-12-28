@@ -1,7 +1,6 @@
 # Docker Compose Setup
 
-This project is composed of several independent Docker services such as PostgreSQL, Redis, Kafka, Prometheus, Tempo, and
-Grafana.
+This project is composed of several independent Docker services such as PostgreSQL, Redis, Kafka, Prometheus, Tempo, Loki, OpenTelemetry Collector and Grafana.
 To make it easier to manage and run all containers at once, we use a script-based approach with multiple Compose files.
 
 ## Structure
@@ -9,18 +8,19 @@ To make it easier to manage and run all containers at once, we use a script-base
 ```
 docker/
 ├── base/
-│ ├── docker-compose.postgres.yml
-│ ├── docker-compose.redis.yml
-│ ├── docker-compose.pgadmin.yml
-│ ├── docker-compose.mailhog.yml
-│ ├── docker-compose.zookeeper-kafka.yml
-│ └── docker-compose.kafka-ui.yml
+│   ├── docker-compose.postgres.yml
+│   ├── docker-compose.redis.yml
+│   ├── docker-compose.pgadmin.yml
+│   ├── docker-compose.mailhog.yml
+│   ├── docker-compose.zookeeper-kafka.yml
+│   └── docker-compose.kafka-ui.yml
 ├── monitoring/
-│ ├── docker-compose.prometheus.yml
-│ ├── docker-compose.tempo.yml
-│ └── docker-compose.grafana.yml
-setup.sh
-
+│   ├── docker-compose.prometheus.yml
+│   ├── docker-compose.tempo.yml
+│   ├── docker-compose.opentelemetry-collector.yml
+│   ├── docker-compose.loki.yml
+│   └── docker-compose.grafana.yml
+└── setup.sh
 ```
 
 ## Services
@@ -29,20 +29,23 @@ setup.sh
 
 - **PostgreSQL**: Database service (Port: 5432)
 - **Redis**: Cache service (Port: 6379)
-- **PgAdmin**: PostgreSQL web management tool
-- **MailHog**: Email testing service (SMTP Port: 1025)
-- **Kafka & Zookeeper**: Message broker and coordination service
-- **Kafka UI**: Kafka web management tool
+- **PgAdmin**: PostgreSQL web management tool (Port: 8088)
+- **MailHog**: Email testing service (SMTP Port: 1025, Web UI: 8025)
+- **Kafka & Zookeeper**: Message broker and coordination service (Kafka: 9092, Zookeeper: 2181)
+- **Kafka UI**: Kafka web management tool (Port: 9000)
 
 ### Monitoring Services
 
-- **Prometheus**: Metrics collection and storage
-- **Tempo**: Distributed tracing system
-- **Grafana**: Metrics visualization and dashboards
+- **Prometheus**: Metrics collection and storage (Port: 9090)
+- **Tempo**: Distributed tracing system (Port: 3200)
+- **Loki**: Log aggregation system (Port: 3100)
+- **OpenTelemetry Collector**: Collects and exports telemetry data (gRPC: 4317, HTTP: 4318)
+- **Grafana**: Unified observability dashboard (Port: 3000)
 
 ### Network Configuration
 
 The setup script automatically manages a dedicated Docker network:
+
 - **Network Name**: `base_kafka-network`
 - **Purpose**: Enables reliable service discovery and communication between Kafka, Zookeeper, and Kafka UI
 - **Why needed**: Kafka services require stable network connectivity for cluster coordination and client connections
@@ -63,6 +66,7 @@ chmod +x setup.sh
 ```
 
 The script will:
+
 1. **Check and create Kafka network**: Automatically creates the `base_kafka-network` Docker network if it doesn't exist
 2. **Combine all docker-compose files**: Merges all service configurations into a single project
 3. **Start services**: Launches all services in the background with proper dependency resolution
@@ -80,8 +84,14 @@ docker compose -f base/docker-compose.postgres.yml -f base/docker-compose.pgadmi
 # Kafka ecosystem (Zookeeper, Kafka, and Kafka UI)
 docker compose -f base/docker-compose.zookeeper-kafka.yml -f base/docker-compose.kafka-ui.yml up -d
 
-# Monitoring stack (Prometheus, Tempo and Grafana)
-docker compose -f monitoring/docker-compose.prometheus.yml -f monitoring/docker-compose.tempo.yml -f monitoring/docker-compose.grafana.yml up -d
+# Monitoring stack (Prometheus, Tempo, Loki, OpenTelemetry Collector and Grafana)
+docker compose \
+	-f monitoring/docker-compose.prometheus.yml \
+	-f monitoring/docker-compose.loki.yml \
+	-f monitoring/docker-compose.tempo.yml \
+	-f monitoring/docker-compose.opentelemetry-collector.yml \
+	-f monitoring/docker-compose.grafana.yml \
+	up -d
 
 # Independent services
 docker compose -f base/docker-compose.redis.yml up -d
@@ -93,16 +103,19 @@ docker compose -f base/docker-compose.mailhog.yml up -d
 ```bash
 # Stop all services (using the same combined approach)
 cd docker
-docker compose -f base/docker-compose.postgres.yml \
-                -f base/docker-compose.redis.yml \
-                -f base/docker-compose.pgadmin.yml \
-                -f base/docker-compose.mailhog.yml \
-                -f base/docker-compose.zookeeper-kafka.yml \
-                -f base/docker-compose.kafka-ui.yml \
-                -f monitoring/docker-compose.prometheus.yml \
-                -f monitoring/docker-compose.tempo.yml \
-                -f monitoring/docker-compose.grafana.yml \
-                down
+docker compose \
+	-f base/docker-compose.postgres.yml \
+	-f base/docker-compose.redis.yml \
+	-f base/docker-compose.pgadmin.yml \
+	-f base/docker-compose.mailhog.yml \
+	-f base/docker-compose.zookeeper-kafka.yml \
+	-f base/docker-compose.kafka-ui.yml \
+	-f monitoring/docker-compose.prometheus.yml \
+	-f monitoring/docker-compose.tempo.yml \
+	-f monitoring/docker-compose.opentelemetry-collector.yml \
+	-f monitoring/docker-compose.loki.yml \
+	-f monitoring/docker-compose.grafana.yml \
+	down
 
 # Or stop specific service groups
 docker compose -f base/docker-compose.postgres.yml -f base/docker-compose.pgadmin.yml down

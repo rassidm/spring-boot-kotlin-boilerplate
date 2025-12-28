@@ -1,7 +1,8 @@
 # Spring Boot Boilerplate (Kotlin)
 
 A production-ready Spring Boot 3.5.5 + Kotlin 2.0 starter project, offering a unified package with essential backend
-features pre-integrated and real-world examples.
+features pre-integrated and real-world examples. Includes a complete **OpenTelemetry-based observability stack** for
+unified monitoring, distributed tracing, and log aggregation.
 
 ## Environment & Skills
 
@@ -61,7 +62,8 @@ features pre-integrated and real-world examples.
 	- Prometheus
 	- Grafana
 	- Tempo
-  - OpenTelemetry
+  - OpenTelemetry Collector
+  - Loki
   - Sentry
 
 ## Project Guide
@@ -105,8 +107,9 @@ To use the application, the following two services must be installed and running
 - mailhog
 - grafana
 - prometheus
-- opentelemetry
+- opentelemetry collector
 - tempo
+- loki
 
 ## Description
 
@@ -213,16 +216,20 @@ webHookProvider.sendDiscord(
 		- [You can test this flow by referring to the Kafka sections.](src/main/kotlin/com/example/demo/example/UserDeleteConsumer.kt)
 
 
-10. [Grafana & Prometheus](monitoring/prometheus.yml)
-	- To use the data collected by Spring Actuator, please enter the correct URL.
-		- Replace '{ip address}:8085' with your actual IP address.
-	- [Actuator properties](src/main/resources/application-common.yml)
-
-
-11. [Tempo & Opentelemetry](monitoring/tempo.yml)
-	- OTLP gRPC: localhost:4317
-	- OTLP HTTP: localhost:4318
-	- [Actuator properties](src/main/resources/application-common.yml)
+10. OpenTelemetry Stack Configuration (Monitoring & Observability)
+	- All observability data (metrics, traces, logs) are now collected through OpenTelemetry Collector
+	- **OpenTelemetry Collector Endpoints**:
+		- OTLP gRPC: localhost:4317
+		- OTLP HTTP: localhost:4318
+	- **Grafana**: Unified dashboard for metrics, traces, and logs
+		- Prometheus: Metrics collection and visualization
+			- [Configuration](monitoring/prometheus.yml)
+		- Tempo: Distributed tracing
+			- [Configuration](monitoring/tempo.yml)
+		- Loki: Log aggregation and analysis
+			- [Configuration](monitoring/loki.yml)
+	- **OpenTelemetry Collector**:
+		- [Configuration](monitoring/otel-collector-config.yml)
 
 
 12. Service Access URLs (When services are running)
@@ -236,19 +243,24 @@ webHookProvider.sendDiscord(
 	- **MailHog** (Email Testing): http://localhost:8025
 	- **PgAdmin** (PostgreSQL Management): http://localhost:8088
 	- **Kafka UI** (Kafka Management): http://localhost:9000
-	- **Redis**: localhost:6379 (CLI/Client access)
-	- **PostgreSQL**: localhost:5432 (Database connection)
-	- **Kafka**: localhost:9092 (Broker connection)
-	- **Zookeeper**: localhost:2181 (Coordination service)
+	- **Redis** (CLI/Client access): localhost:6379
+	- **PostgreSQL** (Database connection): localhost:5432
+	- **Kafka** (Broker connection): localhost:9092
+	- **Zookeeper** (Coordination service): localhost:2181
 
-	### Monitoring
-    - **Grafana** (Metrics Dashboard): http://localhost:3000
-    - **Prometheus** (Metrics Collection): Via Grafana http://localhost:3000
-      - API: http://localhost:9090
-    - **Tempo** (Tracing): Via Grafana http://localhost:3000
-      - OTLP gRPC: localhost:4317
-      - OTLP HTTP: localhost:4318
-      - API: http://tempo:3200 (from within Docker network)
+	### Observability
+	- **Grafana** (Unified Observability Dashboard): http://localhost:3000
+		- Metrics (Prometheus), Traces (Tempo), Logs (Loki) visualization
+		- **Data Source Configuration** (use Docker internal network addresses):
+			- Prometheus: `http://prometheus:9090`
+			- Tempo: `http://tempo:3200`
+			- Loki: `http://loki:3100`
+	- **Prometheus** (Metrics Collection): http://localhost:9090
+	- **Tempo** (Distributed Tracing): http://localhost:3200
+	- **Loki** (Log Aggregation): http://localhost:3100
+	- **OpenTelemetry Collector**:
+		- gRPC: localhost:4317
+		- HTTP: localhost:4318
 
 ## Author
 
