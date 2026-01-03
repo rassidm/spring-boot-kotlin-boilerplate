@@ -1,5 +1,5 @@
 package com.example.demo.common.annotaction
 
-@Target(AnnotationTarget.VALUE_PARAMETER)
+@Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class SendWebHookSignalRequest

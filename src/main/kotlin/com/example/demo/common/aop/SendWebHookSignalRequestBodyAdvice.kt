@@ -17,7 +17,9 @@ class SendWebHookSignalRequestBodyAdvice(
 		methodParameter: MethodParameter,
 		targetType: Type,
 		converterType: Class<out HttpMessageConverter<*>>
-	): Boolean = methodParameter.hasParameterAnnotation(SendWebHookSignalRequest::class.java)
+	): Boolean = methodParameter.method
+		?.isAnnotationPresent(SendWebHookSignalRequest::class.java)
+		?: false
 
 	override fun afterBodyRead(
 		body: Any,
