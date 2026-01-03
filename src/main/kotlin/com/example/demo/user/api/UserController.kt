@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -60,10 +61,31 @@ class UserController(
 			)
 		]
 	)
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/{userId}")
 	fun getUserById(
 		@PathVariable("userId", required = true) userId: Long
 	): ResponseEntity<GetUserResponse> = ResponseEntity.ok(getUserService.getUserById(userId))
+
+	@Operation(operationId = "getMe", summary = "Get Me", description = "Get My User Info API")
+	@ApiResponses(
+		value = [
+			ApiResponse(
+				responseCode = "200",
+				description = "OK",
+				content = arrayOf(Content(schema = Schema(implementation = GetUserResponse::class)))
+			), ApiResponse(
+				responseCode = "401",
+				description = "Full authentication is required to access this resource",
+				content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+			)
+		]
+	)
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@GetMapping("/me")
+	fun getMe(
+		@CurrentUser securityUserItem: SecurityUserItem
+	): ResponseEntity<GetUserResponse> = ResponseEntity.ok(getUserService.getUserById(securityUserItem.userId))
 
 	@Operation(operationId = "getUserList", summary = "Get User List", description = "Get User List API")
 	@ApiResponses(
@@ -75,6 +97,7 @@ class UserController(
 			)
 		]
 	)
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
 	fun getUserList(
 		@PageableDefault
@@ -139,9 +162,11 @@ class UserController(
 			)
 		]
 	)
+	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/{userId}")
+	@SendWebHookSignalRequest
 	fun updateUser(
-		@RequestBody @Valid @SendWebHookSignalRequest updateUserRequest: UpdateUserRequest,
+		@RequestBody @Valid updateUserRequest: UpdateUserRequest,
 		@PathVariable("userId", required = true) userId: Long
 	): ResponseEntity<UpdateUserResponse> =
 		ResponseEntity.ok(
@@ -173,9 +198,11 @@ class UserController(
 			)
 		]
 	)
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@PatchMapping
+	@SendWebHookSignalRequest
 	fun updateMe(
-		@RequestBody @Valid @SendWebHookSignalRequest updateUserRequest: UpdateUserRequest,
+		@RequestBody @Valid updateUserRequest: UpdateUserRequest,
 		@CurrentUser securityUserItem: SecurityUserItem
 	): ResponseEntity<UpdateMeResponse> =
 		ResponseEntity.ok(
@@ -198,6 +225,7 @@ class UserController(
 			)
 		]
 	)
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{userId}")
 	fun deleteUser(
 		@PathVariable("userId", required = true) userId: Long

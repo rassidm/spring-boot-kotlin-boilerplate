@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -59,6 +60,7 @@ class PostController(
 			)
 		]
 	)
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@PutMapping
 	fun createPost(
 		@RequestBody @Valid createPostRequest: CreatePostRequest,
@@ -81,6 +83,7 @@ class PostController(
 			)
 		]
 	)
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@GetMapping
 	fun getPostList(
 		@PageableDefault
@@ -115,6 +118,7 @@ class PostController(
 			)
 		]
 	)
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@GetMapping("/exclude-users")
 	fun getExcludeUsersPostList(
 		@RequestParam(name = "userIds", required = true) userIds: List<Long>,
@@ -147,6 +151,7 @@ class PostController(
 			)
 		]
 	)
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@GetMapping("/{postId}")
 	fun getPostById(
 		@PathVariable("postId", required = true) postId: Long
@@ -174,6 +179,7 @@ class PostController(
 			)
 		]
 	)
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@PatchMapping("/{postId}")
 	fun updatePost(
 		@RequestBody @Valid updatePostRequest: UpdatePostRequest,
@@ -199,6 +205,7 @@ class PostController(
 			)
 		]
 	)
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{postId}")
 	fun deletePost(
 		@PathVariable("postId", required = true) postId: Long
