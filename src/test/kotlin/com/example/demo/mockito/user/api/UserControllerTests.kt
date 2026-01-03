@@ -79,6 +79,30 @@ class UserControllerTests {
 	}
 
 	@Test
+	@DisplayName("Get me")
+	fun `should return current user response when getting me`() {
+		val securityUserItem = Instancio.create(SecurityUserItem::class.java)
+		val expectedResponse = GetUserResponse.from(user)
+		whenever(getUserServiceImpl.getUserById(securityUserItem.userId)) doReturn expectedResponse
+
+		val response = userController.getMe(securityUserItem)
+
+		assertNotNull(response)
+		assertNotNull(response.body)
+		assertEquals(HttpStatus.OK, response.statusCode)
+
+		response.body?.let { body ->
+			assertEquals(user.id, body.userId)
+			assertEquals(user.email, body.email)
+			assertEquals(user.name, body.name)
+			assertEquals(user.role, body.role)
+		}
+
+		verify(getUserServiceImpl).getUserById(securityUserItem.userId)
+		verifyNoMoreInteractions(getUserServiceImpl)
+	}
+
+	@Test
 	@DisplayName("Get user list")
 	fun `should return page of users when getting user list`() {
 		val userResponse = GetUserResponse.from(user)

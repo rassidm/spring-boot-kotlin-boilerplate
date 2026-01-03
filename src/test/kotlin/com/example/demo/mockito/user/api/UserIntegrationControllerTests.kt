@@ -151,6 +151,81 @@ class UserIntegrationControllerTests : BaseIntegrationController() {
 	}
 
 	@Nested
+	@DisplayName("GET /api/v1/users/me Test")
+	inner class GetMeTest {
+		@Test
+		@DisplayName("GET /api/v1/users/me Response")
+		@WithMockCustomUser
+		@Throws(
+			Exception::class
+		)
+		fun should_ExpectOKResponseToGetUserResponse_when_UserIsAuthenticated() {
+			Mockito
+				.`when`(getUserServiceImpl.getUserById(any<Long>()))
+				.thenReturn(GetUserResponse.from(user))
+
+			mockMvc
+				.perform(
+					MockMvcRequestBuilders
+						.get("/api/v1/users/me")
+						.with(SecurityMockMvcRequestPostProcessors.csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+				).andExpect(MockMvcResultMatchers.status().isOk)
+				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(user.email))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.role").value(user.role.name))
+		}
+
+		@Test
+		@DisplayName("Not Found Exception GET /api/v1/users/me Response")
+		@WithMockCustomUser
+		@Throws(
+			Exception::class
+		)
+		fun should_ExpectErrorResponseToUserNotFoundException_when_UserIsAuthenticated() {
+			val userNotFoundException =
+				UserNotFoundException(
+					user.id
+				)
+
+			Mockito
+				.`when`(getUserServiceImpl.getUserById(any<Long>()))
+				.thenThrow(userNotFoundException)
+
+			mockMvc
+				.perform(
+					MockMvcRequestBuilders
+						.get("/api/v1/users/me")
+						.with(SecurityMockMvcRequestPostProcessors.csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+				).andExpect(MockMvcResultMatchers.status().isNotFound)
+				.andExpect(
+					MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message)
+				).andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
+		}
+
+		@Test
+		@DisplayName("Unauthorized Exception GET /api/v1/users/me Response")
+		@Throws(
+			Exception::class
+		)
+		fun should_ExpectErrorResponseToUnauthorizedException_when_UserIsNotAuthenticated() {
+			mockMvc
+				.perform(
+					MockMvcRequestBuilders
+						.get("/api/v1/users/me")
+						.with(SecurityMockMvcRequestPostProcessors.csrf())
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+				).andExpect(MockMvcResultMatchers.status().isUnauthorized)
+		}
+	}
+
+	@Nested
 	@DisplayName("GET /api/v1/users Test")
 	inner class GetUserListTest {
 		@Test

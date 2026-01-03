@@ -68,6 +68,36 @@ class UserControllerTests :
 			}
 		}
 
+		test("Get Me") {
+			val securityUserItem =
+				Instancio.create(
+					SecurityUserItem::class.java
+				)
+
+			every { getUserService.getUserById(any<Long>()) } returns GetUserResponse.from(user)
+
+			every {
+				userController.getMe(
+					any<SecurityUserItem>()
+				)
+			} returns ResponseEntity.ok(GetUserResponse.from(user))
+
+			val response =
+				userController.getMe(
+					securityUserItem
+				)
+
+			response shouldNotBeNull {
+				statusCode shouldBe HttpStatus.OK
+				body shouldNotBeNull {
+					userId shouldBe user.id
+					email shouldBe user.email
+					name shouldBe user.name
+					role shouldBe user.role
+				}
+			}
+		}
+
 		test("Get User List") {
 
 			every { getUserService.getUserList(any<Pageable>()) } returns

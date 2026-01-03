@@ -100,6 +100,51 @@ class UserIntegrationControllerTests : BaseIntegrationController() {
 			}
 		}
 
+		Given("GET /api/v1/users/me") {
+
+			When("Success GET /api/v1/users/me") {
+
+				every { getUserService.getUserById(any<Long>()) } returns GetUserResponse.from(user)
+
+				Then("Call GET /api/v1/users/me") {
+					mockMvc
+						.perform(
+							MockMvcRequestBuilders
+								.get("/api/v1/users/me")
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)
+								.accept(MediaType.APPLICATION_JSON)
+						).andExpect(MockMvcResultMatchers.status().isOk)
+						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(user.email))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.role").value(user.role.name))
+				}
+			}
+
+			When("Not Found Exception GET /api/v1/users/me") {
+				val userNotFoundException = UserNotFoundException(user.id)
+
+				every { getUserService.getUserById(any<Long>()) } throws userNotFoundException
+
+				Then("Call GET /api/v1/users/me") {
+					mockMvc
+						.perform(
+							MockMvcRequestBuilders
+								.get("/api/v1/users/me")
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)
+								.accept(MediaType.APPLICATION_JSON)
+						).andExpect(MockMvcResultMatchers.status().isNotFound)
+						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
+				}
+			}
+		}
+
 		Given("GET /api/v1/users") {
 
 			When("Success GET /api/v1/users") {
@@ -455,6 +500,20 @@ class UserIntegrationControllerTests : BaseIntegrationController() {
 						.perform(
 							MockMvcRequestBuilders
 								.get("/api/v1/users/{userId}", user.id)
+								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.contentType(MediaType.APPLICATION_JSON)
+								.accept(MediaType.APPLICATION_JSON)
+						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
+				}
+			}
+
+			When("UnAuthorized Exception GET /api/v1/users/me") {
+
+				Then("Call GET /api/v1/users/me").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
+					mockMvc
+						.perform(
+							MockMvcRequestBuilders
+								.get("/api/v1/users/me")
 								.with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
