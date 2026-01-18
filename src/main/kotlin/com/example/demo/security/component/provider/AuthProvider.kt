@@ -1,6 +1,7 @@
 package com.example.demo.security.component.provider
 
 import com.example.demo.common.config.CorsConfig
+import com.example.demo.security.component.SecurityErrorResponseWriter
 import com.example.demo.security.component.filter.JWTAuthFilter
 import jakarta.servlet.DispatcherType
 import jakarta.servlet.http.HttpServletRequest
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component
 class AuthProvider(
 	private val corsConfig: CorsConfig,
 	private val jwtProvider: JWTProvider,
+	private val securityErrorResponseWriter: SecurityErrorResponseWriter,
 	@Value("\${auth.x-api-key}") private val apiKey: String
 ) {
 	fun ignoreListDefaultEndpoints(): Array<String> =
@@ -54,7 +56,7 @@ class AuthProvider(
 					SessionCreationPolicy.STATELESS
 				)
 			}.addFilterBefore(
-				JWTAuthFilter(jwtProvider),
+				JWTAuthFilter(jwtProvider, securityErrorResponseWriter),
 				UsernamePasswordAuthenticationFilter::class.java
 			).authorizeHttpRequests { request ->
 				request

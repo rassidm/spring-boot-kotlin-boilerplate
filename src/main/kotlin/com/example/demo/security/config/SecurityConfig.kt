@@ -2,6 +2,7 @@ package com.example.demo.security.config
 
 import com.example.demo.security.component.CustomAccessDeniedHandler
 import com.example.demo.security.component.CustomAuthenticationEntryPoint
+import com.example.demo.security.component.SecurityErrorResponseWriter
 import com.example.demo.security.component.filter.APIKeyAuthFilter
 import com.example.demo.security.component.provider.AuthProvider
 import org.springframework.context.annotation.Bean
@@ -23,7 +24,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
 	private val authProvider: AuthProvider,
 	private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
-	private val customAccessDeniedHandler: CustomAccessDeniedHandler
+	private val customAccessDeniedHandler: CustomAccessDeniedHandler,
+	private val securityErrorResponseWriter: SecurityErrorResponseWriter
 ) {
 	@Bean
 	@Throws(Exception::class)
@@ -41,7 +43,7 @@ class SecurityConfig(
 					.anyRequest()
 					.authenticated()
 			}.addFilterAfter(
-				APIKeyAuthFilter(authProvider),
+				APIKeyAuthFilter(authProvider, securityErrorResponseWriter),
 				UsernamePasswordAuthenticationFilter::class.java
 			).exceptionHandling { exceptionHandling: ExceptionHandlingConfigurer<HttpSecurity?> ->
 				exceptionHandling

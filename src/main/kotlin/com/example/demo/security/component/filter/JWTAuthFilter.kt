@@ -1,7 +1,7 @@
 package com.example.demo.security.component.filter
 
+import com.example.demo.security.component.SecurityErrorResponseWriter
 import com.example.demo.security.component.provider.JWTProvider
-import com.example.demo.utils.SecurityUtils
 import io.micrometer.common.lang.NonNull
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -11,7 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 
 class JWTAuthFilter(
-	private val jwtProvider: JWTProvider
+	private val jwtProvider: JWTProvider,
+	private val securityErrorResponseWriter: SecurityErrorResponseWriter
 ) : OncePerRequestFilter() {
 	override fun doFilterInternal(
 		@NonNull httpServletRequest: HttpServletRequest,
@@ -35,7 +36,7 @@ class JWTAuthFilter(
 			.onFailure {
 				SecurityContextHolder.clearContext()
 
-				SecurityUtils.sendErrorResponse(
+				securityErrorResponseWriter.writeErrorResponse(
 					httpServletRequest,
 					httpServletResponse,
 					it,
