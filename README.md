@@ -113,7 +113,19 @@ To use the application, the following two services must be installed and running
 
 ## Description
 
-1. Database DDL Management
+1. Security & CVE Management
+	- The project manages dependency vulnerabilities centrally through the `applyCveFixes()` function in [build.gradle.kts](build.gradle.kts)
+	- All known CVE fixes are automatically applied during dependency resolution
+
+```kotlin
+// Example: CVE fix implementation
+requested.group == "org.apache.commons" && requested.name == "commons-lang3" -> {
+	useVersion("3.18.0")
+	because("CVE-2025-48924")
+}
+```
+
+2. Database DDL Management
 	- This project uses Flyway for DDL management instead of JPA auto-generation.
 	- Migration scripts are located in [src/main/resources/db/migration](src/main/resources/db/migration)
 	- If you prefer not to use Flyway, entity synchronization is configured - you can use JPA DDL auto-generation instead.
@@ -122,7 +134,7 @@ To use the application, the following two services must be installed and running
 		- Set `spring.jpa.hibernate.ddl-auto` property for each environment (local, dev, prod) as needed
 
 
-2. Webhook
+3. Webhook
 	- [enable & route endpoint](src/main/resources/application-common.yml)
 		- default enable true
 	- [types](src/main/kotlin/com/example/demo/infrastructure/webhook)
@@ -151,14 +163,14 @@ webHookProvider.sendDiscord(
 )
 ```
 
-3. Mailhog
+4. Mailhog
 	- mailhog is a tool for testing email sending.
 	- [If you want to use MailHog, the default SMTP port is 1025.
 		Of course, if you already have your own preferred setup, you can freely adjust the port as needed.](docker/base/docker-compose.mailhog.yml)
 	- Please check the settings in application-local.yml and application-secret-local.yml.
 
 
-4. Lint
+5. Lint
 	- ktlint
 		- [using the official lint rules by default.](gradle.properties)
 			- [Please refer to the lint rules for this project here.](.editorconfig)
@@ -170,12 +182,12 @@ webHookProvider.sendDiscord(
 			- build/reports/detekt
 
 
-5. Docker & Infrastructure Services
+6. Docker & Infrastructure Services
 	- The project includes Docker Compose configurations for all required services
 	- For detailed setup, port information, and service management, see [Docker Setup Guide](docker/README.md)
 
 
-6. Create Spring Batch metadata table (localhost, development and production environments.)
+7. Create Spring Batch metadata table (localhost, development and production environments.)
 	- Run your ddl script or Please refer
 		to [github - spring batch](https://github.com/spring-projects/spring-batch/blob/5.0.x/spring-batch-core/src/main/resources/org/springframework/batch/core/schema-postgresql.sql)
 		- Since this project uses postgresql, the spring.batch.jdbc.initialize-schema: always option does not work.
@@ -184,7 +196,7 @@ webHookProvider.sendDiscord(
 			- [application-test.yml](src/main/resources/application-test.yml)
 
 
-7. Two types of tests
+8. Two types of tests
 	- [mockito](src/test/kotlin/com/example/demo/mockito)
 		- [BaseIntegrationController](src/test/kotlin/com/example/demo/mockito/common/BaseIntegrationController.kt)
 	- [kotest & mockk](src/test/kotlin/com/example/demo/kotest)
@@ -200,7 +212,7 @@ webHookProvider.sendDiscord(
 				}
 				```
 
-8. Kafka
+9. Kafka
 	- [KafkaTopicMetaProvider](src/main/kotlin/com/example/demo/infrastructure/kafka/provider/KafkaTopicMetaProvider.kt)
 		- Manage metadata related to topics
 	- DLQ
@@ -209,14 +221,14 @@ webHookProvider.sendDiscord(
 			partition does not exist)
 
 
-9. [Example](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
+10. [Example](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
 	- [When a user signs up, an event is generated to send an email to the recipient.](src/main/kotlin/com/example/demo/user/event/UserEventHandler.kt)
 		- [You can test this flow by referring to the MailHog and Kafka sections.](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
 	- [Accounts are hard deleted after one year.](src/main/kotlin/com/example/demo/user/batch/writer/UserDeleteItemWriter.kt)
 		- [You can test this flow by referring to the Kafka sections.](src/main/kotlin/com/example/demo/example/UserDeleteConsumer.kt)
 
 
-10. OpenTelemetry Stack Configuration (Monitoring & Observability)
+11. OpenTelemetry Stack Configuration (Monitoring & Observability)
 	- All observability data (metrics, traces, logs) are now collected through OpenTelemetry Collector
 	- **OpenTelemetry Collector Endpoints**:
 		- OTLP gRPC: localhost:4317
@@ -250,6 +262,8 @@ webHookProvider.sendDiscord(
 
 	### Observability
 	- **Grafana** (Unified Observability Dashboard): http://localhost:3000
+		- Username: `demo`
+		- Password: `demo`
 		- Metrics (Prometheus), Traces (Tempo), Logs (Loki) visualization
 		- **Data Source Configuration** (use Docker internal network addresses):
 			- Prometheus: `http://prometheus:9090`
