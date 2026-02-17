@@ -4,146 +4,191 @@ A production-ready Spring Boot 3.5.5 + Kotlin 2.0 starter project, offering a un
 features pre-integrated and real-world examples. Includes a complete **OpenTelemetry-based observability stack** for
 unified monitoring, distributed tracing, and log aggregation.
 
+> **Looking for a multi-module version?** See [kotlin-clean-architecture-multimodule](https://github.com/awakelife93/kotlin-clean-architecture-multimodule) for the Hexagonal Architecture + Multi-Module version of this project.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Environment & Skills](#environment--skills)
+- [Project Guide](#project-guide)
+- [Features](#features)
+  - [Security & Quality](#security--quality)
+  - [Data Management](#data-management)
+  - [Integration & Messaging](#integration--messaging)
+  - [Testing](#testing)
+  - [Monitoring & Observability](#monitoring--observability)
+- [Service Access URLs](#service-access-urls)
+
+## Quick Start
+
+### Prerequisites
+
+- Java 21+
+- Docker & Docker Compose
+
+### Run
+
+```bash
+# 1. Start infrastructure services
+cd docker && ./setup.sh
+
+# 2. Run application
+./gradlew bootRun
+```
+
+Application is running at http://localhost:8085
+
+See [Service Access URLs](#service-access-urls) for all available services.
+
+**Infrastructure services started by setup.sh:**
+- Kafka & Zookeeper
+- Redis
+- PostgreSQL & PgAdmin
+- MailHog
+- Prometheus
+- Grafana
+- Tempo
+- Loki
+- OpenTelemetry Collector
+
 ## Environment & Skills
 
-- Application
-	- Kotlin 2.0
-	- Jdk 21
-	- Spring boot 3.5.5
-		- mvc
-		- webflux
-	- Gradle 8.10
-	- Spring Security
-	- Spring Batch
-	- Springdoc OpenAPI
-	- Postgresql
-	- h2 database (PostgreSQL mode) - localhost environment
-	- Jpa
-	- QueryDSL
-	- Redis
-	- Jwt
-	- Validation
-	- Kotlin Logging
-	- Logback
-	- Flyway
-	- Webhook
-		- Slack
-		- Discord
-	- Kafka
-	- WebClient
-	- Spring Actuator
+### Application
 
+| Category | Technologies |
+|----------|-------------|
+| Language & Runtime | Kotlin 2.0, JDK 21 |
+| Framework | Spring Boot 3.5.5 (MVC, WebFlux) |
+| Build | Gradle 8.10 |
+| Security | Spring Security, JWT |
+| Database | PostgreSQL, H2 (PostgreSQL mode, local), JPA, QueryDSL, Flyway |
+| Cache | Redis |
+| Messaging | Kafka |
+| Batch | Spring Batch |
+| API Docs | Springdoc OpenAPI |
+| HTTP Client | WebClient |
+| Webhook | Slack, Discord |
+| Logging | Kotlin Logging, Logback |
+| Validation | Jakarta Validation |
+| Monitoring | Spring Actuator |
 
-- Test
-	- Spring Boot Starter Test
-	- Spring Security
-	- Spring Batch
-	- Junit 5
-	- Mockito Kotlin
-	- Mockito Inline
-	- Kotest
-	- Mockk
-	- Instancio
-	- h2 database (PostgreSQL mode)
-	- Flyway
+### Test
 
+| Category | Technologies |
+|----------|-------------|
+| Framework | Spring Boot Starter Test, JUnit 5, Kotest |
+| Mocking | Mockito Kotlin, Mockito Inline, MockK |
+| Data | Instancio |
+| Database | H2 (PostgreSQL mode), Flyway |
+| Security | Spring Security Test |
+| Batch | Spring Batch Test |
 
-- Etc
-	- Docker
-	- Pgadmin
-	- Ktlint
-	- Detekt
-	- Mailhog
-	- Netty resolver dns native macos
-	- Kafka UI
+### Infrastructure & Tooling
 
+| Category | Technologies |
+|----------|-------------|
+| Container | Docker, Docker Compose |
+| DB Management | PgAdmin |
+| Code Quality | Ktlint, Detekt |
+| Email Testing | MailHog |
+| Messaging UI | Kafka UI |
+| DNS | Netty Resolver DNS Native macOS |
 
-- Monitoring
-	- Prometheus
-	- Grafana
-	- Tempo
-  - OpenTelemetry Collector
-  - Loki
-  - Sentry
+### Monitoring & Observability
+
+| Category | Technologies |
+|----------|-------------|
+| Metrics | Prometheus |
+| Dashboard | Grafana |
+| Tracing | Tempo |
+| Log Aggregation | Loki |
+| Collector | OpenTelemetry Collector |
+| Error Tracking | Sentry |
 
 ## Project Guide
 
-- monitoring
-- docker
-- src
-	- common
-	- domain (post, user, auth)
-	- example
-		- WelcomeSignUpConsumer: Kafka Consumer(SignUp Event) Example
-	- infrastructure (kafka, redis, webhook, mail)
-	- security
-		- spring security + jwt logic
-	- utils
-	- resources
-		- db
-			- migration: flyway sql
-			- sql: spring batch postgresql metadata sql
-		- logback-spring.xml
-			- Logback configuration with environment-specific settings
-			- Profiles: prod, dev, local
-		- application.yml
-			- prod, dev, local, common, test, secret-{environment}
-			- common: Write common variables for the project.
-			- test: Create the variables needed for your test environment.
-			- secret-{environment}: your secret variables for each environment.
+```
+├── monitoring/                          # Observability configurations
+├── docker/                              # Docker Compose files & setup script
+└── src/
+    ├── main/
+    │   ├── kotlin/.../demo/
+    │   │   ├── DemoApplication.kt       # Application entry point
+    │   │   ├── common/                  # Shared utilities & base classes
+    │   │   ├── post/                    # Post domain
+    │   │   ├── user/                    # User domain
+    │   │   ├── auth/                    # Auth domain
+    │   │   ├── example/                 # Usage examples
+    │   │   │   ├── UserDeleteConsumer   # Kafka Consumer (User Delete Event)
+    │   │   │   └── WelcomeSignUpConsumer # Kafka Consumer (SignUp Event)
+    │   │   ├── infrastructure/          # External integrations
+    │   │   │   ├── kafka/
+    │   │   │   ├── redis/
+    │   │   │   ├── webhook/
+    │   │   │   └── mail/
+    │   │   ├── security/                # Spring Security + JWT
+    │   │   └── utils/
+    │   └── resources/
+    │       ├── db/
+    │       │   ├── migration/           # Flyway SQL scripts
+    │       │   └── sql/                 # Spring Batch metadata SQL
+    │       ├── logback-*.xml            # Logback configs (spring, prod, dev, local)
+    │       ├── kotest.properties        # Kotest configuration
+    │       └── application-*.yml        # Profile configs
+    │           ├── common               # Shared variables
+    │           ├── prod / dev / local   # Environment-specific
+    │           ├── test                 # Test environment
+    │           └── secret-{env}         # Secret variables per environment
+    └── test/
+        └── kotlin/.../demo/
+            ├── common/                  # Shared test configuration
+            ├── mockito/                 # Mockito-based tests
+            └── kotest/                  # Kotest + MockK tests
+```
 
-## Clean Architecture + Hexagonal Architecture Version
+## Features
 
-If you're interested, check this out as well:
+### Security & Quality
 
-- **Repository**: [kotlin-clean-architecture-multimodule](https://github.com/awakelife93/kotlin-clean-architecture-multimodule)
-
-## Local Installation
-
-To use the application, the following two services must be installed and running:
-
-- kafka
-- redis
-- mailhog
-- grafana
-- prometheus
-- opentelemetry collector
-- tempo
-- loki
-
-## Description
-
-1. Security & CVE Management
-	- The project manages dependency vulnerabilities centrally through the `applyCveFixes()` function in [build.gradle.kts](build.gradle.kts)
-	- All known CVE fixes are automatically applied during dependency resolution
+**CVE Management**
+- All dependency vulnerabilities centrally managed via `applyCveFixes()` in [build.gradle.kts](build.gradle.kts)
+- CVE fixes automatically applied during dependency resolution
 
 ```kotlin
 // Example: CVE fix implementation
-requested.group == "org.apache.commons" && requested.name == "commons-lang3" -> {
-	useVersion("3.18.0")
-	because("CVE-2025-48924")
+when {
+    requested.group == "org.apache.commons" && requested.name == "commons-lang3" -> {
+        useVersion("3.18.0")
+        because("CVE-2025-48924")
+    }
 }
 ```
 
-2. Database DDL Management
-	- This project uses Flyway for DDL management instead of JPA auto-generation.
-	- Migration scripts are located in [src/main/resources/db/migration](src/main/resources/db/migration)
-	- If you prefer not to use Flyway, entity synchronization is configured - you can use JPA DDL auto-generation instead.
-		- JPA DDL configuration: [src/main/resources/application-common.yml](src/main/resources/application-common.yml) (
-			spring.jpa.generate-ddl)
-		- Set `spring.jpa.hibernate.ddl-auto` property for each environment (local, dev, prod) as needed
+**Code Quality**
+- Ktlint: [Official lint rules](.editorconfig)
+  - Report: `build/reports/ktlint`
+- Detekt: [Custom rules](detekt.yml)
+  - Report: `build/reports/detekt`
 
+### Data Management
 
-3. Webhook
-	- [enable & route endpoint](src/main/resources/application-common.yml)
-		- default enable true
-	- [types](src/main/kotlin/com/example/demo/infrastructure/webhook)
-		- slack
-		- discord
+**Database DDL**
+- Uses Flyway for DDL management instead of JPA auto-generation
+- Migration scripts: [src/main/resources/db/migration](src/main/resources/db/migration)
+- Alternative: JPA DDL auto-generation via [application-common.yml](src/main/resources/application-common.yml)
+
+**Spring Batch**
+- Metadata table required for all environments
+- PostgreSQL schema: [batch-postgresql-metadata-schema.sql](src/main/resources/db/sql/batch-postgresql-metadata-schema.sql)
+- Reference: [Spring Batch Schema](https://github.com/spring-projects/spring-batch/blob/5.0.x/spring-batch-core/src/main/resources/org/springframework/batch/core/schema-postgresql.sql)
+
+### Integration & Messaging
+
+**Webhook**
+- Configuration: [application-common.yml](src/main/resources/application-common.yml) (default enabled)
+- Types: Slack, Discord
 
 ```kotlin
-// example
-
 // 1. all
 webHookProvider.sendAll(
 	"Subscription request received from method ${parameter.method?.name}.",
@@ -163,118 +208,89 @@ webHookProvider.sendDiscord(
 )
 ```
 
-4. Mailhog
-	- mailhog is a tool for testing email sending.
-	- [If you want to use MailHog, the default SMTP port is 1025.
-		Of course, if you already have your own preferred setup, you can freely adjust the port as needed.](docker/base/docker-compose.mailhog.yml)
-	- Please check the settings in application-local.yml and application-secret-local.yml.
+**Kafka**
+- Topic metadata: [KafkaTopicMetaProvider](src/main/kotlin/com/example/demo/infrastructure/kafka/provider/KafkaTopicMetaProvider.kt)
+- DLQ: Dynamically created, [default partition: 1](src/main/kotlin/com/example/demo/infrastructure/kafka/DlqHelper.kt)
 
+**Email Testing**
+- MailHog integration (SMTP port 1025)
+- Configuration: [docker-compose.mailhog.yml](docker/base/docker-compose.mailhog.yml), [application-local.yml](src/main/resources/application-local.yml)
 
-5. Lint
-	- ktlint
-		- [using the official lint rules by default.](gradle.properties)
-			- [Please refer to the lint rules for this project here.](.editorconfig)
-		- report output
-			- build/reports/ktlint
-	- detekt
-		- [using rules](detekt.yml)
-		- report output
-			- build/reports/detekt
+**Examples**
+- [User signup → Email event via Kafka](src/main/kotlin/com/example/demo/user/event/UserEventHandler.kt)
+  - Consumer: [WelcomeSignUpConsumer](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
+- [User deletion after 1 year (Batch)](src/main/kotlin/com/example/demo/user/batch/writer/UserDeleteItemWriter.kt)
+  - Consumer: [UserDeleteConsumer](src/main/kotlin/com/example/demo/example/UserDeleteConsumer.kt)
 
+### Testing
 
-6. Docker & Infrastructure Services
-	- The project includes Docker Compose configurations for all required services
-	- For detailed setup, port information, and service management, see [Docker Setup Guide](docker/README.md)
+**Mockito**
+- Base: [BaseIntegrationController](src/test/kotlin/com/example/demo/mockito/common/BaseIntegrationController.kt)
 
+**Kotest & MockK**
+- Base: [BaseIntegrationController](src/test/kotlin/com/example/demo/kotest/common/BaseIntegrationController.kt)
+- Security bypass: [SecurityListenerFactory](src/test/kotlin/com/example/demo/kotest/common/security/SecurityListenerFactory.kt)
 
-7. Create Spring Batch metadata table (localhost, development and production environments.)
-	- Run your ddl script or Please refer
-		to [github - spring batch](https://github.com/spring-projects/spring-batch/blob/5.0.x/spring-batch-core/src/main/resources/org/springframework/batch/core/schema-postgresql.sql)
-		- Since this project uses postgresql, the spring.batch.jdbc.initialize-schema: always option does not work.
-		- localhost & test environment,
-			generating [batch-postgresql-metadata-schema.sql](src/main/resources/db/sql/batch-postgresql-metadata-schema.sql).
-			- [application-test.yml](src/main/resources/application-test.yml)
+```kotlin
+// Bypass Spring Security in tests
+listeners(SecurityListenerFactory())
 
+Then("Call DELETE /api/v1/users/{userId}").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
+	// ...
+}
+```
 
-8. Two types of tests
-	- [mockito](src/test/kotlin/com/example/demo/mockito)
-		- [BaseIntegrationController](src/test/kotlin/com/example/demo/mockito/common/BaseIntegrationController.kt)
-	- [kotest & mockk](src/test/kotlin/com/example/demo/kotest)
-		- **if you want to bypass Spring Security authentication issues.**
-			- [SecurityListenerFactory](src/test/kotlin/com/example/demo/kotest/common/security/SecurityListenerFactory.kt)
-			- [BaseIntegrationController](src/test/kotlin/com/example/demo/kotest/common/BaseIntegrationController.kt)
-				```kotlin
-				// example
-				listeners(SecurityListenerFactory())
+### Monitoring & Observability
 
-				Then("Call DELETE /api/v1/users/{userId}").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
-					// ...
-				}
-				```
+**OpenTelemetry Stack**
+- All metrics, traces, logs collected via OpenTelemetry Collector
+- Collector endpoints:
+  - OTLP gRPC: localhost:4317
+  - OTLP HTTP: localhost:4318
 
-9. Kafka
-	- [KafkaTopicMetaProvider](src/main/kotlin/com/example/demo/infrastructure/kafka/provider/KafkaTopicMetaProvider.kt)
-		- Manage metadata related to topics
-	- DLQ
-		- [DLQs are dynamically created in this project.](src/main/kotlin/com/example/demo/infrastructure/kafka/provider/KafkaConsumerFactoryProvider.kt)
-		- [default fallback partition: 1](src/main/kotlin/com/example/demo/infrastructure/kafka/DlqHelper.kt) (if the topic
-			partition does not exist)
+**Configuration**
+- [OpenTelemetry Collector](monitoring/otel-collector-config.yml)
+- [Prometheus](monitoring/prometheus.yml)
+- [Tempo](monitoring/tempo.yml)
+- [Loki](monitoring/loki.yml)
 
+## Service Access URLs
 
-10. [Example](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
-	- [When a user signs up, an event is generated to send an email to the recipient.](src/main/kotlin/com/example/demo/user/event/UserEventHandler.kt)
-		- [You can test this flow by referring to the MailHog and Kafka sections.](src/main/kotlin/com/example/demo/example/WelcomeSignUpConsumer.kt)
-	- [Accounts are hard deleted after one year.](src/main/kotlin/com/example/demo/user/batch/writer/UserDeleteItemWriter.kt)
-		- [You can test this flow by referring to the Kafka sections.](src/main/kotlin/com/example/demo/example/UserDeleteConsumer.kt)
+### Application
 
+| Service | URL | Description |
+|---------|-----|-------------|
+| API Documentation | http://localhost:8085/swagger-ui/index.html | Swagger UI |
+| H2 Console | http://localhost:8085/h2-console | Database console (local) |
+| Application Server | http://localhost:8085 | Main endpoint |
 
-11. OpenTelemetry Stack Configuration (Monitoring & Observability)
-	- All observability data (metrics, traces, logs) are now collected through OpenTelemetry Collector
-	- **OpenTelemetry Collector Endpoints**:
-		- OTLP gRPC: localhost:4317
-		- OTLP HTTP: localhost:4318
-	- **Grafana**: Unified dashboard for metrics, traces, and logs
-		- Prometheus: Metrics collection and visualization
-			- [Configuration](monitoring/prometheus.yml)
-		- Tempo: Distributed tracing
-			- [Configuration](monitoring/tempo.yml)
-		- Loki: Log aggregation and analysis
-			- [Configuration](monitoring/loki.yml)
-	- **OpenTelemetry Collector**:
-		- [Configuration](monitoring/otel-collector-config.yml)
+### Infrastructure
 
+| Service | URL | Description |
+|---------|-----|-------------|
+| MailHog | http://localhost:8025 | Email testing |
+| PgAdmin | http://localhost:8088 | PostgreSQL management |
+| Kafka UI | http://localhost:9000 | Kafka management |
+| Redis | localhost:6379 | Redis connection |
+| PostgreSQL | localhost:5432 | Database connection |
+| Kafka Broker | localhost:9092 | Kafka connection |
+| Zookeeper | localhost:2181 | Coordination service |
 
-12. Service Access URLs (When services are running)
+### Observability
 
-	### Application
-	- **API Documentation (Swagger)**: http://localhost:8085/swagger-ui/index.html
-	- **H2 Console** (local environment): http://localhost:8085/h2-console
-	- **Application Server**: http://localhost:8085
+| Service | URL | Credentials | Description |
+|---------|-----|-------------|-------------|
+| Grafana | http://localhost:3000 | demo / demo | Unified dashboard |
+| Prometheus | http://localhost:9090 | - | Metrics collection |
+| Tempo | http://localhost:3200 | - | Distributed tracing |
+| Loki | http://localhost:3100 | - | Log aggregation |
+| OTLP (gRPC) | localhost:4317 | - | OpenTelemetry endpoint |
+| OTLP (HTTP) | localhost:4318 | - | OpenTelemetry endpoint |
 
-	### Infrastructure Services
-	- **MailHog** (Email Testing): http://localhost:8025
-	- **PgAdmin** (PostgreSQL Management): http://localhost:8088
-	- **Kafka UI** (Kafka Management): http://localhost:9000
-	- **Redis** (CLI/Client access): localhost:6379
-	- **PostgreSQL** (Database connection): localhost:5432
-	- **Kafka** (Broker connection): localhost:9092
-	- **Zookeeper** (Coordination service): localhost:2181
-
-	### Observability
-	- **Grafana** (Unified Observability Dashboard): http://localhost:3000
-		- Username: `demo`
-		- Password: `demo`
-		- Metrics (Prometheus), Traces (Tempo), Logs (Loki) visualization
-		- **Data Source Configuration** (use Docker internal network addresses):
-			- Prometheus: `http://prometheus:9090`
-			- Tempo: `http://tempo:3200`
-			- Loki: `http://loki:3100`
-	- **Prometheus** (Metrics Collection): http://localhost:9090
-	- **Tempo** (Distributed Tracing): http://localhost:3200
-	- **Loki** (Log Aggregation): http://localhost:3100
-	- **OpenTelemetry Collector**:
-		- gRPC: localhost:4317
-		- HTTP: localhost:4318
+**Grafana Data Sources** (Docker internal network):
+- Prometheus: `http://prometheus:9090`
+- Tempo: `http://tempo:3200`
+- Loki: `http://loki:3100`
 
 ## Author
 
