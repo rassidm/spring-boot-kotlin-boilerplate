@@ -24,7 +24,7 @@ class MailHelperTests :
 	BehaviorSpec({
 		Given("a valid mail payload") {
 			val payload =
-				MailPayload.of(
+				MailPayload(
 					to = "user@example.com",
 					subject = "Test Subject",
 					body = "Test Body"
@@ -54,7 +54,7 @@ class MailHelperTests :
 
 		Given("an invalid email address") {
 			val payload =
-				MailPayload.of(
+				MailPayload(
 					to = "invalid-email",
 					subject = "Subject",
 					body = "Body"

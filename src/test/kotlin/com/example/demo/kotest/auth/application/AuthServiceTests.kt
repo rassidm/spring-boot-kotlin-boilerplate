@@ -115,7 +115,7 @@ class AuthServiceTests :
 				every { tokenProvider.refreshAccessToken(any<SecurityUserItem>()) } returns defaultAccessToken
 
 				every { authService.refreshAccessToken(any<RefreshAccessTokenCommand>()) } returns
-					RefreshAccessTokenResponse.of(
+					RefreshAccessTokenResponse.from(
 						defaultAccessToken
 					)
 

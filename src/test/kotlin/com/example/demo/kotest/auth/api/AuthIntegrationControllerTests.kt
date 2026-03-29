@@ -181,7 +181,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 
 			When("Success POST /api/v1/auth/refresh") {
 
-				every { authService.refreshAccessToken(any<RefreshAccessTokenCommand>()) } returns RefreshAccessTokenResponse.of(defaultAccessToken)
+				every { authService.refreshAccessToken(any<RefreshAccessTokenCommand>()) } returns RefreshAccessTokenResponse.from(defaultAccessToken)
 
 				Then("Call POST /api/v1/auth/refresh") {
 					mockMvc

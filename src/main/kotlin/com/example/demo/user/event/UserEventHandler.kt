@@ -22,7 +22,7 @@ class UserEventHandler(
 	fun handleWelcomeSignUpEvent(welcomeSignUpEvent: UserEvent.WelcomeSignUpEvent) {
 		runCatching {
 			val payload =
-				MailPayload.of(
+				MailPayload(
 					to = welcomeSignUpEvent.email,
 					subject = "${welcomeSignUpEvent.name}.",
 					body = "Welcome to our service!"

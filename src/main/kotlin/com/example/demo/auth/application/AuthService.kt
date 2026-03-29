@@ -35,7 +35,7 @@ class AuthService(
 		val usernamePasswordAuthenticationToken = jwtProvider.getAuthentication(command.refreshToken, true)
 		val userAdapter = usernamePasswordAuthenticationToken.principal as UserAdapter
 
-		return RefreshAccessTokenResponse.of(
+		return RefreshAccessTokenResponse.from(
 			tokenProvider.refreshAccessToken(
 				userAdapter.securityUserItem
 			)

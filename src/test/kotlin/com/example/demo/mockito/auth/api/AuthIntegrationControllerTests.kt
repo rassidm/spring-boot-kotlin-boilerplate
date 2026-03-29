@@ -235,7 +235,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 		fun should_ExpectOKResponseToRefreshAccessTokenResponse_when_GivenSecurityUserItemAndUserIsAuthenticated() {
 			Mockito
 				.`when`(authService.refreshAccessToken(any<RefreshAccessTokenCommand>()))
-				.thenReturn(RefreshAccessTokenResponse.of(defaultAccessToken))
+				.thenReturn(RefreshAccessTokenResponse.from(defaultAccessToken))
 
 			mockMvc
 				.perform(

@@ -100,7 +100,7 @@ class AuthControllerTests {
 			)
 
 		whenever(authService.refreshAccessToken(any<RefreshAccessTokenCommand>()))
-			.thenReturn(RefreshAccessTokenResponse.of(defaultAccessToken))
+			.thenReturn(RefreshAccessTokenResponse.from(defaultAccessToken))
 
 		val response =
 			authController.refreshAccessToken(

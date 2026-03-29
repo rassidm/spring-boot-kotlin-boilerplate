@@ -10,6 +10,6 @@ data class RefreshAccessTokenResponse(
 	val accessToken: String
 ) {
 	companion object {
-		fun of(accessToken: String): RefreshAccessTokenResponse = RefreshAccessTokenResponse(accessToken)
+		fun from(accessToken: String): RefreshAccessTokenResponse = RefreshAccessTokenResponse(accessToken)
 	}
 }

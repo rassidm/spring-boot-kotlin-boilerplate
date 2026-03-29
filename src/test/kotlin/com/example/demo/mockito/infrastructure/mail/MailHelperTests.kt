@@ -47,7 +47,7 @@ class MailHelperTests {
 	@Test
 	fun `should send email with correct values`() {
 		val payload =
-			MailPayload.of(
+			MailPayload(
 				to = "user@example.com",
 				subject = "Test Subject",
 				body = "Test Body"
@@ -67,7 +67,7 @@ class MailHelperTests {
 	@Test
 	fun `should throw exception for invalid email`() {
 		val payload =
-			MailPayload.of(
+			MailPayload(
 				to = "invalid-email",
 				subject = "Subject",
 				body = "Body"
@@ -89,7 +89,7 @@ class MailHelperTests {
 	@Test
 	fun `should call sendSlack on mail sending failure`() {
 		val payload =
-			MailPayload.of(
+			MailPayload(
 				to = "user@example.com",
 				subject = "Test Subject",
 				body = "Test Body"
