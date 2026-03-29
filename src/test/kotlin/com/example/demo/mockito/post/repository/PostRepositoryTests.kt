@@ -2,7 +2,7 @@ package com.example.demo.mockito.post.repository
 
 import com.example.demo.common.config.JpaAuditConfig
 import com.example.demo.common.config.QueryDslConfig
-import com.example.demo.post.dto.serve.request.UpdatePostRequest
+import com.example.demo.post.dto.request.UpdatePostRequest
 import com.example.demo.post.entity.Post
 import com.example.demo.post.repository.PostRepository
 import org.instancio.Instancio

@@ -1,7 +1,7 @@
 package com.example.demo.post.application.impl
 
 import com.example.demo.post.application.GetPostService
-import com.example.demo.post.dto.serve.response.GetPostResponse
+import com.example.demo.post.dto.response.GetPostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.post.exception.PostNotFoundException
 import com.example.demo.post.repository.PostRepository

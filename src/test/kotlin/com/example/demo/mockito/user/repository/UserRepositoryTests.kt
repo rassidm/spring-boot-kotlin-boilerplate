@@ -3,7 +3,7 @@ package com.example.demo.mockito.user.repository
 import com.example.demo.common.config.JpaAuditConfig
 import com.example.demo.common.config.QueryDslConfig
 import com.example.demo.user.constant.UserRole
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
+import com.example.demo.user.dto.request.UpdateUserRequest
 import com.example.demo.user.entity.User
 import com.example.demo.user.repository.UserRepository
 import org.instancio.Instancio

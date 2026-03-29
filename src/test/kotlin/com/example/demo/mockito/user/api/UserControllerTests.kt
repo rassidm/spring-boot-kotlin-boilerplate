@@ -4,12 +4,14 @@ import com.example.demo.security.SecurityUserItem
 import com.example.demo.user.api.UserController
 import com.example.demo.user.application.impl.ChangeUserServiceImpl
 import com.example.demo.user.application.impl.GetUserServiceImpl
-import com.example.demo.user.dto.serve.request.CreateUserRequest
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
-import com.example.demo.user.dto.serve.response.CreateUserResponse.Companion.from
-import com.example.demo.user.dto.serve.response.GetUserResponse
-import com.example.demo.user.dto.serve.response.UpdateMeResponse
-import com.example.demo.user.dto.serve.response.UpdateUserResponse
+import com.example.demo.user.dto.command.CreateUserCommand
+import com.example.demo.user.dto.command.UpdateUserCommand
+import com.example.demo.user.dto.request.CreateUserRequest
+import com.example.demo.user.dto.request.UpdateUserRequest
+import com.example.demo.user.dto.response.CreateUserResponse.Companion.from
+import com.example.demo.user.dto.response.GetUserResponse
+import com.example.demo.user.dto.response.UpdateMeResponse
+import com.example.demo.user.dto.response.UpdateUserResponse
 import com.example.demo.user.entity.User
 import org.assertj.core.api.Assertions.assertThat
 import org.instancio.Instancio
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.verify
@@ -132,7 +135,7 @@ class UserControllerTests {
 	fun `should return created user response when creating user`() {
 		val createUserRequest = Instancio.create(CreateUserRequest::class.java)
 		val expectedResponse = from(user, defaultAccessToken)
-		whenever(changeUserServiceImpl.createUser(createUserRequest)) doReturn expectedResponse
+		whenever(changeUserServiceImpl.createUser(any<CreateUserCommand>())) doReturn expectedResponse
 
 		val response = userController.createUser(createUserRequest)
 
@@ -146,7 +149,7 @@ class UserControllerTests {
 			assertEquals(defaultAccessToken, body.accessToken)
 		}
 
-		verify(changeUserServiceImpl).createUser(createUserRequest)
+		verify(changeUserServiceImpl).createUser(any<CreateUserCommand>())
 		verifyNoMoreInteractions(changeUserServiceImpl)
 	}
 
@@ -156,7 +159,7 @@ class UserControllerTests {
 		val userId = user.id
 		val updateUserRequest = Instancio.create(UpdateUserRequest::class.java)
 		val expectedResponse = UpdateUserResponse.from(user)
-		whenever(changeUserServiceImpl.updateUser(userId, updateUserRequest)) doReturn expectedResponse
+		whenever(changeUserServiceImpl.updateUser(any<Long>(), any<UpdateUserCommand>())) doReturn expectedResponse
 
 		val response = userController.updateUser(updateUserRequest, userId)
 
@@ -170,7 +173,7 @@ class UserControllerTests {
 			assertEquals(user.role, body.role)
 		}
 
-		verify(changeUserServiceImpl).updateUser(userId, updateUserRequest)
+		verify(changeUserServiceImpl).updateUser(any<Long>(), any<UpdateUserCommand>())
 		verifyNoMoreInteractions(changeUserServiceImpl)
 	}
 
@@ -180,7 +183,7 @@ class UserControllerTests {
 		val updateUserRequest = Instancio.create(UpdateUserRequest::class.java)
 		val securityUserItem = Instancio.create(SecurityUserItem::class.java)
 		val expectedResponse = UpdateMeResponse.from(user, defaultAccessToken)
-		whenever(changeUserServiceImpl.updateMe(securityUserItem.userId, updateUserRequest)) doReturn expectedResponse
+		whenever(changeUserServiceImpl.updateMe(any<Long>(), any<UpdateUserCommand>())) doReturn expectedResponse
 
 		val response = userController.updateMe(updateUserRequest, securityUserItem)
 
@@ -195,7 +198,7 @@ class UserControllerTests {
 			assertEquals(defaultAccessToken, body.accessToken)
 		}
 
-		verify(changeUserServiceImpl).updateMe(securityUserItem.userId, updateUserRequest)
+		verify(changeUserServiceImpl).updateMe(any<Long>(), any<UpdateUserCommand>())
 		verifyNoMoreInteractions(changeUserServiceImpl)
 	}
 

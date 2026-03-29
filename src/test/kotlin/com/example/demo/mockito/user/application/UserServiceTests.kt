@@ -1,6 +1,5 @@
 package com.example.demo.mockito.user.application
 
-import com.example.demo.auth.dto.serve.request.SignInRequest
 import com.example.demo.user.application.impl.UserServiceImpl
 import com.example.demo.user.entity.User
 import com.example.demo.user.exception.UserNotFoundException
@@ -79,20 +78,21 @@ class UserServiceTests {
 	@Nested
 	@DisplayName("Validate and authenticated Return User Entity")
 	inner class ValidateAuthReturnUserTest {
-		private val signInRequest: SignInRequest = Instancio.create(SignInRequest::class.java)
+		private val testEmail = "test@example.com"
+		private val testPassword = "password123"
 
 		@Test
 		@DisplayName("Success validate and authenticated get user entity")
 		fun `should return user entity when authentication successful`() {
-			whenever(userRepository.findOneByEmail(signInRequest.email)) doReturn user
+			whenever(userRepository.findOneByEmail(testEmail)) doReturn user
 			whenever(
 				user.validatePassword(
-					signInRequest.password,
+					testPassword,
 					bCryptPasswordEncoder
 				)
 			) doReturn true
 
-			val validateAuthUser = userServiceImpl.validateAuthReturnUser(signInRequest)
+			val validateAuthUser = userServiceImpl.validateAuthReturnUser(testEmail, testPassword)
 
 			assertNotNull(validateAuthUser)
 			assertEquals(user.id, validateAuthUser.id)
@@ -100,39 +100,39 @@ class UserServiceTests {
 			assertEquals(user.name, validateAuthUser.name)
 			assertEquals(user.role, validateAuthUser.role)
 
-			verify(userRepository).findOneByEmail(signInRequest.email)
+			verify(userRepository).findOneByEmail(testEmail)
 			verifyNoMoreInteractions(userRepository)
 		}
 
 		@Test
 		@DisplayName("validate and authenticated user is not found exception")
 		fun `should throw UserNotFoundException when user not found by email`() {
-			whenever(userRepository.findOneByEmail(signInRequest.email)) doReturn null
+			whenever(userRepository.findOneByEmail(testEmail)) doReturn null
 
 			assertThrows<UserNotFoundException> {
-				userServiceImpl.validateAuthReturnUser(signInRequest)
+				userServiceImpl.validateAuthReturnUser(testEmail, testPassword)
 			}
 
-			verify(userRepository).findOneByEmail(signInRequest.email)
+			verify(userRepository).findOneByEmail(testEmail)
 			verifyNoMoreInteractions(userRepository, bCryptPasswordEncoder)
 		}
 
 		@Test
 		@DisplayName("validate and authenticated user is unauthorized exception")
 		fun `should throw UserUnAuthorizedException when password validation fails`() {
-			whenever(userRepository.findOneByEmail(signInRequest.email)) doReturn user
+			whenever(userRepository.findOneByEmail(testEmail)) doReturn user
 			whenever(
 				user.validatePassword(
-					signInRequest.password,
+					testPassword,
 					bCryptPasswordEncoder
 				)
 			) doReturn false
 
 			assertThrows<UserUnAuthorizedException> {
-				userServiceImpl.validateAuthReturnUser(signInRequest)
+				userServiceImpl.validateAuthReturnUser(testEmail, testPassword)
 			}
 
-			verify(userRepository).findOneByEmail(signInRequest.email)
+			verify(userRepository).findOneByEmail(testEmail)
 		}
 	}
 }

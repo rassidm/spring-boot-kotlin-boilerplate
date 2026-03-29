@@ -4,12 +4,14 @@ import com.example.demo.security.SecurityUserItem
 import com.example.demo.user.api.UserController
 import com.example.demo.user.application.ChangeUserService
 import com.example.demo.user.application.GetUserService
-import com.example.demo.user.dto.serve.request.CreateUserRequest
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
-import com.example.demo.user.dto.serve.response.CreateUserResponse.Companion.from
-import com.example.demo.user.dto.serve.response.GetUserResponse
-import com.example.demo.user.dto.serve.response.UpdateMeResponse
-import com.example.demo.user.dto.serve.response.UpdateUserResponse
+import com.example.demo.user.dto.command.CreateUserCommand
+import com.example.demo.user.dto.command.UpdateUserCommand
+import com.example.demo.user.dto.request.CreateUserRequest
+import com.example.demo.user.dto.request.UpdateUserRequest
+import com.example.demo.user.dto.response.CreateUserResponse.Companion.from
+import com.example.demo.user.dto.response.GetUserResponse
+import com.example.demo.user.dto.response.UpdateMeResponse
+import com.example.demo.user.dto.response.UpdateUserResponse
 import com.example.demo.user.entity.User
 import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.style.FunSpec
@@ -137,7 +139,7 @@ class UserControllerTests :
 					CreateUserRequest::class.java
 				)
 
-			every { changeUserService.createUser(any<CreateUserRequest>()) } returns from(user, defaultAccessToken)
+			every { changeUserService.createUser(any<CreateUserCommand>()) } returns from(user, defaultAccessToken)
 
 			every { userController.createUser(any<CreateUserRequest>()) } returns
 				ResponseEntity
@@ -174,7 +176,7 @@ class UserControllerTests :
 			every {
 				changeUserService.updateUser(
 					any<Long>(),
-					any<UpdateUserRequest>()
+					any<UpdateUserCommand>()
 				)
 			} returns UpdateUserResponse.from(user)
 
@@ -211,7 +213,7 @@ class UserControllerTests :
 					SecurityUserItem::class.java
 				)
 
-			every { changeUserService.updateMe(any<Long>(), any<UpdateUserRequest>()) } returns
+			every { changeUserService.updateMe(any<Long>(), any<UpdateUserCommand>()) } returns
 				UpdateMeResponse.from(
 					user,
 					defaultAccessToken

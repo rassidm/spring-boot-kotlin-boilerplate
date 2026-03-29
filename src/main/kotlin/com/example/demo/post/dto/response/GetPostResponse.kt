@@ -1,4 +1,4 @@
-package com.example.demo.post.dto.serve.response
+package com.example.demo.post.dto.response
 
 import com.example.demo.post.entity.Post
 import io.swagger.v3.oas.annotations.media.Schema

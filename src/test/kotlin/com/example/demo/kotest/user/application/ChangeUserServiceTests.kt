@@ -5,10 +5,10 @@ import com.example.demo.security.component.provider.TokenProvider
 import com.example.demo.user.application.ChangeUserService
 import com.example.demo.user.application.UserService
 import com.example.demo.user.constant.UserRole
-import com.example.demo.user.dto.serve.request.CreateUserRequest
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
-import com.example.demo.user.dto.serve.response.CreateUserResponse
-import com.example.demo.user.dto.serve.response.UpdateUserResponse
+import com.example.demo.user.dto.command.CreateUserCommand
+import com.example.demo.user.dto.command.UpdateUserCommand
+import com.example.demo.user.dto.response.CreateUserResponse
+import com.example.demo.user.dto.response.UpdateUserResponse
 import com.example.demo.user.entity.User
 import com.example.demo.user.event.UserEvent
 import com.example.demo.user.exception.AlreadyUserExistException
@@ -78,11 +78,11 @@ class ChangeUserServiceTests :
 		}
 
 		Given("Update User") {
-			val updateUserRequest: UpdateUserRequest =
+			val updateUserCommand: UpdateUserCommand =
 				Instancio
-					.create(UpdateUserRequest::class.java)
+					.create(UpdateUserCommand::class.java)
 					.copy(role = UserRole.USER.name)
-			val userRole = UserRole.valueOf(updateUserRequest.role)
+			val userRole = UserRole.valueOf(updateUserCommand.role)
 
 			When("Success Update User") {
 
@@ -91,12 +91,12 @@ class ChangeUserServiceTests :
 				every {
 					changeUserService.updateUser(
 						any<Long>(),
-						any<UpdateUserRequest>()
+						any<UpdateUserCommand>()
 					)
 				} returns
 					UpdateUserResponse.from(
 						user.apply {
-							name = updateUserRequest.name
+							name = updateUserCommand.name
 							role = userRole
 						}
 					)
@@ -104,12 +104,12 @@ class ChangeUserServiceTests :
 				val updateUserResponse =
 					changeUserService.updateUser(
 						user.id,
-						updateUserRequest
+						updateUserCommand
 					)
 
 				Then("Assert User Entity") {
 					updateUserResponse shouldNotBeNull {
-						name shouldBe updateUserRequest.name
+						name shouldBe updateUserCommand.name
 						role shouldBe userRole
 					}
 				}
@@ -122,18 +122,18 @@ class ChangeUserServiceTests :
 				every {
 					changeUserService.updateUser(
 						any<Long>(),
-						any<UpdateUserRequest>()
+						any<UpdateUserCommand>()
 					)
 				} throws UserNotFoundException(user.id)
 
-				shouldThrowExactly<UserNotFoundException> { changeUserService.updateUser(user.id, updateUserRequest) }
+				shouldThrowExactly<UserNotFoundException> { changeUserService.updateUser(user.id, updateUserCommand) }
 			}
 		}
 
 		Given("Create User") {
-			val createUserRequest: CreateUserRequest =
+			val createUserCommand: CreateUserCommand =
 				Instancio.create(
-					CreateUserRequest::class.java
+					CreateUserCommand::class.java
 				)
 
 			When("Success Create User") {
@@ -148,13 +148,13 @@ class ChangeUserServiceTests :
 
 				every {
 					changeUserService.createUser(
-						any<CreateUserRequest>()
+						any<CreateUserCommand>()
 					)
 				} returns CreateUserResponse.from(user, defaultAccessToken)
 
 				val createUserResponse =
 					changeUserService.createUser(
-						createUserRequest
+						createUserCommand
 					)
 
 				Then("Assert User Entity & Verify Call Publish Event") {
@@ -170,10 +170,10 @@ class ChangeUserServiceTests :
 
 				every { userRepository.existsByEmail(any<String>()) } returns true
 
-				every { changeUserService.createUser(any<CreateUserRequest>()) } throws AlreadyUserExistException(user.id)
+				every { changeUserService.createUser(any<CreateUserCommand>()) } throws AlreadyUserExistException(user.id)
 
 				shouldThrowExactly<AlreadyUserExistException> {
-					changeUserService.createUser(createUserRequest)
+					changeUserService.createUser(createUserCommand)
 				}
 			}
 		}

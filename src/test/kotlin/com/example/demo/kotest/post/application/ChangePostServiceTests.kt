@@ -2,10 +2,10 @@ package com.example.demo.kotest.post.application
 
 import com.example.demo.post.application.ChangePostService
 import com.example.demo.post.application.PostService
-import com.example.demo.post.dto.serve.request.CreatePostRequest
-import com.example.demo.post.dto.serve.request.UpdatePostRequest
-import com.example.demo.post.dto.serve.response.CreatePostResponse
-import com.example.demo.post.dto.serve.response.UpdatePostResponse
+import com.example.demo.post.dto.command.CreatePostCommand
+import com.example.demo.post.dto.command.UpdatePostCommand
+import com.example.demo.post.dto.response.CreatePostResponse
+import com.example.demo.post.dto.response.UpdatePostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.post.exception.PostNotFoundException
 import com.example.demo.post.repository.PostRepository
@@ -105,9 +105,9 @@ class ChangePostServiceTests :
 		}
 
 		Given("Update Post") {
-			val updatePostRequest =
+			val updatePostCommand =
 				Instancio.create(
-					UpdatePostRequest::class.java
+					UpdatePostCommand::class.java
 				)
 
 			When("Success Update Post") {
@@ -117,28 +117,28 @@ class ChangePostServiceTests :
 				every {
 					changePostService.updatePost(
 						any<Long>(),
-						any<UpdatePostRequest>()
+						any<UpdatePostCommand>()
 					)
 				} returns
 					UpdatePostResponse.from(
 						post.apply {
-							title = updatePostRequest.title
-							subTitle = updatePostRequest.subTitle
-							content = updatePostRequest.content
+							title = updatePostCommand.title
+							subTitle = updatePostCommand.subTitle
+							content = updatePostCommand.content
 						}
 					)
 
 				val updatePostResponse =
 					changePostService.updatePost(
 						post.id,
-						updatePostRequest
+						updatePostCommand
 					)
 
 				Then("Assert Post Entity") {
 					updatePostResponse shouldNotBeNull {
-						title shouldBe updatePostRequest.title
-						subTitle shouldBe updatePostRequest.subTitle
-						content shouldBe updatePostRequest.content
+						title shouldBe updatePostCommand.title
+						subTitle shouldBe updatePostCommand.subTitle
+						content shouldBe updatePostCommand.content
 					}
 				}
 			}
@@ -150,18 +150,18 @@ class ChangePostServiceTests :
 				every {
 					changePostService.updatePost(
 						any<Long>(),
-						any<UpdatePostRequest>()
+						any<UpdatePostCommand>()
 					)
 				} throws PostNotFoundException(post.id)
 
-				shouldThrowExactly<PostNotFoundException> { changePostService.updatePost(post.id, updatePostRequest) }
+				shouldThrowExactly<PostNotFoundException> { changePostService.updatePost(post.id, updatePostCommand) }
 			}
 		}
 
 		Given("Create Post") {
-			val createPostRequest: CreatePostRequest =
+			val createPostCommand: CreatePostCommand =
 				Instancio.create(
-					CreatePostRequest::class.java
+					CreatePostCommand::class.java
 				)
 
 			When("Success Create Post") {
@@ -170,9 +170,9 @@ class ChangePostServiceTests :
 
 				every { postRepository.save(any<Post>()) } returns post
 
-				every { changePostService.createPost(any<Long>(), any<CreatePostRequest>()) } returns CreatePostResponse.from(post)
+				every { changePostService.createPost(any<Long>(), any<CreatePostCommand>()) } returns CreatePostResponse.from(post)
 
-				val createPostResponse = changePostService.createPost(user.id, createPostRequest)
+				val createPostResponse = changePostService.createPost(user.id, createPostCommand)
 
 				createPostResponse shouldNotBeNull {
 					postId shouldBe post.id

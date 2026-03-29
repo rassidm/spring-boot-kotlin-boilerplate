@@ -6,12 +6,14 @@ import com.example.demo.user.api.UserController
 import com.example.demo.user.application.ChangeUserService
 import com.example.demo.user.application.GetUserService
 import com.example.demo.user.constant.UserRole
-import com.example.demo.user.dto.serve.request.CreateUserRequest
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
-import com.example.demo.user.dto.serve.response.CreateUserResponse
-import com.example.demo.user.dto.serve.response.GetUserResponse
-import com.example.demo.user.dto.serve.response.UpdateMeResponse
-import com.example.demo.user.dto.serve.response.UpdateUserResponse
+import com.example.demo.user.dto.command.CreateUserCommand
+import com.example.demo.user.dto.command.UpdateUserCommand
+import com.example.demo.user.dto.request.CreateUserRequest
+import com.example.demo.user.dto.request.UpdateUserRequest
+import com.example.demo.user.dto.response.CreateUserResponse
+import com.example.demo.user.dto.response.GetUserResponse
+import com.example.demo.user.dto.response.UpdateMeResponse
+import com.example.demo.user.dto.response.UpdateUserResponse
 import com.example.demo.user.entity.User
 import com.example.demo.user.exception.AlreadyUserExistException
 import com.example.demo.user.exception.UserNotFoundException
@@ -32,9 +34,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @ActiveProfiles("test")
 @Tags("kotest-integration-test")
-@WebMvcTest(
-	UserController::class
-)
+@WebMvcTest(UserController::class)
 class UserIntegrationControllerTests : BaseIntegrationController() {
 	@MockkBean
 	private lateinit var getUserService: GetUserService
@@ -56,521 +56,485 @@ class UserIntegrationControllerTests : BaseIntegrationController() {
 		initialize()
 
 		Given("GET /api/v1/users/{userId}") {
-
 			When("Success GET /api/v1/users/{userId}") {
-
 				every { getUserService.getUserById(any<Long>()) } returns GetUserResponse.from(user)
-
 				Then("Call GET /api/v1/users/{userId}") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isOk)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(user.email))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
+						).andExpect(
+							MockMvcResultMatchers.status().isOk
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(commonStatus)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.message").value(commonMessage)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.email").value(user.email)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.role").value(user.role.name))
 				}
 			}
-
 			When("Not Found Exception GET /api/v1/users/{userId}") {
 				val userNotFoundException = UserNotFoundException(user.id)
-
 				every { getUserService.getUserById(any<Long>()) } throws userNotFoundException
-
 				Then("Call GET /api/v1/users/{userId}") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isNotFound)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message))
+						).andExpect(
+							MockMvcResultMatchers.status().isNotFound
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value())
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
 				}
 			}
 		}
 
 		Given("GET /api/v1/users/me") {
-
 			When("Success GET /api/v1/users/me") {
-
 				every { getUserService.getUserById(any<Long>()) } returns GetUserResponse.from(user)
-
 				Then("Call GET /api/v1/users/me") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users/me")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users/me"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isOk)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(user.email))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
+						).andExpect(
+							MockMvcResultMatchers.status().isOk
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(commonStatus)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.message").value(commonMessage)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.email").value(user.email)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.role").value(user.role.name))
 				}
 			}
-
 			When("Not Found Exception GET /api/v1/users/me") {
 				val userNotFoundException = UserNotFoundException(user.id)
-
 				every { getUserService.getUserById(any<Long>()) } throws userNotFoundException
-
 				Then("Call GET /api/v1/users/me") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users/me")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users/me"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isNotFound)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message))
+						).andExpect(
+							MockMvcResultMatchers.status().isNotFound
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value())
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
 				}
 			}
 		}
 
 		Given("GET /api/v1/users") {
-
 			When("Success GET /api/v1/users") {
-
-				every { getUserService.getUserList(any<Pageable>()) } returns
-					PageImpl(
-						listOf(
-							GetUserResponse.from(user)
-						),
-						defaultPageable,
-						1
-					)
-
+				every { getUserService.getUserList(any<Pageable>()) } returns PageImpl(listOf(GetUserResponse.from(user)), defaultPageable, 1)
 				Then("Call GET /api/v1/users") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isOk)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(user.id))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].email").value(user.email))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].name").value(user.name))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].role").value(user.role.name))
+						).andExpect(
+							MockMvcResultMatchers.status().isOk
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(commonStatus)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.message").value(commonMessage)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(user.id)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.content[0].email").value(user.email)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.content[0].name").value(user.name)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].role").value(user.role.name))
 				}
 			}
-
 			When("Empty GET /api/v1/users") {
-
-				every { getUserService.getUserList(any<Pageable>()) } returns
-					PageImpl(
-						listOf(),
-						defaultPageable,
-						0
-					)
-
+				every { getUserService.getUserList(any<Pageable>()) } returns PageImpl(listOf(), defaultPageable, 0)
 				Then("Call GET /api/v1/users") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isOk)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
+						).andExpect(
+							MockMvcResultMatchers.status().isOk
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(commonStatus)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").isEmpty)
 				}
 			}
 		}
 
 		Given("POST /api/v1/users/register") {
-			val mockCreateUserRequest: CreateUserRequest =
-				Instancio.create(
-					CreateUserRequest::class.java
-				)
-
-			val createUserRequest: CreateUserRequest =
-				mockCreateUserRequest.copy(
-					email = defaultUserEmail,
-					password = defaultUserPassword
-				)
+			val mockCreateUserRequest: CreateUserRequest = Instancio.create(CreateUserRequest::class.java)
+			val createUserRequest: CreateUserRequest = mockCreateUserRequest.copy(email = defaultUserEmail, password = defaultUserPassword)
 
 			When("Success POST /api/v1/users/register") {
-
-				every { changeUserService.createUser(any<CreateUserRequest>()) } returns
-					CreateUserResponse.from(
-						user,
-						defaultAccessToken
-					)
-
+				every { changeUserService.createUser(any<CreateUserCommand>()) } returns CreateUserResponse.from(user, defaultAccessToken)
 				Then("Call POST /api/v1/users/register") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.post("/api/v1/users/register")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(createUserRequest))
+								.post(
+									"/api/v1/users/register"
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(createUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isCreated)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(user.email))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.role").value(user.role.name))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.accessToken").value(defaultAccessToken))
+						).andExpect(
+							MockMvcResultMatchers.status().isCreated
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(commonStatus)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.message").value(commonMessage)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.email").value(user.email)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.name").value(user.name)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.role").value(user.role.name)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.data.accessToken").value(defaultAccessToken))
 				}
 			}
-
 			When("Field Valid Exception POST /api/v1/users/register") {
-				val wrongCreateUserRequest =
-					createUserRequest.copy(
-						email = "wrong_email",
-						password = "1234567"
-					)
-
+				val wrongCreateUserRequest = createUserRequest.copy(email = "wrong_email", password = "1234567")
 				Then("Call POST /api/v1/users/register") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.post("/api/v1/users/register")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(wrongCreateUserRequest))
+								.post(
+									"/api/v1/users/register"
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(wrongCreateUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isBadRequest)
-						.andExpect(
+						).andExpect(
+							MockMvcResultMatchers.status().isBadRequest
+						).andExpect(
 							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value())
-						)
-						// email:field email is not email format, password:field password is min size 8 and max size 20,
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
 						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
 				}
 			}
-
 			When("Already Exist Exception POST /api/v1/users/register") {
 				val alreadyUserExistException = AlreadyUserExistException(user.email)
-
-				every { changeUserService.createUser(any<CreateUserRequest>()) } throws alreadyUserExistException
-
+				every { changeUserService.createUser(any<CreateUserCommand>()) } throws alreadyUserExistException
 				Then("Call POST /api/v1/users/register") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.post("/api/v1/users/register")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(createUserRequest))
+								.post(
+									"/api/v1/users/register"
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(createUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isConflict)
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.CONFLICT.value())
 						).andExpect(
-							MockMvcResultMatchers.jsonPath("$.message").value(alreadyUserExistException.message)
-						).andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
+							MockMvcResultMatchers.status().isConflict
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.CONFLICT.value())
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").value(alreadyUserExistException.message))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
 				}
 			}
 		}
 
 		Given("PATCH /api/v1/users/{userId}") {
-			val updateUserRequest: UpdateUserRequest =
-				Instancio
-					.create(UpdateUserRequest::class.java)
-					.copy(role = UserRole.USER.name)
+			val updateUserRequest: UpdateUserRequest = Instancio.create(UpdateUserRequest::class.java).copy(role = UserRole.USER.name)
 
-			justRun {
-				webHookProvider.sendAll(
-					any<String>(),
-					any<List<String>>()
-				)
-			}
+			justRun { webHookProvider.sendAll(any<String>(), any<List<String>>()) }
 
 			When("Success PATCH /api/v1/users/{userId}") {
-
-				every {
-					changeUserService.updateUser(
-						any<Long>(),
-						any<UpdateUserRequest>()
-					)
-				} returns UpdateUserResponse.from(user)
-
+				every { changeUserService.updateUser(any<Long>(), any<UpdateUserCommand>()) } returns UpdateUserResponse.from(user)
 				Then("Call PATCH /api/v1/users/{userId}") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(updateUserRequest))
+								.patch(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(updateUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isOk)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(user.email))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
+						).andExpect(
+							MockMvcResultMatchers.status().isOk
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(commonStatus)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.message").value(commonMessage)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.email").value(user.email)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.role").value(user.role.name))
 				}
 			}
-
 			When("Field Valid Exception PATCH /api/v1/users/{userId}") {
-				val wrongUpdateUserRequest =
-					updateUserRequest.copy(
-						name = ""
-					)
-
+				val wrongUpdateUserRequest = updateUserRequest.copy(name = "")
 				Then("Call PATCH /api/v1/users/{userId}") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(wrongUpdateUserRequest))
+								.patch(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(wrongUpdateUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isBadRequest)
-						.andExpect(
+						).andExpect(
+							MockMvcResultMatchers.status().isBadRequest
+						).andExpect(
 							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value())
-						)
-						// name:field name is blank
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
 						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
 				}
 			}
-
 			When("Not Found Exception PATCH /api/v1/users/{userId}") {
 				val userNotFoundException = UserNotFoundException(user.id)
-
-				every { changeUserService.updateUser(any<Long>(), any<UpdateUserRequest>()) } throws userNotFoundException
-
+				every { changeUserService.updateUser(any<Long>(), any<UpdateUserCommand>()) } throws userNotFoundException
 				Then("Call GET /api/v1/users/{userId}") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(updateUserRequest))
+								.patch(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(updateUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isNotFound)
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value())
 						).andExpect(
-							MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message)
-						).andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
+							MockMvcResultMatchers.status().isNotFound
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value())
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
 				}
 			}
 		}
 
 		Given("PATCH /api/v1/users") {
-			val updateUserRequest: UpdateUserRequest =
-				Instancio
-					.create(
-						UpdateUserRequest::class.java
-					).copy(
-						role = UserRole.USER.name
-					)
+			val updateUserRequest: UpdateUserRequest = Instancio.create(UpdateUserRequest::class.java).copy(role = UserRole.USER.name)
 
-			justRun {
-				webHookProvider.sendAll(
-					any<String>(),
-					any<List<String>>()
-				)
-			}
+			justRun { webHookProvider.sendAll(any<String>(), any<List<String>>()) }
 
 			When("Success PATCH /api/v1/users") {
-
-				every { changeUserService.updateMe(any<Long>(), any<UpdateUserRequest>()) } returns
-					UpdateMeResponse.from(
-						user,
-						defaultAccessToken
-					)
-
+				every { changeUserService.updateMe(any<Long>(), any<UpdateUserCommand>()) } returns UpdateMeResponse.from(user, defaultAccessToken)
 				Then("Call PATCH /api/v1/users") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/users")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(updateUserRequest))
+								.patch(
+									"/api/v1/users"
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(updateUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isOk)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(user.email))
-						.andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
+						).andExpect(
+							MockMvcResultMatchers.status().isOk
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(commonStatus)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.message").value(commonMessage)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.userId").value(user.id)
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.data.email").value(user.email)
+						).andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value(user.name))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.role").value(user.role.name))
 				}
 			}
-
 			When("Field Valid Exception PATCH /api/v1/users") {
-				val wrongUpdateUserRequest =
-					updateUserRequest.copy(
-						name = ""
-					)
-
+				val wrongUpdateUserRequest = updateUserRequest.copy(name = "")
 				Then("Call PATCH /api/v1/users") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/users")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(wrongUpdateUserRequest))
+								.patch(
+									"/api/v1/users"
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(wrongUpdateUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isBadRequest)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value()))
-						// name:field name is blank
-						.andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
+						).andExpect(
+							MockMvcResultMatchers.status().isBadRequest
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value())
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
 						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
 				}
 			}
-
 			When("Not Found Exception PATCH /api/v1/users") {
 				val userNotFoundException = UserNotFoundException(user.id)
-
-				every { changeUserService.updateMe(any<Long>(), any<UpdateUserRequest>()) } throws userNotFoundException
-
+				every { changeUserService.updateMe(any<Long>(), any<UpdateUserCommand>()) } throws userNotFoundException
 				Then("Call GET /api/v1/users") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/users")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.content(objectMapper.writeValueAsString(updateUserRequest))
+								.patch(
+									"/api/v1/users"
+								).with(
+									SecurityMockMvcRequestPostProcessors.csrf()
+								).content(objectMapper.writeValueAsString(updateUserRequest))
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isNotFound)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message)
-						).andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
+						).andExpect(
+							MockMvcResultMatchers.status().isNotFound
+						).andExpect(
+							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value())
+						).andExpect(MockMvcResultMatchers.jsonPath("$.message").value(userNotFoundException.message))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
 				}
 			}
 		}
 
 		Given("DELETE /api/v1/users/{userId}") {
-
 			When("Success DELETE /api/v1/users/{userId}") {
-
 				justRun { changeUserService.deleteUserById(any<Long>()) }
-
 				Then("Call DELETE /api/v1/users/{userId}") {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.delete("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.delete(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
-						).andExpect(MockMvcResultMatchers.status().isNoContent)
-						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
+						).andExpect(
+							MockMvcResultMatchers.status().isNoContent
+						).andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
 				}
 			}
 		}
 
 		Given("Spring Security Context is not set.") {
-
 			When("UnAuthorized Exception GET /api/v1/users/{userId}") {
-
 				Then("Call GET /api/v1/users/{userId}").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
 				}
 			}
-
 			When("UnAuthorized Exception GET /api/v1/users/me") {
-
 				Then("Call GET /api/v1/users/me").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users/me")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users/me"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
 				}
 			}
-
 			When("UnAuthorized Exception GET /api/v1/users") {
-
 				Then("Call GET /api/v1/users").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/users")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/users"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
 				}
 			}
-
 			When("UnAuthorized Exception PATCH /api/v1/users/{userId}") {
-
 				Then("Call PATCH /api/v1/users/{userId}").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.patch(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
 				}
 			}
-
 			When("UnAuthorized Exception PATCH /api/v1/users") {
-
 				Then("Call PATCH /api/v1/users").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/users")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.patch(
+									"/api/v1/users"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
 				}
 			}
-
 			When("UnAuthorized Exception DELETE /api/v1/users/{userId}") {
-
 				Then("Call DELETE /api/v1/users/{userId}").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.delete("/api/v1/users/{userId}", user.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.delete(
+									"/api/v1/users/{userId}",
+									user.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)

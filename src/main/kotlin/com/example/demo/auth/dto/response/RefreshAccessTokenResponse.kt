@@ -1,4 +1,4 @@
-package com.example.demo.auth.dto.serve.response
+package com.example.demo.auth.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 

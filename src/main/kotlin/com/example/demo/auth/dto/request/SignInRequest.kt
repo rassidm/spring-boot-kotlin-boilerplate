@@ -1,4 +1,4 @@
-package com.example.demo.auth.dto.serve.request
+package com.example.demo.auth.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email

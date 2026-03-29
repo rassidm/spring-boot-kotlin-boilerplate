@@ -1,19 +1,19 @@
 package com.example.demo.post.application
 
-import com.example.demo.post.dto.serve.request.CreatePostRequest
-import com.example.demo.post.dto.serve.request.UpdatePostRequest
-import com.example.demo.post.dto.serve.response.CreatePostResponse
-import com.example.demo.post.dto.serve.response.UpdatePostResponse
+import com.example.demo.post.dto.command.CreatePostCommand
+import com.example.demo.post.dto.command.UpdatePostCommand
+import com.example.demo.post.dto.response.CreatePostResponse
+import com.example.demo.post.dto.response.UpdatePostResponse
 
 interface ChangePostService {
 	fun updatePost(
 		postId: Long,
-		updatePostRequest: UpdatePostRequest
+		command: UpdatePostCommand
 	): UpdatePostResponse
 
 	fun createPost(
 		userId: Long,
-		createPostRequest: CreatePostRequest
+		command: CreatePostCommand
 	): CreatePostResponse
 
 	fun deletePostById(postId: Long)

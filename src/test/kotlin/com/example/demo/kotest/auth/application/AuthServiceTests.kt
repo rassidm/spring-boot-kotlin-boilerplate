@@ -1,10 +1,10 @@
 package com.example.demo.kotest.auth.application
 
 import com.example.demo.auth.application.AuthService
-import com.example.demo.auth.dto.serve.request.RefreshAccessTokenRequest
-import com.example.demo.auth.dto.serve.request.SignInRequest
-import com.example.demo.auth.dto.serve.response.RefreshAccessTokenResponse
-import com.example.demo.auth.dto.serve.response.SignInResponse
+import com.example.demo.auth.dto.command.RefreshAccessTokenCommand
+import com.example.demo.auth.dto.command.SignInCommand
+import com.example.demo.auth.dto.response.RefreshAccessTokenResponse
+import com.example.demo.auth.dto.response.SignInResponse
 import com.example.demo.security.SecurityUserItem
 import com.example.demo.security.component.provider.TokenProvider
 import com.example.demo.security.exception.RefreshTokenNotFoundException
@@ -40,17 +40,17 @@ class AuthServiceTests :
       """
 
 		Given("Sign In") {
-			val signInRequest: SignInRequest = Instancio.create(SignInRequest::class.java)
+			val signInCommand: SignInCommand = Instancio.create(SignInCommand::class.java)
 
 			When("Success Sign In") {
 
 				every { tokenProvider.createFullTokens(any<User>()) } returns defaultAccessToken
 
-				every { userService.validateAuthReturnUser(any<SignInRequest>()) } returns user
+				every { userService.validateAuthReturnUser(any<String>(), any<String>()) } returns user
 
-				every { authService.signIn(any<SignInRequest>()) } returns SignInResponse.from(user, defaultAccessToken)
+				every { authService.signIn(any<SignInCommand>()) } returns SignInResponse.from(user, defaultAccessToken)
 
-				val signInResponse = authService.signIn(signInRequest)
+				val signInResponse = authService.signIn(signInCommand)
 
 				Then("Assert Sign In Response") {
 					signInResponse shouldNotBeNull {
@@ -63,20 +63,20 @@ class AuthServiceTests :
 
 			When("User Not Found Exception") {
 
-				every { userService.validateAuthReturnUser(any<SignInRequest>()) } throws UserNotFoundException(user.id)
+				every { userService.validateAuthReturnUser(any<String>(), any<String>()) } throws UserNotFoundException(user.id)
 
-				every { authService.signIn(any<SignInRequest>()) } throws UserNotFoundException(user.id)
+				every { authService.signIn(any<SignInCommand>()) } throws UserNotFoundException(user.id)
 
-				shouldThrowExactly<UserNotFoundException> { authService.signIn(signInRequest) }
+				shouldThrowExactly<UserNotFoundException> { authService.signIn(signInCommand) }
 			}
 
 			When("User Unauthorized Exception") {
 
-				every { userService.validateAuthReturnUser(any<SignInRequest>()) } throws UserUnAuthorizedException(user.email)
+				every { userService.validateAuthReturnUser(any<String>(), any<String>()) } throws UserUnAuthorizedException(user.email)
 
-				every { authService.signIn(any<SignInRequest>()) } throws UserUnAuthorizedException(user.email)
+				every { authService.signIn(any<SignInCommand>()) } throws UserUnAuthorizedException(user.email)
 
-				shouldThrowExactly<UserUnAuthorizedException> { authService.signIn(signInRequest) }
+				shouldThrowExactly<UserUnAuthorizedException> { authService.signIn(signInCommand) }
 			}
 		}
 
@@ -105,21 +105,21 @@ class AuthServiceTests :
 				Instancio.create(
 					SecurityUserItem::class.java
 				)
-			val refreshAccessTokenRequest: RefreshAccessTokenRequest =
+			val refreshAccessTokenCommand: RefreshAccessTokenCommand =
 				Instancio.create(
-					RefreshAccessTokenRequest::class.java
+					RefreshAccessTokenCommand::class.java
 				)
 
 			When("Success Refresh Access Token") {
 
 				every { tokenProvider.refreshAccessToken(any<SecurityUserItem>()) } returns defaultAccessToken
 
-				every { authService.refreshAccessToken(any<RefreshAccessTokenRequest>()) } returns
+				every { authService.refreshAccessToken(any<RefreshAccessTokenCommand>()) } returns
 					RefreshAccessTokenResponse.of(
 						defaultAccessToken
 					)
 
-				val refreshAccessTokenResponse = authService.refreshAccessToken(refreshAccessTokenRequest)
+				val refreshAccessTokenResponse = authService.refreshAccessToken(refreshAccessTokenCommand)
 
 				Then("Assert Refresh Access Token Response") {
 					refreshAccessTokenResponse shouldNotBeNull {

@@ -1,8 +1,8 @@
 package com.example.demo.mockito.auth.application
 
 import com.example.demo.auth.application.AuthService
-import com.example.demo.auth.dto.serve.request.RefreshAccessTokenRequest
-import com.example.demo.auth.dto.serve.request.SignInRequest
+import com.example.demo.auth.dto.command.RefreshAccessTokenCommand
+import com.example.demo.auth.dto.command.SignInCommand
 import com.example.demo.security.SecurityUserItem
 import com.example.demo.security.UserAdapter
 import com.example.demo.security.component.provider.JWTProvider
@@ -61,18 +61,18 @@ class AuthServiceTests {
 	@Nested
 	@DisplayName("Sign In Test")
 	inner class SignInTest {
-		private val signInRequest: SignInRequest = Instancio.create(SignInRequest::class.java)
+		private val signInCommand: SignInCommand = Instancio.create(SignInCommand::class.java)
 
 		@Test
 		@DisplayName("Success sign in")
-		fun should_AssertSignInResponse_when_GivenSignInRequest() {
-			whenever(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
+		fun should_AssertSignInResponse_when_GivenSignInCommand() {
+			whenever(userServiceImpl.validateAuthReturnUser(any<String>(), any<String>()))
 				.thenReturn(user)
 
 			whenever(tokenProvider.createFullTokens(any<User>()))
 				.thenReturn(defaultAccessToken)
 
-			val signInResponse = authService.signIn(signInRequest)
+			val signInResponse = authService.signIn(signInCommand)
 
 			assertNotNull(signInResponse)
 			assertEquals(user.email, signInResponse.email)
@@ -82,24 +82,24 @@ class AuthServiceTests {
 
 		@Test
 		@DisplayName("User not found")
-		fun should_AssertUserNotFoundException_when_GivenSignInRequest() {
-			whenever(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
+		fun should_AssertUserNotFoundException_when_GivenSignInCommand() {
+			whenever(userServiceImpl.validateAuthReturnUser(any<String>(), any<String>()))
 				.thenThrow(UserNotFoundException(user.id))
 
 			Assertions.assertThrows(
 				UserNotFoundException::class.java
-			) { authService.signIn(signInRequest) }
+			) { authService.signIn(signInCommand) }
 		}
 
 		@Test
 		@DisplayName("User unauthorized")
-		fun should_AssertUserUnAuthorizedException_when_GivenSignInRequest() {
-			whenever(userServiceImpl.validateAuthReturnUser(any<SignInRequest>()))
+		fun should_AssertUserUnAuthorizedException_when_GivenSignInCommand() {
+			whenever(userServiceImpl.validateAuthReturnUser(any<String>(), any<String>()))
 				.thenThrow(UserUnAuthorizedException(user.email))
 
 			Assertions.assertThrows(
 				UserUnAuthorizedException::class.java
-			) { authService.signIn(signInRequest) }
+			) { authService.signIn(signInCommand) }
 		}
 	}
 
@@ -118,9 +118,9 @@ class AuthServiceTests {
 	@Nested
 	@DisplayName("Refresh Access Token Test")
 	inner class RefreshTokenTest {
-		private val refreshAccessTokenRequest: RefreshAccessTokenRequest =
+		private val refreshAccessTokenCommand: RefreshAccessTokenCommand =
 			Instancio.create(
-				RefreshAccessTokenRequest::class.java
+				RefreshAccessTokenCommand::class.java
 			)
 
 		private val usernamePasswordAuthenticationToken =
@@ -141,7 +141,7 @@ class AuthServiceTests {
 
 			val refreshAccessTokenResponse =
 				authService.refreshAccessToken(
-					refreshAccessTokenRequest
+					refreshAccessTokenCommand
 				)
 
 			assertNotNull(refreshAccessTokenResponse)
@@ -162,7 +162,7 @@ class AuthServiceTests {
 
 			Assertions.assertThrows(
 				RefreshTokenNotFoundException::class.java
-			) { authService.refreshAccessToken(refreshAccessTokenRequest) }
+			) { authService.refreshAccessToken(refreshAccessTokenCommand) }
 		}
 	}
 }

@@ -1,23 +1,23 @@
 package com.example.demo.user.application
 
-import com.example.demo.user.dto.serve.request.CreateUserRequest
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
-import com.example.demo.user.dto.serve.response.CreateUserResponse
-import com.example.demo.user.dto.serve.response.UpdateMeResponse
-import com.example.demo.user.dto.serve.response.UpdateUserResponse
+import com.example.demo.user.dto.command.CreateUserCommand
+import com.example.demo.user.dto.command.UpdateUserCommand
+import com.example.demo.user.dto.response.CreateUserResponse
+import com.example.demo.user.dto.response.UpdateMeResponse
+import com.example.demo.user.dto.response.UpdateUserResponse
 
 interface ChangeUserService {
 	fun updateUser(
 		userId: Long,
-		updateUserRequest: UpdateUserRequest
+		command: UpdateUserCommand
 	): UpdateUserResponse
 
 	fun updateMe(
 		userId: Long,
-		updateUserRequest: UpdateUserRequest
+		command: UpdateUserCommand
 	): UpdateMeResponse
 
-	fun createUser(createUserRequest: CreateUserRequest): CreateUserResponse
+	fun createUser(command: CreateUserCommand): CreateUserResponse
 
 	fun deleteUserById(userId: Long)
 

@@ -1,10 +1,10 @@
-package com.example.demo.user.dto.serve.response
+package com.example.demo.user.dto.response
 
 import com.example.demo.user.constant.UserRole
 import com.example.demo.user.entity.User
 import io.swagger.v3.oas.annotations.media.Schema
 
-data class GetUserResponse(
+class UpdateMeResponse(
 	@field:Schema(description = "User Id", nullable = false)
 	val userId: Long,
 	@field:Schema(description = "User Role", nullable = false, implementation = UserRole::class)
@@ -12,16 +12,22 @@ data class GetUserResponse(
 	@field:Schema(description = "User Name", nullable = false)
 	val name: String,
 	@field:Schema(description = "User Email", nullable = false, format = "email")
-	val email: String
+	val email: String,
+	@field:Schema(description = "User Access Token", nullable = true)
+	val accessToken: String
 ) {
 	companion object {
-		fun from(user: User): GetUserResponse =
+		fun from(
+			user: User,
+			accessToken: String
+		): UpdateMeResponse =
 			with(user) {
-				GetUserResponse(
+				UpdateMeResponse(
 					userId = id,
 					role = role,
 					name = name,
-					email = email
+					email = email,
+					accessToken = accessToken
 				)
 			}
 	}

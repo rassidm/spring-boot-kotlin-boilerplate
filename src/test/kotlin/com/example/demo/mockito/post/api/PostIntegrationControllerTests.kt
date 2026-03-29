@@ -5,12 +5,14 @@ import com.example.demo.mockito.common.security.WithMockCustomUser
 import com.example.demo.post.api.PostController
 import com.example.demo.post.application.impl.ChangePostServiceImpl
 import com.example.demo.post.application.impl.GetPostServiceImpl
-import com.example.demo.post.dto.serve.request.CreatePostRequest
-import com.example.demo.post.dto.serve.request.GetExcludeUsersPostsRequest
-import com.example.demo.post.dto.serve.request.UpdatePostRequest
-import com.example.demo.post.dto.serve.response.CreatePostResponse
-import com.example.demo.post.dto.serve.response.GetPostResponse
-import com.example.demo.post.dto.serve.response.UpdatePostResponse
+import com.example.demo.post.dto.command.CreatePostCommand
+import com.example.demo.post.dto.command.UpdatePostCommand
+import com.example.demo.post.dto.request.CreatePostRequest
+import com.example.demo.post.dto.request.GetExcludeUsersPostsRequest
+import com.example.demo.post.dto.request.UpdatePostRequest
+import com.example.demo.post.dto.response.CreatePostResponse
+import com.example.demo.post.dto.response.GetPostResponse
+import com.example.demo.post.dto.response.UpdatePostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.post.exception.PostNotFoundException
 import org.instancio.Instancio
@@ -41,9 +43,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 @ActiveProfiles("test")
 @Tag("mockito-integration-test")
 @DisplayName("Mockito Integration - Post Controller Test")
-@WebMvcTest(
-	PostController::class
-)
+@WebMvcTest(PostController::class)
 @ExtendWith(MockitoExtension::class)
 class PostIntegrationControllerTests : BaseIntegrationController() {
 	@MockitoBean
@@ -53,7 +53,6 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 	private lateinit var changePostServiceImpl: ChangePostServiceImpl
 
 	private val defaultPageable = Pageable.ofSize(1)
-
 	private val post: Post = Instancio.create(Post::class.java)
 
 	@BeforeEach
@@ -72,9 +71,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("GET /api/v1/posts/{postId} Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToGetPostResponse_when_GivenPostIdAndUserIsAuthenticated() {
 			Mockito
 				.`when`(getPostServiceImpl.getPostById(any<Long>()))
@@ -93,22 +90,15 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value(post.title))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
-				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
-				)
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId))
 		}
 
 		@Test
 		@DisplayName("Not Found Exception GET /api/v1/posts/{postId} Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToPostNotFoundException_when_GivenPostIdAndUserIsAuthenticated() {
-			val postNotFoundException =
-				PostNotFoundException(
-					post.id
-				)
+			val postNotFoundException = PostNotFoundException(post.id)
 
 			Mockito
 				.`when`(getPostServiceImpl.getPostById(any<Long>()))
@@ -122,16 +112,13 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON)
 				).andExpect(MockMvcResultMatchers.status().isNotFound)
-				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.message").value(postNotFoundException.message)
-				).andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
+				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(postNotFoundException.message))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
 		}
 
 		@Test
 		@DisplayName("Unauthorized Exception GET /api/v1/posts/{postId} Response")
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUnauthorizedException_when_GivenPostIdAndUserIsNotAuthenticated() {
 			mockMvc
 				.perform(
@@ -150,9 +137,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("GET /api/v1/posts Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToPageOfGetPostResponse_when_GivenDefaultPageableAndUserIsAuthenticated() {
 			Mockito
 				.`when`(getPostServiceImpl.getPostList(any<Pageable>()))
@@ -171,17 +156,13 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].title").value(post.title))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].content").value(post.content))
-				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId)
-				)
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId))
 		}
 
 		@Test
 		@DisplayName("Empty GET /api/v1/posts Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToPageOfGetPostResponseIsEmpty_when_GivenDefaultPageableAndUserIsAuthenticated() {
 			Mockito
 				.`when`(getPostServiceImpl.getPostList(any<Pageable>()))
@@ -201,9 +182,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 
 		@Test
 		@DisplayName("Unauthorized Exception GET /api/v1/posts Response")
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUnauthorizedException_when_GivenDefaultPageableAndUserIsNotAuthenticated() {
 			mockMvc
 				.perform(
@@ -220,16 +199,12 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 	@DisplayName("GET /api/v1/posts/exclude-users Test")
 	inner class GetExcludeUsersPostListTest {
 		private val getExcludeUsersPostsRequest: GetExcludeUsersPostsRequest =
-			Instancio.create(
-				GetExcludeUsersPostsRequest::class.java
-			)
+			Instancio.create(GetExcludeUsersPostsRequest::class.java)
 
 		@Test
 		@DisplayName("GET /api/v1/posts/exclude-users Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToPageOfGetPostResponse_when_GivenDefaultPageableAndGetExcludeUsersPostsRequestAndUserIsAuthenticated() {
 			Mockito
 				.`when`(getPostServiceImpl.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()))
@@ -240,12 +215,8 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 					MockMvcRequestBuilders
 						.get("/api/v1/posts/exclude-users")
 						.with(SecurityMockMvcRequestPostProcessors.csrf())
-						.param(
-							"userIds",
-							objectMapper.writeValueAsString(
-								getExcludeUsersPostsRequest.userIds[0]
-							)
-						).contentType(MediaType.APPLICATION_JSON)
+						.param("userIds", objectMapper.writeValueAsString(getExcludeUsersPostsRequest.userIds[0]))
+						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON)
 				).andExpect(MockMvcResultMatchers.status().isOk)
 				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
@@ -253,17 +224,13 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].title").value(post.title))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].content").value(post.content))
-				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId)
-				)
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId))
 		}
 
 		@Test
 		@DisplayName("Empty GET /api/v1/posts/exclude-users Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToPageOfGetPostResponseIsEmpty_when_GivenDefaultPageableAndGetExcludeUsersPostsRequestAndUserIsAuthenticated() {
 			Mockito
 				.`when`(getPostServiceImpl.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()))
@@ -274,12 +241,8 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 					MockMvcRequestBuilders
 						.get("/api/v1/posts/exclude-users")
 						.with(SecurityMockMvcRequestPostProcessors.csrf())
-						.param(
-							"userIds",
-							objectMapper.writeValueAsString(
-								getExcludeUsersPostsRequest.userIds[0]
-							)
-						).contentType(MediaType.APPLICATION_JSON)
+						.param("userIds", objectMapper.writeValueAsString(getExcludeUsersPostsRequest.userIds[0]))
+						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON)
 				).andExpect(MockMvcResultMatchers.status().isOk)
 				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(commonMessage))
@@ -288,9 +251,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 
 		@Test
 		@DisplayName("Unauthorized Exception GET /api/v1/posts/exclude-users Response")
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUnauthorizedException_when_GivenDefaultPageableAndGetExcludeUsersPostsRequestAndUserIsNotAuthenticated() {
 			mockMvc
 				.perform(
@@ -307,19 +268,15 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 	@DisplayName("PUT /api/v1/posts Test")
 	inner class CreatePostTest {
 		private val createPostRequest: CreatePostRequest =
-			Instancio.create(
-				CreatePostRequest::class.java
-			)
+			Instancio.create(CreatePostRequest::class.java)
 
 		@Test
 		@DisplayName("PUT /api/v1/posts Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToCreatePostResponse_when_GivenUserIdAndCreatePostRequestAndUserIsAuthenticated() {
 			Mockito
-				.`when`(changePostServiceImpl.createPost(any<Long>(), any<CreatePostRequest>()))
+				.`when`(changePostServiceImpl.createPost(any<Long>(), any<CreatePostCommand>()))
 				.thenReturn(CreatePostResponse.from(post))
 
 			mockMvc
@@ -336,23 +293,15 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value(post.title))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
-				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
-				)
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId))
 		}
 
 		@Test
 		@DisplayName("Field Valid Exception PUT /api/v1/posts Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToValidException_when_GivenUserIdAndWrongCreatePostRequestAndUserIsAuthenticated() {
-			val wrongCreatePostRequest =
-				createPostRequest.copy(
-					title = "",
-					subTitle = ""
-				)
+			val wrongCreatePostRequest = createPostRequest.copy(title = "", subTitle = "")
 
 			mockMvc
 				.perform(
@@ -363,16 +312,13 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON)
 				).andExpect(MockMvcResultMatchers.status().isBadRequest)
-				// title:field title is blank, subTitle:field subTitle is blank,
 				.andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
 				.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
 		}
 
 		@Test
 		@DisplayName("Unauthorized Exception PUT /api/v1/posts Response")
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUnauthorizedException_when_GivenUserIdAndCreatePostRequestAndUserIsNotAuthenticated() {
 			mockMvc
 				.perform(
@@ -389,19 +335,15 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 	@DisplayName("PATCH /api/v1/posts/{postId} Test")
 	inner class UpdatePostTest {
 		private val updatePostRequest: UpdatePostRequest =
-			Instancio.create(
-				UpdatePostRequest::class.java
-			)
+			Instancio.create(UpdatePostRequest::class.java)
 
 		@Test
 		@DisplayName("PATCH /api/v1/posts/{postId} Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToUpdatePostResponse_when_GivenPostIdAndUpdatePostRequestAndUserIsAuthenticated() {
 			Mockito
-				.`when`(changePostServiceImpl.updatePost(any<Long>(), any<UpdatePostRequest>()))
+				.`when`(changePostServiceImpl.updatePost(any<Long>(), any<UpdatePostCommand>()))
 				.thenReturn(UpdatePostResponse.from(post))
 
 			mockMvc
@@ -418,23 +360,15 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value(post.title))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
-				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
-				)
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId))
 		}
 
 		@Test
 		@DisplayName("Field Valid Exception PATCH /api/v1/posts/{postId} Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToValidException_when_GivenPostIdAndWrongUpdatePostRequestAndUserIsAuthenticated() {
-			val wrongUpdatePostRequest =
-				updatePostRequest.copy(
-					title = "",
-					subTitle = ""
-				)
+			val wrongUpdatePostRequest = updatePostRequest.copy(title = "", subTitle = "")
 
 			mockMvc
 				.perform(
@@ -445,18 +379,14 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON)
 				).andExpect(MockMvcResultMatchers.status().isBadRequest)
-				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value())
-				) // subTitle:field subTitle is blank, title:field title is blank,
+				.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value()))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
 				.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
 		}
 
 		@Test
 		@DisplayName("Unauthorized Exception PATCH /api/v1/posts/{postId} Response")
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUnauthorizedException_when_GivenPostIdAndUpdatePostRequestAndUserIsNotAuthenticated() {
 			mockMvc
 				.perform(
@@ -472,17 +402,12 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("Not Found Exception PATCH /api/v1/posts/{postId} Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToPostNotFoundException_when_GivenPostIdAndUpdatePostRequestAndUserIsAuthenticated() {
-			val postNotFoundException =
-				PostNotFoundException(
-					post.id
-				)
+			val postNotFoundException = PostNotFoundException(post.id)
 
 			Mockito
-				.`when`(changePostServiceImpl.updatePost(any<Long>(), any<UpdatePostRequest>()))
+				.`when`(changePostServiceImpl.updatePost(any<Long>(), any<UpdatePostCommand>()))
 				.thenThrow(postNotFoundException)
 
 			mockMvc
@@ -494,9 +419,8 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON)
 				).andExpect(MockMvcResultMatchers.status().isNotFound)
-				.andExpect(
-					MockMvcResultMatchers.jsonPath("$.message").value(postNotFoundException.message)
-				).andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
+				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(postNotFoundException.message))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
 		}
 	}
 
@@ -506,9 +430,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("DELETE /api/v1/posts/{postId} Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponse_when_GivenPostIdAndUserIsAuthenticated() {
 			mockMvc
 				.perform(
@@ -523,9 +445,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 
 		@Test
 		@DisplayName("Unauthorized Error DELETE /api/v1/posts/{postId} Response")
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUnauthorizedException_when_GivenPostIdAndUserIsNotAuthenticated() {
 			mockMvc
 				.perform(

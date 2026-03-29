@@ -6,12 +6,14 @@ import com.example.demo.security.SecurityUserItem
 import com.example.demo.security.annotation.CurrentUser
 import com.example.demo.user.application.ChangeUserService
 import com.example.demo.user.application.GetUserService
-import com.example.demo.user.dto.serve.request.CreateUserRequest
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
-import com.example.demo.user.dto.serve.response.CreateUserResponse
-import com.example.demo.user.dto.serve.response.GetUserResponse
-import com.example.demo.user.dto.serve.response.UpdateMeResponse
-import com.example.demo.user.dto.serve.response.UpdateUserResponse
+import com.example.demo.user.dto.command.CreateUserCommand
+import com.example.demo.user.dto.command.UpdateUserCommand
+import com.example.demo.user.dto.request.CreateUserRequest
+import com.example.demo.user.dto.request.UpdateUserRequest
+import com.example.demo.user.dto.response.CreateUserResponse
+import com.example.demo.user.dto.response.GetUserResponse
+import com.example.demo.user.dto.response.UpdateMeResponse
+import com.example.demo.user.dto.response.UpdateUserResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -100,15 +102,8 @@ class UserController(
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
 	fun getUserList(
-		@PageableDefault
-		@Parameter(hidden = true)
-		pageable: Pageable
-	): ResponseEntity<Page<GetUserResponse>> =
-		ResponseEntity.ok(
-			getUserService.getUserList(
-				pageable
-			)
-		)
+		@PageableDefault @Parameter(hidden = true) pageable: Pageable
+	): ResponseEntity<Page<GetUserResponse>> = ResponseEntity.ok(getUserService.getUserList(pageable))
 
 	@Operation(operationId = "createUser", summary = "Create User", description = "Create User API")
 	@ApiResponses(
@@ -117,13 +112,11 @@ class UserController(
 				responseCode = "201",
 				description = "Created",
 				content = arrayOf(Content(schema = Schema(implementation = CreateUserResponse::class)))
-			),
-			ApiResponse(
+			), ApiResponse(
 				responseCode = "400",
 				description = "Field Valid Error",
 				content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-			),
-			ApiResponse(
+			), ApiResponse(
 				responseCode = "409",
 				description = "Already User Exist userId = {userId} or email = {email}",
 				content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
@@ -136,7 +129,11 @@ class UserController(
 	): ResponseEntity<CreateUserResponse> =
 		ResponseEntity.status(HttpStatus.CREATED).body(
 			changeUserService.createUser(
-				createUserRequest
+				CreateUserCommand(
+					name = createUserRequest.name,
+					email = createUserRequest.email,
+					password = createUserRequest.password
+				)
 			)
 		)
 
@@ -172,7 +169,7 @@ class UserController(
 		ResponseEntity.ok(
 			changeUserService.updateUser(
 				userId,
-				updateUserRequest
+				UpdateUserCommand(name = updateUserRequest.name, role = updateUserRequest.role)
 			)
 		)
 
@@ -208,7 +205,7 @@ class UserController(
 		ResponseEntity.ok(
 			changeUserService.updateMe(
 				securityUserItem.userId,
-				updateUserRequest
+				UpdateUserCommand(name = updateUserRequest.name, role = updateUserRequest.role)
 			)
 		)
 
@@ -231,7 +228,6 @@ class UserController(
 		@PathVariable("userId", required = true) userId: Long
 	): ResponseEntity<Void> {
 		changeUserService.deleteUserById(userId)
-
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
 	}
 }

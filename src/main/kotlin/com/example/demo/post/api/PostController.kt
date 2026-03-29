@@ -3,11 +3,13 @@ package com.example.demo.post.api
 import com.example.demo.common.response.ErrorResponse
 import com.example.demo.post.application.ChangePostService
 import com.example.demo.post.application.GetPostService
-import com.example.demo.post.dto.serve.request.CreatePostRequest
-import com.example.demo.post.dto.serve.request.UpdatePostRequest
-import com.example.demo.post.dto.serve.response.CreatePostResponse
-import com.example.demo.post.dto.serve.response.GetPostResponse
-import com.example.demo.post.dto.serve.response.UpdatePostResponse
+import com.example.demo.post.dto.command.CreatePostCommand
+import com.example.demo.post.dto.command.UpdatePostCommand
+import com.example.demo.post.dto.request.CreatePostRequest
+import com.example.demo.post.dto.request.UpdatePostRequest
+import com.example.demo.post.dto.response.CreatePostResponse
+import com.example.demo.post.dto.response.GetPostResponse
+import com.example.demo.post.dto.response.UpdatePostResponse
 import com.example.demo.security.SecurityUserItem
 import com.example.demo.security.annotation.CurrentUser
 import io.swagger.v3.oas.annotations.Operation
@@ -69,7 +71,11 @@ class PostController(
 		ResponseEntity.status(HttpStatus.CREATED).body(
 			changePostService.createPost(
 				securityUserItem.userId,
-				createPostRequest
+				CreatePostCommand(
+					title = createPostRequest.title,
+					subTitle = createPostRequest.subTitle,
+					content = createPostRequest.content
+				)
 			)
 		)
 
@@ -188,7 +194,11 @@ class PostController(
 		ResponseEntity.ok(
 			changePostService.updatePost(
 				postId,
-				updatePostRequest
+				UpdatePostCommand(
+					title = updatePostRequest.title,
+					subTitle = updatePostRequest.subTitle,
+					content = updatePostRequest.content
+				)
 			)
 		)
 

@@ -1,9 +1,9 @@
-package com.example.demo.post.dto.serve.response
+package com.example.demo.post.dto.response
 
 import com.example.demo.post.entity.Post
 import io.swagger.v3.oas.annotations.media.Schema
 
-data class CreatePostResponse(
+data class UpdatePostResponse(
 	@field:Schema(description = "Post Id", nullable = false)
 	val postId: Long,
 	@field:Schema(description = "Post Title", nullable = false)
@@ -16,9 +16,9 @@ data class CreatePostResponse(
 	val userId: Long
 ) {
 	companion object {
-		fun from(post: Post): CreatePostResponse =
+		fun from(post: Post): UpdatePostResponse =
 			with(post) {
-				CreatePostResponse(
+				UpdatePostResponse(
 					postId = id,
 					title = title,
 					subTitle = subTitle,

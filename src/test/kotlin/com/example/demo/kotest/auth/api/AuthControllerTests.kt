@@ -2,8 +2,9 @@ package com.example.demo.kotest.auth.api
 
 import com.example.demo.auth.api.AuthController
 import com.example.demo.auth.application.AuthService
-import com.example.demo.auth.dto.serve.request.SignInRequest
-import com.example.demo.auth.dto.serve.response.SignInResponse
+import com.example.demo.auth.dto.command.SignInCommand
+import com.example.demo.auth.dto.request.SignInRequest
+import com.example.demo.auth.dto.response.SignInResponse
 import com.example.demo.security.SecurityUserItem
 import com.example.demo.user.entity.User
 import io.kotest.core.annotation.Tags
@@ -36,7 +37,7 @@ class AuthControllerTests :
 		test("Sign In") {
 			val signInRequest = Instancio.create(SignInRequest::class.java)
 
-			every { authService.signIn(any<SignInRequest>()) } returns SignInResponse.from(user, defaultAccessToken)
+			every { authService.signIn(any<SignInCommand>()) } returns SignInResponse.from(user, defaultAccessToken)
 
 			every { authController.signIn(any<SignInRequest>()) } returns
 				ResponseEntity.ok(

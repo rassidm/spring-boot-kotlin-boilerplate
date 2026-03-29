@@ -2,10 +2,12 @@ package com.example.demo.mockito.auth.api
 
 import com.example.demo.auth.api.AuthController
 import com.example.demo.auth.application.AuthService
-import com.example.demo.auth.dto.serve.request.RefreshAccessTokenRequest
-import com.example.demo.auth.dto.serve.request.SignInRequest
-import com.example.demo.auth.dto.serve.response.RefreshAccessTokenResponse
-import com.example.demo.auth.dto.serve.response.SignInResponse.Companion.from
+import com.example.demo.auth.dto.command.RefreshAccessTokenCommand
+import com.example.demo.auth.dto.command.SignInCommand
+import com.example.demo.auth.dto.request.RefreshAccessTokenRequest
+import com.example.demo.auth.dto.request.SignInRequest
+import com.example.demo.auth.dto.response.RefreshAccessTokenResponse
+import com.example.demo.auth.dto.response.SignInResponse.Companion.from
 import com.example.demo.mockito.common.BaseIntegrationController
 import com.example.demo.mockito.common.security.WithMockCustomUser
 import com.example.demo.security.exception.RefreshTokenNotFoundException
@@ -38,9 +40,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 @ActiveProfiles("test")
 @Tag("mockito-integration-test")
 @DisplayName("Mockito Integration - Auth Controller Test")
-@WebMvcTest(
-	AuthController::class
-)
+@WebMvcTest(AuthController::class)
 @ExtendWith(MockitoExtension::class)
 class AuthIntegrationControllerTests : BaseIntegrationController() {
 	@MockitoBean
@@ -79,12 +79,10 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("POST /api/v1/auth/signIn Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToSignInResponse_when_GivenSignInRequest() {
 			Mockito
-				.`when`(authService.signIn(any<SignInRequest>()))
+				.`when`(authService.signIn(any<SignInCommand>()))
 				.thenReturn(from(user, defaultAccessToken))
 
 			mockMvc
@@ -107,9 +105,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("Field Valid Exception POST /api/v1/auth/signIn Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToValidException_when_GivenWrongSignInRequest() {
 			val wrongSignInRequest: SignInRequest =
 				signInRequest.copy(
@@ -128,17 +124,14 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 				).andExpect(MockMvcResultMatchers.status().isBadRequest)
 				.andExpect(
 					MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value())
-				) // email:field email is not email format, password:field password is min size 8 and max size 20,
-				.andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
+				).andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
 				.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
 		}
 
 		@Test
 		@DisplayName("UnAuthorized Exception POST /api/v1/auth/signIn Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUserUnAuthorizedException_when_GivenSignInRequest() {
 			val userUnAuthorizedException =
 				UserUnAuthorizedException(
@@ -146,7 +139,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 				)
 
 			Mockito
-				.`when`(authService.signIn(any<SignInRequest>()))
+				.`when`(authService.signIn(any<SignInCommand>()))
 				.thenThrow(userUnAuthorizedException)
 
 			mockMvc
@@ -166,9 +159,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("Not Found Exception POST /api/v1/auth/signIn Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUserNotFoundException_when_GivenSignInRequest() {
 			val userNotFoundException =
 				UserNotFoundException(
@@ -176,7 +167,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 				)
 
 			Mockito
-				.`when`(authService.signIn(any<SignInRequest>()))
+				.`when`(authService.signIn(any<SignInCommand>()))
 				.thenThrow(userNotFoundException)
 
 			mockMvc
@@ -200,9 +191,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("POST /api/v1/auth/signOut Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToSignOutVoidResponse_when_GivenSecurityUserItemAndUserIsAuthenticated() {
 			mockMvc
 				.perform(
@@ -218,9 +207,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 
 		@Test
 		@DisplayName("Unauthorized Exception POST /api/v1/auth/signOut Response")
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUnauthorizedException_when_GivenSecurityUserItemAndUserIsNotAuthenticated() {
 			mockMvc
 				.perform(
@@ -236,17 +223,18 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 	@Nested
 	@DisplayName("POST /api/v1/auth/refresh Test")
 	inner class RefreshAccessTokenTest {
-		private val refreshAccessTokenRequest = Instancio.create(RefreshAccessTokenRequest::class.java)
+		private val refreshAccessTokenRequest =
+			Instancio.create(
+				RefreshAccessTokenRequest::class.java
+			)
 
 		@Test
 		@DisplayName("POST /api/v1/auth/refresh Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectOKResponseToRefreshAccessTokenResponse_when_GivenSecurityUserItemAndUserIsAuthenticated() {
 			Mockito
-				.`when`(authService.refreshAccessToken(any<RefreshAccessTokenRequest>()))
+				.`when`(authService.refreshAccessToken(any<RefreshAccessTokenCommand>()))
 				.thenReturn(RefreshAccessTokenResponse.of(defaultAccessToken))
 
 			mockMvc
@@ -265,9 +253,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 		@Test
 		@DisplayName("Refresh Token Not Found Unauthorized Exception POST /api/v1/auth/refresh Response")
 		@WithMockCustomUser
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToRefreshTokenNotFoundException_when_GivenSecurityUserItemAndUserIsAuthenticated() {
 			val refreshTokenNotFoundException =
 				RefreshTokenNotFoundException(
@@ -275,7 +261,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 				)
 
 			Mockito
-				.`when`(authService.refreshAccessToken(any<RefreshAccessTokenRequest>()))
+				.`when`(authService.refreshAccessToken(any<RefreshAccessTokenCommand>()))
 				.thenThrow(refreshTokenNotFoundException)
 
 			mockMvc
@@ -296,9 +282,7 @@ class AuthIntegrationControllerTests : BaseIntegrationController() {
 
 		@Test
 		@DisplayName("Unauthorized Exception POST /api/v1/auth/refresh Response")
-		@Throws(
-			Exception::class
-		)
+		@Throws(Exception::class)
 		fun should_ExpectErrorResponseToUnauthorizedException_when_GivenSecurityUserItemAndUserIsNotAuthenticated() {
 			mockMvc
 				.perform(

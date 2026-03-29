@@ -1,6 +1,5 @@
 package com.example.demo.kotest.user.application
 
-import com.example.demo.auth.dto.serve.request.SignInRequest
 import com.example.demo.user.application.UserService
 import com.example.demo.user.entity.User
 import com.example.demo.user.exception.UserNotFoundException
@@ -60,7 +59,8 @@ class UserServiceTests :
 		}
 
 		Given("Validate and authenticated Return User Entity") {
-			val signInRequest: SignInRequest = Instancio.create(SignInRequest::class.java)
+			val testEmail = "test@example.com"
+			val testPassword = "password123"
 
 			When("Success validate and authenticated get user entity") {
 
@@ -75,13 +75,15 @@ class UserServiceTests :
 
 				every {
 					userService.validateAuthReturnUser(
-						any<SignInRequest>()
+						any<String>(),
+						any<String>()
 					)
 				} returns user
 
 				val validateAuthUser =
 					userService.validateAuthReturnUser(
-						signInRequest
+						testEmail,
+						testPassword
 					)
 
 				Then("Success Auth & Get user entity") {
@@ -98,10 +100,10 @@ class UserServiceTests :
 
 				every { userRepository.findOneByEmail(any<String>()) } returns null
 
-				every { userService.validateAuthReturnUser(any<SignInRequest>()) } throws UserNotFoundException(user.email)
+				every { userService.validateAuthReturnUser(any<String>(), any<String>()) } throws UserNotFoundException(user.email)
 
 				shouldThrowExactly<UserNotFoundException> {
-					userService.validateAuthReturnUser(signInRequest)
+					userService.validateAuthReturnUser(testEmail, testPassword)
 				}
 			}
 
@@ -117,11 +119,11 @@ class UserServiceTests :
 				} returns false
 
 				every {
-					userService.validateAuthReturnUser(any<SignInRequest>())
+					userService.validateAuthReturnUser(any<String>(), any<String>())
 				} throws UserUnAuthorizedException(user.email)
 
 				shouldThrowExactly<UserUnAuthorizedException> {
-					userService.validateAuthReturnUser(signInRequest)
+					userService.validateAuthReturnUser(testEmail, testPassword)
 				}
 			}
 		}

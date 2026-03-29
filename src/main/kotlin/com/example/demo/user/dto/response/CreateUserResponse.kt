@@ -1,4 +1,4 @@
-package com.example.demo.user.dto.serve.response
+package com.example.demo.user.dto.response
 
 import com.example.demo.user.constant.UserRole
 import com.example.demo.user.entity.User

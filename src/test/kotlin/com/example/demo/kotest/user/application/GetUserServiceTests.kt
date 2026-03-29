@@ -1,7 +1,7 @@
 package com.example.demo.kotest.user.application
 
 import com.example.demo.user.application.GetUserService
-import com.example.demo.user.dto.serve.response.GetUserResponse
+import com.example.demo.user.dto.response.GetUserResponse
 import com.example.demo.user.entity.User
 import com.example.demo.user.exception.UserNotFoundException
 import com.example.demo.user.repository.UserRepository

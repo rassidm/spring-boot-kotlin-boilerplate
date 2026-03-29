@@ -1,8 +1,8 @@
 package com.example.demo.mockito.post.application
 
 import com.example.demo.post.application.impl.GetPostServiceImpl
-import com.example.demo.post.dto.serve.request.GetExcludeUsersPostsRequest
-import com.example.demo.post.dto.serve.response.GetPostResponse
+import com.example.demo.post.dto.request.GetExcludeUsersPostsRequest
+import com.example.demo.post.dto.response.GetPostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.post.exception.PostNotFoundException
 import com.example.demo.post.repository.PostRepository

@@ -1,6 +1,5 @@
 package com.example.demo.user.application.impl
 
-import com.example.demo.auth.dto.serve.request.SignInRequest
 import com.example.demo.user.application.UserService
 import com.example.demo.user.entity.User
 import com.example.demo.user.exception.UserNotFoundException
@@ -25,17 +24,20 @@ class UserServiceImpl(
 	}
 
 	@Transactional(readOnly = true)
-	override fun validateAuthReturnUser(signInRequest: SignInRequest): User {
+	override fun validateAuthReturnUser(
+		email: String,
+		password: String
+	): User {
 		val user: User =
 			userRepository
-				.findOneByEmail(signInRequest.email) ?: throw UserNotFoundException(signInRequest.email)
+				.findOneByEmail(email) ?: throw UserNotFoundException(email)
 
 		user
 			.validatePassword(
-				signInRequest.password,
+				password,
 				bCryptPasswordEncoder
 			).run {
-				check(this) { throw UserUnAuthorizedException(signInRequest.email) }
+				check(this) { throw UserUnAuthorizedException(email) }
 			}
 
 		return user

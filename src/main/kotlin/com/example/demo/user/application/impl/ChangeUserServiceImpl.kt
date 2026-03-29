@@ -5,11 +5,11 @@ import com.example.demo.security.component.provider.TokenProvider
 import com.example.demo.user.application.ChangeUserService
 import com.example.demo.user.application.UserService
 import com.example.demo.user.constant.UserRole
-import com.example.demo.user.dto.serve.request.CreateUserRequest
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
-import com.example.demo.user.dto.serve.response.CreateUserResponse
-import com.example.demo.user.dto.serve.response.UpdateMeResponse
-import com.example.demo.user.dto.serve.response.UpdateUserResponse
+import com.example.demo.user.dto.command.CreateUserCommand
+import com.example.demo.user.dto.command.UpdateUserCommand
+import com.example.demo.user.dto.response.CreateUserResponse
+import com.example.demo.user.dto.response.UpdateMeResponse
+import com.example.demo.user.dto.response.UpdateUserResponse
 import com.example.demo.user.entity.User
 import com.example.demo.user.event.UserEvent
 import com.example.demo.user.exception.AlreadyUserExistException
@@ -29,19 +29,19 @@ class ChangeUserServiceImpl(
 	private val bCryptPasswordEncoder: BCryptPasswordEncoder,
 	private val applicationEventPublisher: ApplicationEventPublisher
 ) : ChangeUserService {
-	override fun createUser(createUserRequest: CreateUserRequest): CreateUserResponse {
+	override fun createUser(command: CreateUserCommand): CreateUserResponse {
 		userRepository
-			.existsByEmail(createUserRequest.email)
+			.existsByEmail(command.email)
 			.run {
-				if (this) throw AlreadyUserExistException(createUserRequest.email)
+				if (this) throw AlreadyUserExistException(command.email)
 			}
 
 		val user: User =
 			userRepository.save(
 				User(
-					name = createUserRequest.name,
-					email = createUserRequest.email,
-					password = createUserRequest.password,
+					name = command.name,
+					email = command.email,
+					password = command.password,
 					role = UserRole.USER
 				).encodePassword(bCryptPasswordEncoder)
 			)
@@ -56,24 +56,24 @@ class ChangeUserServiceImpl(
 
 	override fun updateUser(
 		userId: Long,
-		updateUserRequest: UpdateUserRequest
+		command: UpdateUserCommand
 	): UpdateUserResponse {
 		val user: User =
 			userService
 				.validateReturnUser(userId)
-				.update(name = updateUserRequest.name, role = UserRole.valueOf(updateUserRequest.role))
+				.update(name = command.name, role = UserRole.valueOf(command.role))
 
 		return user.let(UpdateUserResponse::from)
 	}
 
 	override fun updateMe(
 		userId: Long,
-		updateUserRequest: UpdateUserRequest
+		command: UpdateUserCommand
 	): UpdateMeResponse {
 		val user: User =
 			userService
 				.validateReturnUser(userId)
-				.update(name = updateUserRequest.name, role = UserRole.valueOf(updateUserRequest.role))
+				.update(name = command.name, role = UserRole.valueOf(command.role))
 
 		return UpdateMeResponse.from(user, tokenProvider.createFullTokens(user))
 	}

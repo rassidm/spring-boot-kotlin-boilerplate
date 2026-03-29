@@ -1,6 +1,6 @@
 package com.example.demo.post.repository.impl
 
-import com.example.demo.post.dto.serve.response.GetPostResponse
+import com.example.demo.post.dto.response.GetPostResponse
 import com.example.demo.post.entity.QPost.post
 import com.example.demo.post.repository.CustomPostRepository
 import com.querydsl.core.types.Projections

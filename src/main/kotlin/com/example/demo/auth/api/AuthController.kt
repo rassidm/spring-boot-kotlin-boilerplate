@@ -1,10 +1,12 @@
 package com.example.demo.auth.api
 
 import com.example.demo.auth.application.AuthService
-import com.example.demo.auth.dto.serve.request.RefreshAccessTokenRequest
-import com.example.demo.auth.dto.serve.request.SignInRequest
-import com.example.demo.auth.dto.serve.response.RefreshAccessTokenResponse
-import com.example.demo.auth.dto.serve.response.SignInResponse
+import com.example.demo.auth.dto.command.RefreshAccessTokenCommand
+import com.example.demo.auth.dto.command.SignInCommand
+import com.example.demo.auth.dto.request.RefreshAccessTokenRequest
+import com.example.demo.auth.dto.request.SignInRequest
+import com.example.demo.auth.dto.response.RefreshAccessTokenResponse
+import com.example.demo.auth.dto.response.SignInResponse
 import com.example.demo.common.response.ErrorResponse
 import com.example.demo.security.SecurityUserItem
 import com.example.demo.security.annotation.CurrentUser
@@ -57,7 +59,15 @@ class AuthController(
 	@PostMapping("/signIn")
 	fun signIn(
 		@RequestBody @Valid signInRequest: SignInRequest
-	): ResponseEntity<SignInResponse> = ResponseEntity.ok(authService.signIn(signInRequest))
+	): ResponseEntity<SignInResponse> =
+		ResponseEntity.ok(
+			authService.signIn(
+				SignInCommand(
+					email = signInRequest.email,
+					password = signInRequest.password
+				)
+			)
+		)
 
 	@Operation(operationId = "signOut", summary = "Sign Out", description = "User Sign Out API")
 	@ApiResponses(
@@ -109,7 +119,9 @@ class AuthController(
 			.status(HttpStatus.CREATED)
 			.body(
 				authService.refreshAccessToken(
-					refreshAccessTokenRequest
+					RefreshAccessTokenCommand(
+						refreshToken = refreshAccessTokenRequest.refreshToken
+					)
 				)
 			)
 }

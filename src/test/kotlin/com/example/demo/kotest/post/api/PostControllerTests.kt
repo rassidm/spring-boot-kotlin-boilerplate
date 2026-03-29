@@ -3,12 +3,14 @@ package com.example.demo.kotest.post.api
 import com.example.demo.post.api.PostController
 import com.example.demo.post.application.ChangePostService
 import com.example.demo.post.application.GetPostService
-import com.example.demo.post.dto.serve.request.CreatePostRequest
-import com.example.demo.post.dto.serve.request.GetExcludeUsersPostsRequest
-import com.example.demo.post.dto.serve.request.UpdatePostRequest
-import com.example.demo.post.dto.serve.response.CreatePostResponse
-import com.example.demo.post.dto.serve.response.GetPostResponse
-import com.example.demo.post.dto.serve.response.UpdatePostResponse
+import com.example.demo.post.dto.command.CreatePostCommand
+import com.example.demo.post.dto.command.UpdatePostCommand
+import com.example.demo.post.dto.request.CreatePostRequest
+import com.example.demo.post.dto.request.GetExcludeUsersPostsRequest
+import com.example.demo.post.dto.request.UpdatePostRequest
+import com.example.demo.post.dto.response.CreatePostResponse
+import com.example.demo.post.dto.response.GetPostResponse
+import com.example.demo.post.dto.response.UpdatePostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.security.SecurityUserItem
 import io.kotest.core.annotation.Tags
@@ -141,7 +143,7 @@ class PostControllerTests :
 					SecurityUserItem::class.java
 				)
 
-			every { changePostService.createPost(any<Long>(), any<CreatePostRequest>()) } returns CreatePostResponse.from(post)
+			every { changePostService.createPost(any<Long>(), any<CreatePostCommand>()) } returns CreatePostResponse.from(post)
 
 			every {
 				postController.createPost(
@@ -167,7 +169,7 @@ class PostControllerTests :
 		test("Update Post") {
 			val updatedPostRequest = Instancio.create(UpdatePostRequest::class.java)
 
-			every { changePostService.updatePost(any<Long>(), any<UpdatePostRequest>()) } returns UpdatePostResponse.from(post)
+			every { changePostService.updatePost(any<Long>(), any<UpdatePostCommand>()) } returns UpdatePostResponse.from(post)
 
 			every { postController.updatePost(any<UpdatePostRequest>(), any<Long>()) } returns
 				ResponseEntity.ok(

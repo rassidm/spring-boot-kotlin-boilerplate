@@ -1,4 +1,4 @@
-package com.example.demo.user.dto.serve.request
+package com.example.demo.user.dto.request
 
 import com.example.demo.common.annotaction.ValidEnum
 import com.example.demo.user.constant.UserRole

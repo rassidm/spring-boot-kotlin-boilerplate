@@ -2,10 +2,12 @@ package com.example.demo.mockito.auth.api
 
 import com.example.demo.auth.api.AuthController
 import com.example.demo.auth.application.AuthService
-import com.example.demo.auth.dto.serve.request.RefreshAccessTokenRequest
-import com.example.demo.auth.dto.serve.request.SignInRequest
-import com.example.demo.auth.dto.serve.response.RefreshAccessTokenResponse
-import com.example.demo.auth.dto.serve.response.SignInResponse
+import com.example.demo.auth.dto.command.RefreshAccessTokenCommand
+import com.example.demo.auth.dto.command.SignInCommand
+import com.example.demo.auth.dto.request.RefreshAccessTokenRequest
+import com.example.demo.auth.dto.request.SignInRequest
+import com.example.demo.auth.dto.response.RefreshAccessTokenResponse
+import com.example.demo.auth.dto.response.SignInResponse
 import com.example.demo.security.SecurityUserItem
 import com.example.demo.user.entity.User
 import org.instancio.Instancio
@@ -50,7 +52,7 @@ class AuthControllerTests {
 	fun should_AssertSignInResponse_when_GivenSignInRequest() {
 		val signInRequest = Instancio.create(SignInRequest::class.java)
 
-		whenever(authService.signIn(any<SignInRequest>()))
+		whenever(authService.signIn(any<SignInCommand>()))
 			.thenReturn(SignInResponse.from(user, defaultAccessToken))
 
 		val response =
@@ -97,7 +99,7 @@ class AuthControllerTests {
 				RefreshAccessTokenRequest::class.java
 			)
 
-		whenever(authService.refreshAccessToken(any<RefreshAccessTokenRequest>()))
+		whenever(authService.refreshAccessToken(any<RefreshAccessTokenCommand>()))
 			.thenReturn(RefreshAccessTokenResponse.of(defaultAccessToken))
 
 		val response =

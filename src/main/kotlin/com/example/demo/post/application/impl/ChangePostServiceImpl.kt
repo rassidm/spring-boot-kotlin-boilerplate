@@ -2,10 +2,10 @@ package com.example.demo.post.application.impl
 
 import com.example.demo.post.application.ChangePostService
 import com.example.demo.post.application.PostService
-import com.example.demo.post.dto.serve.request.CreatePostRequest
-import com.example.demo.post.dto.serve.request.UpdatePostRequest
-import com.example.demo.post.dto.serve.response.CreatePostResponse
-import com.example.demo.post.dto.serve.response.UpdatePostResponse
+import com.example.demo.post.dto.command.CreatePostCommand
+import com.example.demo.post.dto.command.UpdatePostCommand
+import com.example.demo.post.dto.response.CreatePostResponse
+import com.example.demo.post.dto.response.UpdatePostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.post.repository.PostRepository
 import com.example.demo.user.application.UserService
@@ -21,16 +21,16 @@ class ChangePostServiceImpl(
 ) : ChangePostService {
 	override fun createPost(
 		userId: Long,
-		createPostRequest: CreatePostRequest
+		command: CreatePostCommand
 	): CreatePostResponse {
 		val user = userService.validateReturnUser(userId)
 
 		val post =
 			postRepository.save(
 				Post(
-					title = createPostRequest.title,
-					subTitle = createPostRequest.subTitle,
-					content = createPostRequest.content,
+					title = command.title,
+					subTitle = command.subTitle,
+					content = command.content,
 					userId = user.id
 				)
 			)
@@ -40,15 +40,15 @@ class ChangePostServiceImpl(
 
 	override fun updatePost(
 		postId: Long,
-		updatePostRequest: UpdatePostRequest
+		command: UpdatePostCommand
 	): UpdatePostResponse {
 		val post: Post =
 			postService
 				.validateReturnPost(postId)
 				.update(
-					title = updatePostRequest.title,
-					subTitle = updatePostRequest.subTitle,
-					content = updatePostRequest.content
+					title = command.title,
+					subTitle = command.subTitle,
+					content = command.content
 				)
 
 		return post.let(UpdatePostResponse::from)

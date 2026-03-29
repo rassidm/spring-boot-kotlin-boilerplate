@@ -5,12 +5,14 @@ import com.example.demo.kotest.common.security.SecurityListenerFactory
 import com.example.demo.post.api.PostController
 import com.example.demo.post.application.ChangePostService
 import com.example.demo.post.application.GetPostService
-import com.example.demo.post.dto.serve.request.CreatePostRequest
-import com.example.demo.post.dto.serve.request.GetExcludeUsersPostsRequest
-import com.example.demo.post.dto.serve.request.UpdatePostRequest
-import com.example.demo.post.dto.serve.response.CreatePostResponse
-import com.example.demo.post.dto.serve.response.GetPostResponse
-import com.example.demo.post.dto.serve.response.UpdatePostResponse
+import com.example.demo.post.dto.command.CreatePostCommand
+import com.example.demo.post.dto.command.UpdatePostCommand
+import com.example.demo.post.dto.request.CreatePostRequest
+import com.example.demo.post.dto.request.GetExcludeUsersPostsRequest
+import com.example.demo.post.dto.request.UpdatePostRequest
+import com.example.demo.post.dto.response.CreatePostResponse
+import com.example.demo.post.dto.response.GetPostResponse
+import com.example.demo.post.dto.response.UpdatePostResponse
 import com.example.demo.post.entity.Post
 import com.example.demo.post.exception.PostNotFoundException
 import com.ninjasquad.springmockk.MockkBean
@@ -97,13 +99,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 			When("Success GET /api/v1/posts") {
 
 				every { getPostService.getPostList(any<Pageable>()) } returns
-					PageImpl(
-						listOf(
-							GetPostResponse.from(post)
-						),
-						defaultPageable,
-						1
-					)
+					PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1)
 
 				Then("Call GET /api/v1/posts") {
 					mockMvc
@@ -127,11 +123,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 			When("Empty GET /api/v1/posts") {
 
 				every { getPostService.getPostList(any<Pageable>()) } returns
-					PageImpl(
-						listOf(),
-						defaultPageable,
-						0
-					)
+					PageImpl(listOf(), defaultPageable, 0)
 
 				Then("Call GET /api/v1/posts") {
 					mockMvc
@@ -151,23 +143,12 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 
 		Given("GET /api/v1/posts/exclude-users") {
 			val getExcludeUsersPostsRequest: GetExcludeUsersPostsRequest =
-				Instancio.create(
-					GetExcludeUsersPostsRequest::class.java
-				)
+				Instancio.create(GetExcludeUsersPostsRequest::class.java)
 
 			When("Success GET /api/v1/posts/exclude-users") {
 
-				every {
-					getPostService.getExcludeUsersPostList(
-						any<List<Long>>(),
-						any<Pageable>()
-					)
-				} returns
-					PageImpl(
-						listOf(GetPostResponse.from(post)),
-						defaultPageable,
-						1
-					)
+				every { getPostService.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()) } returns
+					PageImpl(listOf(GetPostResponse.from(post)), defaultPageable, 1)
 
 				Then("Call GET /api/v1/posts/exclude-users") {
 					mockMvc
@@ -175,12 +156,8 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 							MockMvcRequestBuilders
 								.get("/api/v1/posts/exclude-users")
 								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.param(
-									"userIds",
-									objectMapper.writeValueAsString(
-										getExcludeUsersPostsRequest.userIds[0]
-									)
-								).contentType(MediaType.APPLICATION_JSON)
+								.param("userIds", objectMapper.writeValueAsString(getExcludeUsersPostsRequest.userIds[0]))
+								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isOk)
 						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
@@ -189,25 +166,14 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].title").value(post.title))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].subTitle").value(post.subTitle))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].content").value(post.content))
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId)
-						)
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content[0].userId").value(post.userId))
 				}
 			}
 
 			When("Empty GET /api/v1/posts/exclude-users") {
 
-				every {
-					getPostService.getExcludeUsersPostList(
-						any<List<Long>>(),
-						any<Pageable>()
-					)
-				} returns
-					PageImpl(
-						listOf(),
-						defaultPageable,
-						0
-					)
+				every { getPostService.getExcludeUsersPostList(any<List<Long>>(), any<Pageable>()) } returns
+					PageImpl(listOf(), defaultPageable, 0)
 
 				Then("Call GET /api/v1/posts/exclude-users") {
 					mockMvc
@@ -215,12 +181,8 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 							MockMvcRequestBuilders
 								.get("/api/v1/posts/exclude-users")
 								.with(SecurityMockMvcRequestPostProcessors.csrf())
-								.param(
-									"userIds",
-									objectMapper.writeValueAsString(
-										getExcludeUsersPostsRequest.userIds[0]
-									)
-								).contentType(MediaType.APPLICATION_JSON)
+								.param("userIds", objectMapper.writeValueAsString(getExcludeUsersPostsRequest.userIds[0]))
+								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isOk)
 						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(commonStatus))
@@ -231,19 +193,11 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		}
 
 		Given("PUT /api/v1/posts") {
-			val createPostRequest: CreatePostRequest =
-				Instancio.create(
-					CreatePostRequest::class.java
-				)
+			val createPostRequest: CreatePostRequest = Instancio.create(CreatePostRequest::class.java)
 
 			When("Success PUT /api/v1/posts") {
 
-				every {
-					changePostService.createPost(
-						any<Long>(),
-						any<CreatePostRequest>()
-					)
-				} returns CreatePostResponse.from(post)
+				every { changePostService.createPost(any<Long>(), any<CreatePostCommand>()) } returns CreatePostResponse.from(post)
 
 				Then("Call PUT /api/v1/posts") {
 					mockMvc
@@ -261,18 +215,12 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value(post.title))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
-						)
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId))
 				}
 			}
 
 			When("Field Valid Exception PUT /api/v1/posts") {
-				val wrongCreatePostRequest =
-					createPostRequest.copy(
-						title = "",
-						subTitle = ""
-					)
+				val wrongCreatePostRequest = createPostRequest.copy(title = "", subTitle = "")
 
 				Then("Call PUT /api/v1/posts") {
 					mockMvc
@@ -284,10 +232,7 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isBadRequest)
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value())
-						)
-						// title:field title is blank, subTitle:field subTitle is blank,
+						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value()))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
 						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
 				}
@@ -295,19 +240,11 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		}
 
 		Given("PATCH /api/v1/posts/{postId}") {
-			val updatePostRequest: UpdatePostRequest =
-				Instancio.create(
-					UpdatePostRequest::class.java
-				)
+			val updatePostRequest: UpdatePostRequest = Instancio.create(UpdatePostRequest::class.java)
 
 			When("Success PATCH /api/v1/posts/{postId}") {
 
-				every {
-					changePostService.updatePost(
-						any<Long>(),
-						any<UpdatePostRequest>()
-					)
-				} returns UpdatePostResponse.from(post)
+				every { changePostService.updatePost(any<Long>(), any<UpdatePostCommand>()) } returns UpdatePostResponse.from(post)
 
 				Then("Call PATCH /api/v1/posts/{postId}") {
 					mockMvc
@@ -325,18 +262,12 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value(post.title))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.subTitle").value(post.subTitle))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.data.content").value(post.content))
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId)
-						)
+						.andExpect(MockMvcResultMatchers.jsonPath("$.data.userId").value(post.userId))
 				}
 			}
 
 			When("Field Valid Exception PATCH /api/v1/posts/{postId}") {
-				val wrongUpdatePostRequest =
-					updatePostRequest.copy(
-						title = "",
-						subTitle = ""
-					)
+				val wrongUpdatePostRequest = updatePostRequest.copy(title = "", subTitle = "")
 
 				Then("Call PATCH /api/v1/posts/{postId}") {
 					mockMvc
@@ -348,21 +279,16 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isBadRequest)
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value())
-						) // subTitle:field subTitle is blank, title:field title is blank,
+						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value()))
 						.andExpect(MockMvcResultMatchers.jsonPath("$.message").isString)
 						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
 				}
 			}
 
 			When("Not Found Exception PATCH /api/v1/posts/{postId}") {
-				val postNotFoundException =
-					PostNotFoundException(
-						post.id
-					)
+				val postNotFoundException = PostNotFoundException(post.id)
 
-				every { changePostService.updatePost(any<Long>(), any<UpdatePostRequest>()) } throws postNotFoundException
+				every { changePostService.updatePost(any<Long>(), any<UpdatePostCommand>()) } throws postNotFoundException
 
 				Then("Call PATCH /api/v1/posts/{postId}") {
 					mockMvc
@@ -375,9 +301,8 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isNotFound)
 						.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
-						.andExpect(
-							MockMvcResultMatchers.jsonPath("$.message").value(postNotFoundException.message)
-						).andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
+						.andExpect(MockMvcResultMatchers.jsonPath("$.message").value(postNotFoundException.message))
+						.andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty)
 				}
 			}
 		}
@@ -406,13 +331,14 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 		Given("Spring Security Context is not set.") {
 
 			When("UnAuthorized Exception GET /api/v1/posts/{postId}") {
-
 				Then("Call GET /api/v1/posts/{postId}").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/posts/{postId}", post.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/posts/{postId}",
+									post.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
@@ -420,13 +346,13 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 			}
 
 			When("UnAuthorized Exception GET /api/v1/posts") {
-
 				Then("Call GET /api/v1/posts").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/posts")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/posts"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
@@ -434,13 +360,13 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 			}
 
 			When("UnAuthorized Exception GET /api/v1/posts/exclude-users") {
-
 				Then("Call GET /api/v1/posts/exclude-users").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.get("/api/v1/posts/exclude-users")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.get(
+									"/api/v1/posts/exclude-users"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
@@ -448,13 +374,13 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 			}
 
 			When("UnAuthorized Exception PUT /api/v1/posts") {
-
 				Then("Call PUT /api/v1/posts").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.put("/api/v1/posts")
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.put(
+									"/api/v1/posts"
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
@@ -462,13 +388,14 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 			}
 
 			When("UnAuthorized Exception PATCH /api/v1/posts/{postId}") {
-
 				Then("Call PATCH /api/v1/posts/{postId}").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.patch("/api/v1/posts/{postId}", post.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.patch(
+									"/api/v1/posts/{postId}",
+									post.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)
@@ -476,13 +403,14 @@ class PostIntegrationControllerTests : BaseIntegrationController() {
 			}
 
 			When("UnAuthorized Exception DELETE /api/v1/posts/{postId}") {
-
 				Then("Call DELETE /api/v1/posts/{postId}").config(tags = setOf(SecurityListenerFactory.NonSecurityOption)) {
 					mockMvc
 						.perform(
 							MockMvcRequestBuilders
-								.delete("/api/v1/posts/{postId}", post.id)
-								.with(SecurityMockMvcRequestPostProcessors.csrf())
+								.delete(
+									"/api/v1/posts/{postId}",
+									post.id
+								).with(SecurityMockMvcRequestPostProcessors.csrf())
 								.contentType(MediaType.APPLICATION_JSON)
 								.accept(MediaType.APPLICATION_JSON)
 						).andExpect(MockMvcResultMatchers.status().isUnauthorized)

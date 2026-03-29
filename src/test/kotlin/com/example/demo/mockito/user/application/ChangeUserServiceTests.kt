@@ -5,8 +5,8 @@ import com.example.demo.security.component.provider.TokenProvider
 import com.example.demo.user.application.impl.ChangeUserServiceImpl
 import com.example.demo.user.application.impl.UserServiceImpl
 import com.example.demo.user.constant.UserRole
-import com.example.demo.user.dto.serve.request.CreateUserRequest
-import com.example.demo.user.dto.serve.request.UpdateUserRequest
+import com.example.demo.user.dto.command.CreateUserCommand
+import com.example.demo.user.dto.command.UpdateUserCommand
 import com.example.demo.user.entity.User
 import com.example.demo.user.exception.AlreadyUserExistException
 import com.example.demo.user.exception.UserNotFoundException
@@ -93,9 +93,9 @@ class ChangeUserServiceTests {
 	@Nested
 	@DisplayName("Update User Test")
 	inner class UpdateTest {
-		private val updateUserRequest: UpdateUserRequest =
+		private val updateUserCommand: UpdateUserCommand =
 			Instancio
-				.create(UpdateUserRequest::class.java)
+				.create(UpdateUserCommand::class.java)
 				.copy(role = UserRole.USER.name)
 
 		@Test
@@ -107,7 +107,7 @@ class ChangeUserServiceTests {
 			val updateUserResponse =
 				changeUserServiceImpl.updateUser(
 					userId,
-					updateUserRequest
+					updateUserCommand
 				)
 
 			assertNotNull(updateUserResponse)
@@ -125,7 +125,7 @@ class ChangeUserServiceTests {
 			whenever(userServiceImpl.validateReturnUser(userId)) doThrow UserNotFoundException(userId)
 
 			assertThrows<UserNotFoundException> {
-				changeUserServiceImpl.updateUser(userId, updateUserRequest)
+				changeUserServiceImpl.updateUser(userId, updateUserCommand)
 			}
 
 			verify(userServiceImpl).validateReturnUser(userId)
@@ -135,26 +135,26 @@ class ChangeUserServiceTests {
 	@Nested
 	@DisplayName("Create User Test")
 	inner class RegisterTest {
-		private val createUserRequest: CreateUserRequest =
-			Instancio.create(CreateUserRequest::class.java)
+		private val createUserCommand: CreateUserCommand =
+			Instancio.create(CreateUserCommand::class.java)
 
 		@Test
 		@DisplayName("Success create user")
 		fun `should return created user response when creation successful`() {
-			whenever(userRepository.existsByEmail(createUserRequest.email)) doReturn false
-			whenever(bCryptPasswordEncoder.encode(createUserRequest.password)) doReturn defaultUserEncodePassword
+			whenever(userRepository.existsByEmail(createUserCommand.email)) doReturn false
+			whenever(bCryptPasswordEncoder.encode(createUserCommand.password)) doReturn defaultUserEncodePassword
 			whenever(userRepository.save(any<User>())) doReturn user
 			whenever(tokenProvider.createFullTokens(user)) doReturn defaultAccessToken
 
-			val createUserResponse = changeUserServiceImpl.createUser(createUserRequest)
+			val createUserResponse = changeUserServiceImpl.createUser(createUserCommand)
 
 			assertNotNull(createUserResponse)
 			assertEquals(user.email, createUserResponse.email)
 			assertEquals(user.name, createUserResponse.name)
 
 			inOrder(userRepository, bCryptPasswordEncoder, tokenProvider) {
-				verify(userRepository).existsByEmail(createUserRequest.email)
-				verify(bCryptPasswordEncoder).encode(createUserRequest.password)
+				verify(userRepository).existsByEmail(createUserCommand.email)
+				verify(bCryptPasswordEncoder).encode(createUserCommand.password)
 				verify(userRepository).save(any())
 				verify(tokenProvider).createFullTokens(user)
 			}
@@ -163,13 +163,13 @@ class ChangeUserServiceTests {
 		@Test
 		@DisplayName("Already user exist")
 		fun `should throw AlreadyUserExistException when email already exists`() {
-			whenever(userRepository.existsByEmail(createUserRequest.email)) doReturn true
+			whenever(userRepository.existsByEmail(createUserCommand.email)) doReturn true
 
 			assertThrows<AlreadyUserExistException> {
-				changeUserServiceImpl.createUser(createUserRequest)
+				changeUserServiceImpl.createUser(createUserCommand)
 			}
 
-			verify(userRepository).existsByEmail(createUserRequest.email)
+			verify(userRepository).existsByEmail(createUserCommand.email)
 			verifyNoInteractions(bCryptPasswordEncoder, tokenProvider)
 			verifyNoMoreInteractions(userRepository)
 		}

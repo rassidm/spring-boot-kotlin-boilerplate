@@ -1,6 +1,6 @@
 package com.example.demo.post.repository
 
-import com.example.demo.post.dto.serve.response.GetPostResponse
+import com.example.demo.post.dto.response.GetPostResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
